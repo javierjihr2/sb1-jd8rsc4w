@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { recentChats } from "@/lib/data"
-import { Search, Send, Paperclip } from "lucide-react"
+import { Search, Send, Mic, Phone, Video, Settings } from "lucide-react"
 
 export default function ChatsPage() {
   const selectedChat = recentChats[0]; // Placeholder for selected chat logic
@@ -48,8 +48,19 @@ export default function ChatsPage() {
                 <AvatarImage src={selectedChat.avatarUrl} alt={selectedChat.name} data-ai-hint="gaming character"/>
                 <AvatarFallback>{selectedChat.name.substring(0,2)}</AvatarFallback>
               </Avatar>
-              <div>
+              <div className="flex-1">
                 <CardTitle>{selectedChat.name}</CardTitle>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="icon">
+                  <Video className="h-5 w-5"/>
+                </Button>
+                 <Button variant="ghost" size="icon">
+                  <Phone className="h-5 w-5"/>
+                </Button>
+                 <Button variant="ghost" size="icon">
+                  <Settings className="h-5 w-5"/>
+                </Button>
               </div>
             </CardHeader>
             <CardContent className="flex-1 p-4 space-y-4 overflow-y-auto bg-background">
@@ -71,12 +82,12 @@ export default function ChatsPage() {
               </div>
             </CardContent>
             <div className="p-4 border-t bg-card flex items-center gap-2">
-              <Button size="icon" variant="ghost">
-                <Paperclip className="h-5 w-5" />
-              </Button>
               <Input placeholder="Escribe un mensaje..." className="flex-1 bg-background" />
               <Button size="icon">
                 <Send className="h-5 w-5" />
+              </Button>
+               <Button size="icon" variant="outline">
+                <Mic className="h-5 w-5" />
               </Button>
             </div>
           </>
