@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { getStrategy } from "@/ai/flows/strategyFlow";
-import type { Strategy, StrategyInput } from "@/ai/flows/strategyFlow";
+import type { Strategy, StrategyInput } from "@/ai/schemas";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Loader2, Sparkles, Map, MapPin, Gamepad2, Shield, Users, Trophy, Lightbulb, Terminal } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";

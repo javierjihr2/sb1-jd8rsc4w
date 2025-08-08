@@ -8,40 +8,7 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'zod';
-
-export const StrategyInputSchema = z.object({
-  map: z.string().describe('The game map (e.g., Erangel, Miramar).'),
-  playStyle: z.string().describe('The desired team play style (e.g., Aggressive, Passive, Balanced).'),
-  squadSize: z.number().describe('The number of players in the squad (1-4).'),
-});
-export type StrategyInput = z.infer<typeof StrategyInputSchema>;
-
-export const StrategySchema = z.object({
-  strategyTitle: z.string().describe('A creative and descriptive title for the strategy.'),
-  dropZone: z.object({
-      name: z.string().describe('The name of the recommended drop zone.'),
-      reason: z.string().describe('A brief reason why this drop zone is recommended for the strategy.'),
-  }),
-  earlyGame: z.object({
-      title: z.string().describe('Title for the early game phase strategy.'),
-      plan: z.string().describe('The detailed plan for the early game, including looting priorities and initial positioning.'),
-  }),
-  midGame: z.object({
-      title: z.string().describe('Title for the mid-game phase strategy.'),
-      plan: z.string().describe('The detailed plan for the mid-game, focusing on rotations, positioning, and when to engage.'),
-  }),
-  lateGame: z.object({
-      title: z.string().describe('Title for the late-game phase strategy.'),
-      plan: z.string().describe('The detailed plan for the late game, including final circle strategy and identifying key positions.'),
-  }),
-  tips: z.array(z.object({
-      title: z.string().describe('A title for the tip.'),
-      description: z.string().describe('A specific, actionable tip related to the overall strategy.'),
-  })).describe('An array of 2-3 essential tips for executing the strategy successfully.'),
-});
-
-export type Strategy = z.infer<typeof StrategySchema>;
+import { StrategyInputSchema, StrategySchema, type Strategy, type StrategyInput } from '../schemas';
 
 export async function getStrategy(input: StrategyInput): Promise<Strategy> {
   return strategyFlow(input);

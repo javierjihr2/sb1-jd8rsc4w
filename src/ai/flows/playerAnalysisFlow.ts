@@ -8,28 +8,7 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'zod';
-
-export const PlayerAnalysisInputSchema = z.object({
-  wins: z.number().describe('The number of wins the player has.'),
-  kills: z.number().describe('The number of kills the player has.'),
-  kdRatio: z.number().describe('The kill/death ratio of the player.'),
-  rank: z.string().describe('The competitive rank of the player.'),
-});
-export type PlayerAnalysisInput = z.infer<typeof PlayerAnalysisInputSchema>;
-
-export const PlayerAnalysisSchema = z.object({
-  playStyle: z
-    .string()
-    .describe('A descriptive title for the main play style of the player.'),
-  strengths: z
-    .array(z.string())
-    .describe('An array of key strengths of the player.'),
-  improvementAreas: z
-    .array(z.string())
-    .describe('An array of key areas where the player can improve.'),
-});
-export type PlayerAnalysis = z.infer<typeof PlayerAnalysisSchema>;
+import { PlayerAnalysisInputSchema, PlayerAnalysisSchema, type PlayerAnalysis, type PlayerAnalysisInput } from '../schemas';
 
 export async function getPlayerAnalysis(
   input: PlayerAnalysisInput

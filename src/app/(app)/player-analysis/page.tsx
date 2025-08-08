@@ -8,7 +8,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { playerProfile } from "@/lib/data"
 import { BrainCircuit, Loader2, Sparkles, Terminal } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
-import type { PlayerAnalysis, PlayerAnalysisInput } from "@/ai/flows/playerAnalysisFlow"
+import type { PlayerAnalysis, PlayerAnalysisInput } from "@/ai/schemas"
 import { getPlayerAnalysis } from "@/ai/flows/playerAnalysisFlow"
 
 export default function PlayerAnalysisPage() {
