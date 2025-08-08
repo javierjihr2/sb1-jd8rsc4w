@@ -16,7 +16,8 @@ import {
   Newspaper,
   BrainCircuit,
   Target,
-  Wrench
+  Wrench,
+  DollarSign
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -55,6 +56,7 @@ export default function DashboardLayout({
     { href: "/player-analysis", label: "Análisis IA", icon: BrainCircuit },
     { href: "/strategies", label: "Estrategias", icon: Target },
     { href: "/loadouts", label: "Equipamiento", icon: Wrench },
+    { href: "/recharge", label: "Recargar UC", icon: DollarSign },
   ]
   
   if (playerProfile.isAdmin) {
