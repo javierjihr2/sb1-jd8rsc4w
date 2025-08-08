@@ -6,8 +6,18 @@ export const PlayerAnalysisInputSchema = z.object({
   kills: z.number().describe('El número de bajas que tiene el jugador.'),
   kdRatio: z.number().describe('La relación bajas/muertes del jugador.'),
   rank: z.string().describe('El rango competitivo del jugador.'),
+  friends: z.array(z.object({
+    name: z.string(),
+    avatarUrl: z.string(),
+  })).describe('Una lista de amigos disponibles para elegir como compañero ideal.'),
 });
 export type PlayerAnalysisInput = z.infer<typeof PlayerAnalysisInputSchema>;
+
+const RecommendedFriendSchema = z.object({
+    name: z.string().describe("El nombre del amigo recomendado."),
+    avatarUrl: z.string().describe("La URL del avatar del amigo recomendado."),
+    reason: z.string().describe("Una razón coqueta y profesional de por qué este amigo es el compañero ideal."),
+});
 
 export const PlayerAnalysisSchema = z.object({
   playStyle: z
@@ -19,6 +29,7 @@ export const PlayerAnalysisSchema = z.object({
   improvementAreas: z
     .array(z.string())
     .describe('Un array de las áreas clave donde el jugador puede mejorar.'),
+  recommendedFriend: z.optional(RecommendedFriendSchema).describe("El compañero de equipo recomendado para formar un 'Dúo Dinámico'."),
 });
 export type PlayerAnalysis = z.infer<typeof PlayerAnalysisSchema>;
 
