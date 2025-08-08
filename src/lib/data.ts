@@ -12,6 +12,7 @@ export const playerProfile: PlayerProfile = {
     kills: 2345,
     kdRatio: 4.8,
   },
+  isAdmin: true,
 };
 
 export const tournaments: Tournament[] = [

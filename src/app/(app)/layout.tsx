@@ -11,7 +11,8 @@ import {
   Search,
   Swords,
   Users2,
-  HelpCircle
+  HelpCircle,
+  ShieldCheck
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -32,7 +33,7 @@ import { UserNav } from "@/components/user-nav"
 import { Icons } from "@/components/icons"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
-import { recentChats } from "@/lib/data"
+import { recentChats, playerProfile } from "@/lib/data"
 
 export default function DashboardLayout({
   children,
@@ -47,6 +48,11 @@ export default function DashboardLayout({
     { href: "/chats", label: "Chats", icon: MessageSquare, badge: recentChats.filter(c => c.unread).length },
     { href: "/friends", label: "Amigos", icon: Users2 },
   ];
+  
+  if (playerProfile.isAdmin) {
+    navItems.push({ href: "/admin", label: "Admin", icon: ShieldCheck });
+  }
+
 
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">

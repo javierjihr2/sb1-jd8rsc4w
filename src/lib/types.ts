@@ -10,6 +10,7 @@ export type PlayerProfile = {
     kills: number;
     kdRatio: number;
   };
+  isAdmin?: boolean;
 };
 
 export type Tournament = {

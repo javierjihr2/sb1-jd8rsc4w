@@ -50,10 +50,14 @@ export function UserNav() {
             <Settings className="mr-2 h-4 w-4" />
             <span>Ajustes</span>
           </DropdownMenuItem>
-          <DropdownMenuItem>
-            <ShieldCheck className="mr-2 h-4 w-4" />
-            <span>Panel de Admin</span>
-          </DropdownMenuItem>
+          {playerProfile.isAdmin && (
+            <DropdownMenuItem asChild>
+              <Link href="/admin">
+                <ShieldCheck className="mr-2 h-4 w-4" />
+                <span>Panel de Admin</span>
+              </Link>
+            </DropdownMenuItem>
+          )}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>

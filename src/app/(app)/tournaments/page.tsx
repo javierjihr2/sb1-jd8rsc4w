@@ -16,7 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { tournaments } from "@/lib/data"
+import { tournaments, playerProfile } from "@/lib/data"
 import { PlusCircle, Filter } from "lucide-react"
 
 export default function TournamentsPage() {
@@ -32,10 +32,12 @@ export default function TournamentsPage() {
                 <Filter className="mr-2 h-4 w-4" />
                 Filtrar
             </Button>
-            <Button>
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Crear Torneo
-            </Button>
+            {playerProfile.isAdmin && (
+              <Button>
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Crear Torneo
+              </Button>
+            )}
         </div>
       </div>
 
