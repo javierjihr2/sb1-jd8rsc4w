@@ -48,21 +48,20 @@ export default function DashboardLayout({
   const pathname = usePathname();
 
   const navItems = [
-    { href: "/dashboard", label: "Dashboard", icon: Home },
-    { href: "/tournaments", label: "Torneos", icon: Swords },
+    { href: "/dashboard", label: "Dashboard", icon: Home, badge: 0 },
+    { href: "/tournaments", label: "Torneos", icon: Swords, badge: 0 },
     { href: "/chats", label: "Chats", icon: MessageSquare, badge: recentChats.filter(c => c.unread).length },
-    { href: "/friends", label: "Amigos", icon: Users2 },
-    { href: "/news", label: "Noticias", icon: Newspaper },
-    { href: "/player-analysis", label: "Análisis IA", icon: BrainCircuit },
-    { href: "/strategies", label: "Estrategias", icon: Target },
-    { href: "/loadouts", label: "Equipamiento", icon: Wrench },
-    { href: "/recharge", label: "Recargar UC", icon: DollarSign },
+    { href: "/friends", label: "Amigos", icon: Users2, badge: 0 },
+    { href: "/news", label: "Noticias", icon: Newspaper, badge: 0 },
+    { href: "/player-analysis", label: "Análisis IA", icon: BrainCircuit, badge: 0 },
+    { href: "/strategies", label: "Estrategias", icon: Target, badge: 0 },
+    { href: "/loadouts", label: "Equipamiento", icon: Wrench, badge: 0 },
+    { href: "/recharge", label: "Recargar UC", icon: DollarSign, badge: 0 },
   ]
   
   if (playerProfile.isAdmin) {
-    navItems.push({ href: "/admin", label: "Admin", icon: ShieldCheck });
+    navItems.push({ href: "/admin", label: "Admin", icon: ShieldCheck, badge: 0 });
   }
-
 
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
@@ -91,7 +90,7 @@ export default function DashboardLayout({
                 >
                   <item.icon className="h-4 w-4" />
                   {item.label}
-                  {item.badge !== undefined && item.badge > 0 && (
+                  {item.badge > 0 && (
                      <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
                       {item.badge}
                     </Badge>
@@ -151,7 +150,7 @@ export default function DashboardLayout({
                   >
                     <item.icon className="h-5 w-5" />
                     {item.label}
-                    {item.badge !== undefined && item.badge > 0 && (
+                    {item.badge > 0 && (
                       <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
                         {item.badge}
                       </Badge>
@@ -207,7 +206,7 @@ export default function DashboardLayout({
               >
                 <div className="relative">
                   <item.icon className="h-6 w-6" />
-                  {item.badge !== undefined && item.badge > 0 && (
+                  {item.badge > 0 && (
                      <Badge className="absolute -top-2 -right-2 flex h-4 w-4 shrink-0 items-center justify-center rounded-full p-0 text-xs bg-primary text-primary-foreground">
                       {item.badge}
                     </Badge>
