@@ -60,6 +60,7 @@ export const SensitivityInputSchema = z.object({
     deviceBrand: z.string().optional().describe("La marca del dispositivo del jugador (ej. 'Samsung', 'Apple')."),
     deviceModel: z.string().optional().describe("El modelo del dispositivo del jugador (ej. 'Galaxy S23', 'iPhone 14 Pro')."),
     screenSize: z.number().describe("El tamaño de la pantalla en pulgadas."),
+    playStyle: z.string().describe("El estilo de juego preferido del jugador (ej. 'cercano', 'larga', 'versatil')."),
     gyroscope: z.string().describe("Si el jugador usa giroscopio ('si' o 'no')."),
 });
 export type SensitivityInput = z.infer<typeof SensitivityInputSchema>;

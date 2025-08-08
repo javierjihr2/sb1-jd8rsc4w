@@ -24,7 +24,7 @@ export default function SensitivityPage() {
     const { toast } = useToast();
 
     const handleGenerate = async () => {
-        if (!input.deviceType || !input.screenSize || !input.gyroscope) {
+        if (!input.deviceType || !input.screenSize || !input.gyroscope || !input.playStyle) {
             setError("Por favor, completa todos los campos para generar una configuración.");
             return;
         }
@@ -107,7 +107,7 @@ export default function SensitivityPage() {
                 <div className="lg:col-span-1">
                     <Card>
                         <CardHeader>
-                            <CardTitle>Configura tu Dispositivo</CardTitle>
+                            <CardTitle>Configura tu Perfil</CardTitle>
                             <CardDescription>Proporciona los detalles para una recomendación a medida.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6">
@@ -151,6 +151,20 @@ export default function SensitivityPage() {
                                     onChange={(e) => setInput(prev => ({ ...prev, screenSize: parseFloat(e.target.value) || undefined }))}
                                 />
                             </div>
+                             <div className="space-y-2">
+                                <Label htmlFor="playstyle">Estilo de Juego Preferido</Label>
+                                <Select onValueChange={(value) => setInput(prev => ({ ...prev, playStyle: value }))} value={input.playStyle}>
+                                    <SelectTrigger id="playstyle">
+                                        <SelectValue placeholder="Selecciona tu estilo" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="cercano">Combate Cercano</SelectItem>
+                                        <SelectItem value="media">Media Distancia</SelectItem>
+                                        <SelectItem value="larga">Larga Distancia (Francotirador)</SelectItem>
+                                        <SelectItem value="versatil">Versátil (Mixto)</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
                             <div className="space-y-2">
                                 <Label htmlFor="gyroscope">¿Usas Giroscopio?</Label>
                                 <Select onValueChange={(value) => setInput(prev => ({ ...prev, gyroscope: value }))} value={input.gyroscope}>
@@ -188,7 +202,7 @@ export default function SensitivityPage() {
                             </div>
                             <h2 className="text-2xl font-bold">Tu Configuración Perfecta te Espera</h2>
                             <p className="text-muted-foreground max-w-md">
-                            Usa el panel para configurar tu dispositivo y la IA creará una configuración de sensibilidad optimizada para dominar el campo de batalla.
+                            Usa el panel para configurar tu perfil y la IA creará una configuración de sensibilidad optimizada para dominar el campo de batalla.
                             </p>
                         </Card>
                     )}
@@ -197,11 +211,11 @@ export default function SensitivityPage() {
                         <Card className="animate-in fade-in-50">
                             <CardHeader>
                                 <CardTitle>Tu Configuración de Sensibilidad Personalizada</CardTitle>
-                                <CardDescription>
-                                    Estos valores están optimizados para un {lastUsedInput.deviceType}
+                                <CardDescription className="capitalize">
+                                    Valores optimizados para un {lastUsedInput.deviceType}
                                     {lastUsedInput.deviceBrand && ` ${lastUsedInput.deviceBrand}`}
                                     {lastUsedInput.deviceModel && ` ${lastUsedInput.deviceModel}`}
-                                    {` de ${lastUsedInput.screenSize}"`}
+                                    {` de ${lastUsedInput.screenSize}", un estilo de juego ${lastUsedInput.playStyle},`}
                                     {lastUsedInput.gyroscope === 'si' ? ' con' : ' sin'} giroscopio.
                                 </CardDescription>
                             </CardHeader>
