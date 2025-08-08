@@ -60,7 +60,7 @@ export default function DashboardLayout({
         <div className="flex h-full max-h-screen flex-col gap-2">
           <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
             <Link href="/" className="flex items-center gap-2 font-semibold text-primary">
-              <Icons.helmet className="h-6 w-6" />
+              <Icons.logo className="h-6 w-6" />
               <span className="">TeamUp: PUBG</span>
             </Link>
             <Button variant="ghost" size="icon" className="ml-auto h-8 w-8">
@@ -127,7 +127,7 @@ export default function DashboardLayout({
                   href="/"
                   className="flex items-center gap-2 text-lg font-semibold text-primary mb-4"
                 >
-                  <Icons.helmet className="h-6 w-6" />
+                  <Icons.logo className="h-6 w-6" />
                   <span>TeamUp</span>
                 </Link>
                 {navItems.map((item) => (

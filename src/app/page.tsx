@@ -10,7 +10,7 @@ export default function LandingPage() {
     <div className="flex flex-col min-h-screen bg-background">
       <header className="container mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 font-semibold text-primary">
-          <Icons.helmet className="h-8 w-8" />
+          <Icons.logo className="h-8 w-8" />
           <span className="text-xl font-bold">TeamUp: PUBG</span>
         </Link>
         <nav className="flex items-center gap-4">
