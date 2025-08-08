@@ -154,7 +154,7 @@ export default function StrategiesPage() {
                         <CardHeader>
                             <CardTitle className="text-3xl text-primary">{strategy.strategyTitle}</CardTitle>
                             <CardDescription className="flex items-center gap-4 pt-2">
-                                <span className="flex items-center gap-1"><MapPin className="h-4 w-4"/> {strategy.dropZone.name}</span>
+                                <span className="flex items-center gap-1"><MapPin className="h-4 w-4"/> {input.map}</span>
                                 <span className="flex items-center gap-1"><Gamepad2 className="h-4 w-4"/> {input.playStyle}</span>
                                 <span className="flex items-center gap-1"><Users className="h-4 w-4"/> {input.squadSize} Jugador(es)</span>
                             </CardDescription>
@@ -202,3 +202,5 @@ export default function StrategiesPage() {
         </div>
     );
 }
+
+    
