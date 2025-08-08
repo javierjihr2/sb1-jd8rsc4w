@@ -175,9 +175,32 @@ export default function DashboardLayout({
           </div>
           <UserNav />
         </header>
-        <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8 bg-muted/20">
+        <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8 bg-muted/20 pb-24 md:pb-8">
           {children}
         </main>
+        {/* Mobile Nav */}
+        <div className="md:hidden fixed bottom-0 left-0 right-0 bg-background border-t p-2 flex justify-around items-center">
+            {navItems.map((item) => (
+              <Link
+                key={item.label}
+                href={item.href}
+                className={cn(
+                  "flex flex-col items-center gap-1 p-2 rounded-lg transition-all text-muted-foreground",
+                  pathname.startsWith(item.href) ? "text-primary bg-primary/10" : ""
+                )}
+              >
+                <div className="relative">
+                  <item.icon className="h-6 w-6" />
+                  {item.badge !== undefined && item.badge > 0 && (
+                     <Badge className="absolute -top-2 -right-2 flex h-4 w-4 shrink-0 items-center justify-center rounded-full p-0 text-xs">
+                      {item.badge}
+                    </Badge>
+                  )}
+                </div>
+                <span className="text-xs">{item.label}</span>
+              </Link>
+            ))}
+        </div>
       </div>
     </div>
   );

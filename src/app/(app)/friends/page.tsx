@@ -27,13 +27,13 @@ const friendRequests: {id: string, name: string, avatarUrl: string}[] = [
 export default function FriendsPage() {
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold">Amigos</h1>
           <p className="text-muted-foreground">Gestiona tus conexiones y encuentra nuevos jugadores.</p>
         </div>
         <div className="flex gap-2">
-          <div className="relative">
+          <div className="relative flex-1 sm:flex-auto">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input placeholder="Buscar amigos..." className="pl-8" />
           </div>
@@ -45,7 +45,7 @@ export default function FriendsPage() {
       </div>
 
       <Tabs defaultValue="all">
-        <TabsList>
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="all">Todos los amigos</TabsTrigger>
           <TabsTrigger value="pending">Solicitudes pendientes <Badge className="ml-2">{friendRequests.length}</Badge></TabsTrigger>
         </TabsList>
