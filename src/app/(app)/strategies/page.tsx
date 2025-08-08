@@ -79,7 +79,7 @@ export default function StrategiesPage() {
                     <CardContent className="space-y-6">
                         <div className="space-y-2">
                             <Label htmlFor="map-select">Mapa</Label>
-                            <Select onValueChange={(value) => setInput(prev => ({ ...prev, map: value }))}>
+                            <Select onValueChange={(value) => setInput(prev => ({ ...prev, map: value }))} value={input.map}>
                                 <SelectTrigger id="map-select">
                                     <SelectValue placeholder="Selecciona un mapa" />
                                 </SelectTrigger>
@@ -94,7 +94,7 @@ export default function StrategiesPage() {
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="playstyle-select">Estilo de Juego</Label>
-                            <Select onValueChange={(value) => setInput(prev => ({ ...prev, playStyle: value }))}>
+                            <Select onValueChange={(value) => setInput(prev => ({ ...prev, playStyle: value }))} value={input.playStyle}>
                                 <SelectTrigger id="playstyle-select">
                                     <SelectValue placeholder="Selecciona un estilo" />
                                 </SelectTrigger>
@@ -107,7 +107,7 @@ export default function StrategiesPage() {
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="squad-select">Tamaño de Escuadra</Label>
-                             <Select defaultValue="4" onValueChange={(value) => setInput(prev => ({ ...prev, squadSize: parseInt(value) }))}>
+                             <Select onValueChange={(value) => setInput(prev => ({ ...prev, squadSize: parseInt(value) }))} value={input.squadSize?.toString()}>
                                 <SelectTrigger id="squad-select">
                                     <SelectValue placeholder="Selecciona el tamaño del equipo" />
                                 </SelectTrigger>
@@ -202,5 +202,3 @@ export default function StrategiesPage() {
         </div>
     );
 }
-
-    

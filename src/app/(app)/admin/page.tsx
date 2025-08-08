@@ -78,9 +78,9 @@ export default function AdminPage() {
                           <SelectValue placeholder="Selecciona un rol" />
                       </SelectTrigger>
                       <SelectContent>
-                          <SelectItem value="developer">Desarrollador</SelectItem>
-                          <SelectItem value="creator">Creador de Contenido</SelectItem>
-                          <SelectItem value="admin">Administrador</SelectItem>
+                          <SelectItem key="developer" value="developer">Desarrollador</SelectItem>
+                          <SelectItem key="creator" value="creator">Creador de Contenido</SelectItem>
+                          <SelectItem key="admin" value="admin">Administrador</SelectItem>
                       </SelectContent>
                   </Select>
               </div>
@@ -124,10 +124,10 @@ export default function AdminPage() {
                         <SelectValue placeholder="Selecciona una categoría" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="updates">Actualizaciones</SelectItem>
-                        <SelectItem value="events">Eventos</SelectItem>
-                        <SelectItem value="esports">eSports</SelectItem>
-                        <SelectItem value="guides">Guías</SelectItem>
+                        <SelectItem key="updates" value="updates">Actualizaciones</SelectItem>
+                        <SelectItem key="events" value="events">Eventos</SelectItem>
+                        <SelectItem key="esports" value="esports">eSports</SelectItem>
+                        <SelectItem key="guides" value="guides">Guías</SelectItem>
                     </SelectContent>
                 </Select>
             </div>
@@ -143,5 +143,3 @@ export default function AdminPage() {
     </div>
   )
 }
-
-    
