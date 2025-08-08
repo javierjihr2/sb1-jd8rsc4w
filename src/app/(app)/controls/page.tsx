@@ -9,26 +9,28 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { getControls } from "@/ai/flows/controlsFlow";
 import type { Controls, ControlsInput } from "@/ai/schemas";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Loader2, Sparkles, Gamepad2, ThumbsUp, ThumbsDown, CheckCircle, Brain, Terminal } from "lucide-react";
+import { Loader2, Sparkles, Gamepad2, ThumbsUp, ThumbsDown, CheckCircle, Brain, Terminal, Smartphone } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Label } from "@/components/ui/label";
 
 export default function ControlsPage() {
-    const [fingerCount, setFingerCount] = useState<number | null>(null);
+    const [input, setInput] = useState<Partial<ControlsInput>>({});
     const [controls, setControls] = useState<Controls | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [lastUsedInput, setLastUsedInput] = useState<Partial<ControlsInput> | null>(null);
 
     const handleGenerate = async () => {
-        if (!fingerCount) {
-            setError("Por favor, selecciona el número de dedos.");
+        if (!input.fingerCount || !input.deviceType) {
+            setError("Por favor, selecciona todos los campos.");
             return;
         }
         setIsLoading(true);
         setError(null);
         setControls(null);
+        setLastUsedInput(input);
         try {
-            const input: ControlsInput = { fingerCount };
-            const result = await getControls(input);
+            const result = await getControls(input as ControlsInput);
             setControls(result);
         } catch (e: any) {
             setError("Hubo un error al contactar a la IA. Por favor, inténtalo de nuevo.");
@@ -42,6 +44,7 @@ export default function ControlsPage() {
         <Card>
             <CardHeader>
                 <Skeleton className="h-8 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
             </CardHeader>
             <CardContent className="grid lg:grid-cols-2 gap-8">
                 <div className="space-y-6">
@@ -74,7 +77,7 @@ export default function ControlsPage() {
         <div className="space-y-8">
             <div>
                 <h1 className="text-3xl font-bold flex items-center gap-2"><Gamepad2 className="w-8 h-8 text-primary"/> Generador de Controles IA</h1>
-                <p className="text-muted-foreground">Encuentra el layout (HUD) perfecto para tu estilo de juego.</p>
+                <p className="text-muted-foreground">Encuentra el layout (HUD) perfecto para tu estilo de juego y dispositivo.</p>
             </div>
 
             <Card>
@@ -82,22 +85,39 @@ export default function ControlsPage() {
                     <CardTitle>Define tu Estilo</CardTitle>
                     <CardDescription>Dinos cómo juegas y la IA creará una recomendación de controles para ti.</CardDescription>
                 </CardHeader>
-                <CardContent className="flex flex-col sm:flex-row items-center gap-4">
-                     <Select onValueChange={(value) => setFingerCount(parseInt(value))} value={fingerCount?.toString()}>
-                        <SelectTrigger className="w-full sm:w-[280px]">
-                            <SelectValue placeholder="Selecciona el número de dedos" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="2">2 Dedos (Pulgares)</SelectItem>
-                            <SelectItem value="3">3 Dedos (Garra)</SelectItem>
-                            <SelectItem value="4">4 Dedos (Garra)</SelectItem>
-                            <SelectItem value="5">5+ Dedos (Garra Avanzada)</SelectItem>
-                        </SelectContent>
-                    </Select>
-                    <Button onClick={handleGenerate} disabled={isLoading} className="w-full sm:w-auto">
-                        {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
-                        {isLoading ? "Analizando..." : "Generar Controles"}
-                    </Button>
+                <CardContent className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 items-start">
+                    <div className="space-y-2">
+                        <Label htmlFor="device-type">Tipo de Dispositivo</Label>
+                         <Select onValueChange={(value) => setInput(prev => ({...prev, deviceType: value}))} value={input.deviceType}>
+                            <SelectTrigger id="device-type">
+                                <SelectValue placeholder="Selecciona un dispositivo" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="Telefono">Teléfono</SelectItem>
+                                <SelectItem value="Tablet">Tablet</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="finger-count">Número de Dedos</Label>
+                        <Select onValueChange={(value) => setInput(prev => ({...prev, fingerCount: parseInt(value)}))} value={input.fingerCount?.toString()}>
+                            <SelectTrigger id="finger-count">
+                                <SelectValue placeholder="Selecciona el número de dedos" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="2">2 Dedos (Pulgares)</SelectItem>
+                                <SelectItem value="3">3 Dedos (Garra)</SelectItem>
+                                <SelectItem value="4">4 Dedos (Garra)</SelectItem>
+                                <SelectItem value="5">5+ Dedos (Garra Avanzada)</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="space-y-2 pt-6">
+                        <Button onClick={handleGenerate} disabled={isLoading} className="w-full">
+                            {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                            {isLoading ? "Analizando..." : "Generar Controles"}
+                        </Button>
+                    </div>
                 </CardContent>
             </Card>
 
@@ -118,16 +138,16 @@ export default function ControlsPage() {
                     </div>
                     <h2 className="text-2xl font-bold">Tu Layout de Controles Ideal te Espera</h2>
                     <p className="text-muted-foreground max-w-md">
-                       Selecciona con cuántos dedos juegas y la IA diseñará un esquema de botones optimizado para mejorar tu velocidad y precisión.
+                       Selecciona tu tipo de dispositivo y con cuántos dedos juegas. La IA diseñará un esquema de botones optimizado para mejorar tu velocidad y precisión.
                     </p>
                 </Card>
             )}
 
-            {controls && !isLoading && (
+            {controls && !isLoading && lastUsedInput && (
                 <Card className="animate-in fade-in-50">
                     <CardHeader>
                         <CardTitle className="text-2xl text-primary">{controls.layoutName}</CardTitle>
-                        <CardDescription>Una configuración para {fingerCount} dedos optimizada para el máximo rendimiento.</CardDescription>
+                        <CardDescription>Una configuración para {lastUsedInput.fingerCount} dedos en un {lastUsedInput.deviceType}, optimizada para el máximo rendimiento.</CardDescription>
                     </CardHeader>
                     <CardContent className="grid lg:grid-cols-2 gap-8">
                         <div className="space-y-6">
@@ -174,3 +194,5 @@ export default function ControlsPage() {
         </div>
     );
 }
+
+    

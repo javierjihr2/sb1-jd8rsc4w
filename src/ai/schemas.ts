@@ -86,6 +86,7 @@ export type Sensitivity = z.infer<typeof SensitivitySchema>;
 
 
 export const ControlsInputSchema = z.object({
+  deviceType: z.string().describe("El tipo de dispositivo del jugador (ej. 'Teléfono' o 'Tablet')."),
   fingerCount: z.number().describe("El número de dedos que el jugador usa para jugar (2, 3, 4, o 5)."),
 });
 export type ControlsInput = z.infer<typeof ControlsInputSchema>;
@@ -107,3 +108,5 @@ export const ControlsSchema = z.object({
   })).describe("Un array de 2 consejos para dominar la configuración."),
 });
 export type Controls = z.infer<typeof ControlsSchema>;
+
+    
