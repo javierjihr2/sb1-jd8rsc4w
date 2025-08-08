@@ -49,7 +49,7 @@ export default function PlayerAnalysisPage() {
                 <CardHeader>
                     <CardTitle>Tu Perfil de Jugador</CardTitle>
                     <CardDescription>
-                        Basado en tus estadísticas de la temporada actual: {playerProfile.stats.wins} victorias, {playerProfile.stats.kills} kills, y un K/D Ratio de {playerProfile.stats.kdRatio}.
+                        Basado en tus estadísticas de la temporada actual: {playerProfile.stats.wins} victorias, {playerProfile.stats.kills} bajas, y un Ratio K/D de {playerProfile.stats.kdRatio}.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>

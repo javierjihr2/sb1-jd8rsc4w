@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A player analysis AI agent.
@@ -20,18 +21,18 @@ const prompt = ai.definePrompt({
   name: 'playerAnalysisPrompt',
   input: {schema: PlayerAnalysisInputSchema},
   output: {schema: PlayerAnalysisSchema},
-  prompt: `You are an expert analyst for the mobile game PUBG Mobile.
-Your task is to analyze a player's statistics and provide a concise, expert analysis of their profile.
-Based on the provided stats, generate a summary of their play style, their key strengths, and areas for improvement.
-Keep the analysis positive and encouraging.
+  prompt: `Eres un analista experto en el juego para móviles PUBG Mobile.
+Tu tarea es analizar las estadísticas de un jugador y proporcionar un análisis conciso y experto de su perfil.
+Basándote en las estadísticas proporcionadas, genera un resumen de su estilo de juego, sus puntos fuertes clave y las áreas de mejora.
+Mantén un análisis positivo y alentador.
 
-Player Stats:
-- Wins: {{{wins}}}
-- Kills: {{{kills}}}
-- K/D Ratio: {{{kdRatio}}}
-- Rank: {{{rank}}}
+Estadísticas del Jugador:
+- Victorias: {{{wins}}}
+- Bajas: {{{kills}}}
+- Ratio K/D: {{{kdRatio}}}
+- Rango: {{{rank}}}
 
-Provide the analysis in the requested JSON format.`,
+Proporciona el análisis en el formato JSON solicitado.`,
 });
 
 const playerAnalysisFlow = ai.defineFlow(
@@ -43,7 +44,7 @@ const playerAnalysisFlow = ai.defineFlow(
   async (input) => {
     const {output} = await prompt(input);
     if (!output) {
-        throw new Error("The AI model did not return a valid analysis.");
+        throw new Error("El modelo de IA no devolvió un análisis válido.");
     }
     return output;
   }

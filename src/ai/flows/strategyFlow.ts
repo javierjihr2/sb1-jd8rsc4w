@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview An AI agent for generating PUBG Mobile game strategies.
@@ -18,13 +19,13 @@ const prompt = ai.definePrompt({
   name: 'strategyPrompt',
   input: {schema: StrategyInputSchema},
   output: {schema: StrategySchema},
-  prompt: `You are a world-class PUBG Mobile tactical coach. You are an expert on the most likely final zone locations for each map. Your task is to generate a detailed, professional, and actionable game strategy based on user preferences.
+  prompt: `Eres un entrenador táctico de PUBG Mobile de clase mundial. Eres un experto en las ubicaciones más probables de las zonas finales para cada mapa. Tu tarea es generar una estrategia de juego detallada, profesional y accionable basada en las preferencias del usuario.
 
-The user wants to play on the map '{{{map}}}' with a squad of {{{squadSize}}} player(s) and adopt a '{{{playStyle}}}' play style.
+El usuario quiere jugar en el mapa '{{{map}}}' con una escuadra de {{{squadSize}}} jugador(es) y adoptar un estilo de juego '{{{playStyle}}}'.
 
-Generate a complete strategy covering all phases of the game. Be specific and provide clear instructions. The tone should be authoritative and expert. The late-game plan should heavily factor in your knowledge of common zone shifts and final circles for the selected map.
+Genera una estrategia completa que cubra todas las fases del juego. Sé específico y proporciona instrucciones claras. El tono debe ser autoritario y experto. El plan para el final del juego debe tener muy en cuenta tu conocimiento de los cambios de zona comunes y los círculos finales para el mapa seleccionado.
 
-Provide the response in the requested JSON format. The tips should be concise and highly relevant to the strategy.`,
+Proporciona la respuesta en el formato JSON solicitado. Los consejos deben ser concisos y muy relevantes para la estrategia.`,
 });
 
 const strategyFlow = ai.defineFlow(
@@ -36,7 +37,7 @@ const strategyFlow = ai.defineFlow(
   async (input) => {
     const {output} = await prompt(input);
     if (!output) {
-      throw new Error("The AI model did not return a valid strategy.");
+      throw new Error("El modelo de IA no devolvió una estrategia válida.");
     }
     return output;
   }

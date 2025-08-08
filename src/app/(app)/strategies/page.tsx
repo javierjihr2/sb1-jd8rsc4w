@@ -154,7 +154,7 @@ export default function StrategiesPage() {
                     <Card className="animate-in fade-in-50">
                         <CardHeader>
                             <CardTitle className="text-3xl text-primary">{strategy.strategyTitle}</CardTitle>
-                            <CardDescription className="flex items-center gap-4 pt-2">
+                            <CardDescription className="flex items-center gap-4 pt-2 capitalize">
                                 <span className="flex items-center gap-1"><MapPin className="h-4 w-4"/> {input.map}</span>
                                 <span className="flex items-center gap-1"><Gamepad2 className="h-4 w-4"/> {input.playStyle}</span>
                                 <span className="flex items-center gap-1"><Users className="h-4 w-4"/> {input.squadSize} Jugador(es)</span>
