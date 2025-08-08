@@ -23,6 +23,7 @@ export const tournaments: Tournament[] = [
     prize: '$5,000',
     mode: 'Escuadra',
     status: 'Abierto',
+    region: 'N.A.',
   },
   {
     id: 't2',
@@ -31,6 +32,7 @@ export const tournaments: Tournament[] = [
     prize: '$2,500',
     mode: 'Dúo',
     status: 'Abierto',
+    region: 'S.A.',
   },
   {
     id: 't3',
@@ -39,6 +41,7 @@ export const tournaments: Tournament[] = [
     prize: '$1,000,000',
     mode: 'Escuadra',
     status: 'Próximamente',
+    region: 'N.A.',
   },
     {
     id: 't4',
@@ -47,6 +50,7 @@ export const tournaments: Tournament[] = [
     prize: '$500',
     mode: 'Solo',
     status: 'Cerrado',
+    region: 'S.A.',
   },
 ];
 

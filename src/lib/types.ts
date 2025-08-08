@@ -20,6 +20,7 @@ export type Tournament = {
   prize: string;
   mode: 'Solo' | 'Dúo' | 'Escuadra';
   status: 'Abierto' | 'Cerrado' | 'Próximamente';
+  region: 'N.A.' | 'S.A.';
 };
 
 export type Chat = {
