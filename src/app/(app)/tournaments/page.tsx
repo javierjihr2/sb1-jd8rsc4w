@@ -72,7 +72,7 @@ export default function TournamentsPage() {
                   <TableCell className="hidden md:table-cell">
                     <Badge variant={tournament.status === "Abierto" ? "secondary" : tournament.status === "Próximamente" ? "default" : "destructive"}>{tournament.status}</Badge>
                   </TableCell>
-                  <TableCell className="text-right text-accent font-bold hidden sm:table-cell">{tournament.prize}</TableCell>
+                  <TableCell className="text-right text-primary font-bold hidden sm:table-cell">{tournament.prize}</TableCell>
                   <TableCell className="text-right">
                     <Button size="sm" variant="outline" disabled={tournament.status !== 'Abierto'}>
                         Inscribirse

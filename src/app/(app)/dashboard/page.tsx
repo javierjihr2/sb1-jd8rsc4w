@@ -140,7 +140,7 @@ export default function DashboardPage() {
                     <TableCell className="hidden xl:table-column">
                       <Badge variant={tournament.status === "Abierto" ? "secondary" : tournament.status === "Próximamente" ? "default" : "destructive"}>{tournament.status}</Badge>
                     </TableCell>
-                    <TableCell className="text-right text-accent font-bold">{tournament.prize}</TableCell>
+                    <TableCell className="text-right text-primary font-bold">{tournament.prize}</TableCell>
                     <TableCell className="text-right"><Button size="sm" variant="outline">Inscribirse</Button></TableCell>
                   </TableRow>
                 ))}

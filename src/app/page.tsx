@@ -32,9 +32,9 @@ export default function LandingPage() {
             fill
             className="object-cover -z-10"
           />
-          <div className="absolute inset-0 bg-black/60 -z-10" />
+          <div className="absolute inset-0 bg-black/70 -z-10" />
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 className="text-4xl md:text-6xl font-headline font-extrabold tracking-tight leading-tight mb-4">
+            <h1 className="text-4xl md:text-6xl font-headline font-extrabold tracking-tight leading-tight mb-4 text-shadow-lg">
               Encuentra tu Escuadra Perfecta en PUBG Mobile
             </h1>
             <p className="text-lg md:text-xl text-primary-foreground/80 max-w-3xl mx-auto mb-8">
@@ -52,7 +52,7 @@ export default function LandingPage() {
               Funcionalidades Principales
             </h2>
             <div className="grid md:grid-cols-3 gap-8">
-              <div className="flex flex-col items-center text-center p-6 bg-card rounded-lg shadow-md border">
+              <div className="flex flex-col items-center text-center p-6 bg-card text-card-foreground rounded-lg shadow-lg border">
                 <div className="p-4 bg-primary/10 rounded-full mb-4">
                   <Swords className="h-8 w-8 text-primary" />
                 </div>
@@ -61,7 +61,7 @@ export default function LandingPage() {
                   Filtra por región, nivel y modo de juego para encontrar a los compañeros de equipo ideales para ti.
                 </p>
               </div>
-              <div className="flex flex-col items-center text-center p-6 bg-card rounded-lg shadow-md border">
+              <div className="flex flex-col items-center text-center p-6 bg-card text-card-foreground rounded-lg shadow-lg border">
                  <div className="p-4 bg-primary/10 rounded-full mb-4">
                   <Trophy className="h-8 w-8 text-primary" />
                 </div>
@@ -70,7 +70,7 @@ export default function LandingPage() {
                   Participa en torneos emocionantes, sigue los resultados en tiempo real y gana premios increíbles.
                 </p>
               </div>
-              <div className="flex flex-col items-center text-center p-6 bg-card rounded-lg shadow-md border">
+              <div className="flex flex-col items-center text-center p-6 bg-card text-card-foreground rounded-lg shadow-lg border">
                  <div className="p-4 bg-primary/10 rounded-full mb-4">
                    <MessageSquare className="h-8 w-8 text-primary" />
                  </div>
@@ -84,7 +84,7 @@ export default function LandingPage() {
         </section>
       </main>
 
-      <footer className="bg-muted border-t">
+      <footer className="bg-card border-t">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-muted-foreground">
           <p>&copy; {new Date().getFullYear()} TeamUp: PUBG Mobile. Todos los derechos reservados.</p>
         </div>

@@ -17,7 +17,7 @@ export default function ChatsPage() {
           <CardTitle>Chats</CardTitle>
           <div className="relative mt-2">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Buscar chats..." className="pl-8" />
+            <Input placeholder="Buscar chats..." className="pl-8 bg-background" />
           </div>
         </CardHeader>
         <CardContent className="p-0 flex-1 overflow-y-auto">
@@ -52,7 +52,7 @@ export default function ChatsPage() {
                 <CardTitle>{selectedChat.name}</CardTitle>
               </div>
             </CardHeader>
-            <CardContent className="flex-1 p-4 space-y-4 overflow-y-auto">
+            <CardContent className="flex-1 p-4 space-y-4 overflow-y-auto bg-background">
               {/* Example messages */}
               <div className="flex justify-end">
                 <div className="bg-primary text-primary-foreground p-3 rounded-lg max-w-xs">
@@ -60,7 +60,7 @@ export default function ChatsPage() {
                 </div>
               </div>
               <div className="flex justify-start">
-                <div className="bg-muted p-3 rounded-lg max-w-xs">
+                <div className="bg-muted text-muted-foreground p-3 rounded-lg max-w-xs">
                   ¡Claro! Ya estoy calentando.
                 </div>
               </div>
@@ -70,11 +70,11 @@ export default function ChatsPage() {
                 </div>
               </div>
             </CardContent>
-            <div className="p-4 border-t bg-background flex items-center gap-2">
+            <div className="p-4 border-t bg-card flex items-center gap-2">
               <Button size="icon" variant="ghost">
                 <Paperclip className="h-5 w-5" />
               </Button>
-              <Input placeholder="Escribe un mensaje..." className="flex-1" />
+              <Input placeholder="Escribe un mensaje..." className="flex-1 bg-background" />
               <Button size="icon">
                 <Send className="h-5 w-5" />
               </Button>

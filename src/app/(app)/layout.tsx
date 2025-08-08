@@ -50,14 +50,14 @@ export default function DashboardLayout({
 
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
-      <div className="hidden border-r bg-background md:block">
+      <div className="hidden border-r bg-card text-card-foreground md:block">
         <div className="flex h-full max-h-screen flex-col gap-2">
           <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
             <Link href="/" className="flex items-center gap-2 font-semibold text-primary">
               <Icons.helmet className="h-6 w-6" />
               <span className="">TeamUp: PUBG</span>
             </Link>
-            <Button variant="outline" size="icon" className="ml-auto h-8 w-8">
+            <Button variant="ghost" size="icon" className="ml-auto h-8 w-8">
               <Bell className="h-4 w-4" />
               <span className="sr-only">Toggle notifications</span>
             </Button>
@@ -76,7 +76,7 @@ export default function DashboardLayout({
                   <item.icon className="h-4 w-4" />
                   {item.label}
                   {item.badge !== undefined && item.badge > 0 && (
-                     <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
+                     <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
                       {item.badge}
                     </Badge>
                   )}
@@ -85,7 +85,7 @@ export default function DashboardLayout({
             </nav>
           </div>
           <div className="mt-auto p-4">
-            <Card>
+            <Card className="bg-background/50 border-border/50">
               <CardHeader className="p-2 pt-0 md:p-4">
                 <CardTitle>Sistema de Soporte</CardTitle>
                 <CardDescription>
@@ -103,7 +103,7 @@ export default function DashboardLayout({
         </div>
       </div>
       <div className="flex flex-col">
-        <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
+        <header className="flex h-14 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-4 lg:h-[60px] lg:px-6 sticky top-0 z-10">
           <Sheet>
             <SheetTrigger asChild>
               <Button
@@ -115,7 +115,7 @@ export default function DashboardLayout({
                 <span className="sr-only">Toggle navigation menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="flex flex-col">
+            <SheetContent side="left" className="flex flex-col bg-card text-card-foreground">
               <nav className="grid gap-2 text-lg font-medium">
                 <Link
                   href="/"
@@ -136,7 +136,7 @@ export default function DashboardLayout({
                     <item.icon className="h-5 w-5" />
                     {item.label}
                     {item.badge !== undefined && item.badge > 0 && (
-                      <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
+                      <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
                         {item.badge}
                       </Badge>
                     )}
@@ -144,7 +144,7 @@ export default function DashboardLayout({
                 ))}
               </nav>
               <div className="mt-auto">
-                <Card>
+                <Card className="bg-background/50 border-border/50">
                   <CardHeader>
                     <CardTitle>Sistema de Soporte</CardTitle>
                     <CardDescription>
@@ -175,11 +175,11 @@ export default function DashboardLayout({
           </div>
           <UserNav />
         </header>
-        <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8 bg-muted/20 pb-24 md:pb-8">
+        <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8 bg-background pb-24 md:pb-8">
           {children}
         </main>
         {/* Mobile Nav */}
-        <div className="md:hidden fixed bottom-0 left-0 right-0 bg-background border-t p-2 flex justify-around items-center">
+        <div className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t p-2 flex justify-around items-center">
             {navItems.map((item) => (
               <Link
                 key={item.label}
@@ -192,7 +192,7 @@ export default function DashboardLayout({
                 <div className="relative">
                   <item.icon className="h-6 w-6" />
                   {item.badge !== undefined && item.badge > 0 && (
-                     <Badge className="absolute -top-2 -right-2 flex h-4 w-4 shrink-0 items-center justify-center rounded-full p-0 text-xs">
+                     <Badge className="absolute -top-2 -right-2 flex h-4 w-4 shrink-0 items-center justify-center rounded-full p-0 text-xs bg-primary text-primary-foreground">
                       {item.badge}
                     </Badge>
                   )}

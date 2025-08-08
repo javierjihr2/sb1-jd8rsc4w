@@ -47,7 +47,7 @@ export default function FriendsPage() {
       <Tabs defaultValue="all">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="all">Todos los amigos</TabsTrigger>
-          <TabsTrigger value="pending">Solicitudes pendientes <Badge className="ml-2">{friendRequests.length}</Badge></TabsTrigger>
+          <TabsTrigger value="pending">Solicitudes pendientes <Badge className="ml-2 bg-primary text-primary-foreground">{friendRequests.length}</Badge></TabsTrigger>
         </TabsList>
         <TabsContent value="all">
           <Card>

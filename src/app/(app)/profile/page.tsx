@@ -12,7 +12,7 @@ export default function ProfilePage() {
         <div className="space-y-8">
             <Card>
                 <CardHeader className="relative p-0">
-                    <div className="h-32 md:h-48 bg-gradient-to-r from-orange-400 to-amber-500 rounded-t-lg" />
+                    <div className="h-32 md:h-48 bg-gradient-to-r from-primary/80 to-primary rounded-t-lg" />
                     <Avatar className="h-24 w-24 md:h-32 md:w-32 absolute top-16 md:top-28 left-6 border-4 border-background">
                         <AvatarImage src={playerProfile.avatarUrl} data-ai-hint="gaming character" />
                         <AvatarFallback>{playerProfile.name.substring(0, 2)}</AvatarFallback>
@@ -63,18 +63,18 @@ export default function ProfilePage() {
                 </Card>
                 <Card>
                     <CardHeader>
-                        <CardTitle className="flex items-center gap-2"><Trophy className="h-5 w-5 text-accent"/> Logros Recientes</CardTitle>
+                        <CardTitle className="flex items-center gap-2"><Trophy className="h-5 w-5 text-primary"/> Logros Recientes</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
                         <div className="flex items-center gap-4">
-                            <div className="p-2 bg-accent/10 rounded-full"><Swords className="h-5 w-5 text-accent" /></div>
+                            <div className="p-2 bg-primary/10 rounded-full"><Swords className="h-5 w-5 text-primary" /></div>
                             <div>
                                 <p className="font-semibold">Experto en Asalto</p>
                                 <p className="text-sm text-muted-foreground">Consigue 1000 kills con rifles de asalto.</p>
                             </div>
                         </div>
                          <div className="flex items-center gap-4">
-                            <div className="p-2 bg-accent/10 rounded-full"><Shield className="h-5 w-5 text-accent" /></div>
+                            <div className="p-2 bg-primary/10 rounded-full"><Shield className="h-5 w-5 text-primary" /></div>
                             <div>
                                 <p className="font-semibold">Pollo para Cenar x50</p>
                                 <p className="text-sm text-muted-foreground">Gana 50 partidas en modo clásico.</p>
