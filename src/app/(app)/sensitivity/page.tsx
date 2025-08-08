@@ -17,6 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 
 export default function SensitivityPage() {
     const [input, setInput] = useState<Partial<SensitivityInput>>({});
+    const [lastUsedInput, setLastUsedInput] = useState<Partial<SensitivityInput> | null>(null);
     const [sensitivity, setSensitivity] = useState<Sensitivity | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -30,6 +31,7 @@ export default function SensitivityPage() {
         setIsLoading(true);
         setError(null);
         setSensitivity(null);
+        setLastUsedInput(input);
         try {
             const result = await getSensitivity(input as SensitivityInput);
             setSensitivity(result);
@@ -122,6 +124,24 @@ export default function SensitivityPage() {
                                 </Select>
                             </div>
                             <div className="space-y-2">
+                                <Label htmlFor="device-brand">Marca del Dispositivo (Opcional)</Label>
+                                <Input 
+                                    id="device-brand" 
+                                    placeholder="Ej: Samsung, Apple" 
+                                    value={input.deviceBrand || ''}
+                                    onChange={(e) => setInput(prev => ({ ...prev, deviceBrand: e.target.value }))}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="device-model">Modelo del Dispositivo (Opcional)</Label>
+                                <Input 
+                                    id="device-model" 
+                                    placeholder="Ej: Galaxy S23, iPhone 14 Pro" 
+                                    value={input.deviceModel || ''}
+                                    onChange={(e) => setInput(prev => ({ ...prev, deviceModel: e.target.value }))}
+                                />
+                            </div>
+                            <div className="space-y-2">
                                 <Label htmlFor="screen-size">Tamaño de Pantalla (Pulgadas)</Label>
                                 <Input 
                                     id="screen-size" 
@@ -173,11 +193,17 @@ export default function SensitivityPage() {
                         </Card>
                     )}
 
-                    {sensitivity && !isLoading && (
+                    {sensitivity && !isLoading && lastUsedInput &&(
                         <Card className="animate-in fade-in-50">
                             <CardHeader>
                                 <CardTitle>Tu Configuración de Sensibilidad Personalizada</CardTitle>
-                                <CardDescription>Estos valores están optimizados para un {input.deviceType} de {input.screenSize}" {input.gyroscope === 'si' ? 'con' : 'sin'} giroscopio.</CardDescription>
+                                <CardDescription>
+                                    Estos valores están optimizados para un {lastUsedInput.deviceType}
+                                    {lastUsedInput.deviceBrand && ` ${lastUsedInput.deviceBrand}`}
+                                    {lastUsedInput.deviceModel && ` ${lastUsedInput.deviceModel}`}
+                                    {` de ${lastUsedInput.screenSize}"`}
+                                    {lastUsedInput.gyroscope === 'si' ? ' con' : ' sin'} giroscopio.
+                                </CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-8">
                                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">

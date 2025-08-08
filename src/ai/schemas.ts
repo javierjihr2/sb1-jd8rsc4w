@@ -38,15 +38,15 @@ export const StrategySchema = z.object({
   }),
   earlyGame: z.object({
       title: z.string().describe('Título para la estrategia de la fase inicial del juego.'),
-      plan: z.string().describe('El plan detallado para el juego temprano, incluyendo prioridades de looteo y posicionamiento inicial.'),
+      plan: z.string().describe('El plan conciso para el juego temprano, incluyendo prioridades de looteo y posicionamiento inicial.'),
   }),
   midGame: z.object({
       title: z.string().describe('Título para la estrategia de la fase intermedia del juego.'),
-      plan: z.string().describe('El plan detallado para el juego intermedio, centrándose en rotaciones, posicionamiento y cuándo enfrentarse.'),
+      plan: z.string().describe('El plan conciso para el juego intermedio, centrándose en rotaciones, posicionamiento y cuándo enfrentarse.'),
   }),
   lateGame: z.object({
       title: z.string().describe('Título para la estrategia de la fase final del juego.'),
-      plan: z.string().describe('El plan detallado para el juego tardío, incluyendo la estrategia del círculo final e identificación de posiciones clave.'),
+      plan: z.string().describe('El plan conciso para el juego tardío, incluyendo la estrategia del círculo final e identificación de posiciones clave.'),
   }),
   tips: z.array(z.object({
       title: z.string().describe('Un título para el consejo.'),
@@ -57,6 +57,8 @@ export type Strategy = z.infer<typeof StrategySchema>;
 
 export const SensitivityInputSchema = z.object({
     deviceType: z.string().describe("El tipo de dispositivo del jugador (ej. 'Teléfono' o 'Tablet')."),
+    deviceBrand: z.string().optional().describe("La marca del dispositivo del jugador (ej. 'Samsung', 'Apple')."),
+    deviceModel: z.string().optional().describe("El modelo del dispositivo del jugador (ej. 'Galaxy S23', 'iPhone 14 Pro')."),
     screenSize: z.number().describe("El tamaño de la pantalla en pulgadas."),
     gyroscope: z.string().describe("Si el jugador usa giroscopio ('si' o 'no')."),
 });
