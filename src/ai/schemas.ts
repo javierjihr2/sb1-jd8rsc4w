@@ -53,5 +53,30 @@ export const StrategySchema = z.object({
       description: z.string().describe('Un consejo específico y accionable relacionado con la estrategia general.'),
   })).describe('Un array de 2-3 consejos esenciales para ejecutar la estrategia con éxito.'),
 });
-
 export type Strategy = z.infer<typeof StrategySchema>;
+
+export const SensitivityInputSchema = z.object({
+    deviceType: z.string().describe("El tipo de dispositivo del jugador (ej. 'Teléfono' o 'Tablet')."),
+    screenSize: z.number().describe("El tamaño de la pantalla en pulgadas."),
+    gyroscope: z.string().describe("Si el jugador usa giroscopio ('si' o 'no')."),
+});
+export type SensitivityInput = z.infer<typeof SensitivityInputSchema>;
+
+const ScopeSensitivitySchema = z.object({
+    tpp: z.number().describe("Sensibilidad para la perspectiva en tercera persona (TPP)."),
+    fpp: z.number().describe("Sensibilidad para la perspectiva en primera persona (FPP)."),
+    redDot: z.number().describe("Sensibilidad para miras de punto rojo, holográficas y de asistencia de mira."),
+    scope2x: z.number().describe("Sensibilidad para miras 2x."),
+    scope3x: z.number().describe("Sensibilidad para miras 3x."),
+    scope4x: z.number().describe("Sensibilidad para miras 4x."),
+    scope6x: z.number().describe("Sensibilidad para miras 6x."),
+    scope8x: z.number().describe("Sensibilidad para miras 8x."),
+});
+
+export const SensitivitySchema = z.object({
+    camera: ScopeSensitivitySchema.describe("Sensibilidad de la cámara (al deslizar la pantalla sin disparar)."),
+    ads: ScopeSensitivitySchema.describe("Sensibilidad al apuntar con la mira (ADS) mientras se dispara."),
+    gyroscope: z.optional(ScopeSensitivitySchema).describe("Sensibilidad del giroscopio (si se solicita)."),
+    code: z.string().describe("Un código de sensibilidad de ejemplo que los jugadores podrían usar para importar la configuración."),
+});
+export type Sensitivity = z.infer<typeof SensitivitySchema>;

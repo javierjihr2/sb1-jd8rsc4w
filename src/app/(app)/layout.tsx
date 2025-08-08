@@ -17,7 +17,8 @@ import {
   BrainCircuit,
   Map,
   Wrench,
-  DollarSign
+  DollarSign,
+  Smartphone
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -56,6 +57,7 @@ export default function DashboardLayout({
     { href: "/player-analysis", label: "Análisis IA", icon: BrainCircuit, badge: 0 },
     { href: "/strategies", label: "Estrategias", icon: Map, badge: 0 },
     { href: "/loadouts", label: "Equipamiento", icon: Wrench, badge: 0 },
+    { href: "/sensitivity", label: "Sensibilidad IA", icon: Smartphone, badge: 0 },
     { href: "/recharge", label: "Recargar UC", icon: DollarSign, badge: 0 },
   ]
   
@@ -69,8 +71,8 @@ export default function DashboardLayout({
         <div className="flex h-full max-h-screen flex-col gap-2">
           <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
             <Link href="/" className="flex items-center gap-2 font-semibold text-primary">
-              <Icons.logo className="h-6 w-6" />
-              <span className="">SquadUp: Mobile Battles</span>
+              <Icons.logo className="h-8 w-8" />
+              <span className="">SquadUp</span>
             </Link>
             <Button variant="ghost" size="icon" className="ml-auto h-8 w-8">
               <Bell className="h-4 w-4" />
