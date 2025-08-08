@@ -23,7 +23,7 @@ const prompt = ai.definePrompt({
 
 El usuario quiere jugar en el mapa '{{{map}}}' con una escuadra de {{{squadSize}}} jugador(es) y adoptar un estilo de juego '{{{playStyle}}}'.
 
-Genera una estrategia completa que cubra todas las fases del juego. Sé específico y proporciona instrucciones claras. El tono debe ser autoritario y experto. El plan para el final del juego debe tener muy en cuenta tu conocimiento de los cambios de zona comunes y los círculos finales para el mapa seleccionado.
+Genera una estrategia completa que cubra todas las fases del juego. Sé específico y proporciona instrucciones claras y concisas. El tono debe ser autoritario y experto. El plan para el final del juego debe tener muy en cuenta tu conocimiento de los cambios de zona comunes y los círculos finales para el mapa seleccionado.
 
 Proporciona la respuesta en el formato JSON solicitado. Los consejos deben ser concisos y muy relevantes para la estrategia.`,
 });
