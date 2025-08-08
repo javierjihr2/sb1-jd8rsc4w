@@ -1,4 +1,6 @@
 
+"use client"
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
@@ -11,10 +13,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { playerProfile } from "@/lib/data"
-import { User, Settings, LogOut, ShieldCheck } from "lucide-react"
+import { User, Settings, LogOut, ShieldCheck, Moon, Sun } from "lucide-react"
 import Link from "next/link"
+import { useTheme } from "next-themes"
 
 export function UserNav() {
+  const { setTheme, theme } = useTheme()
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -51,6 +55,11 @@ export function UserNav() {
             <span>Panel de Admin</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
+           {theme === 'dark' ? <Sun className="mr-2 h-4 w-4" /> : <Moon className="mr-2 h-4 w-4" />}
+          <span>{theme === 'dark' ? 'Modo Claro' : 'Modo Oscuro'}</span>
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem>
           <LogOut className="mr-2 h-4 w-4" />
