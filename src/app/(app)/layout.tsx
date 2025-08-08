@@ -18,7 +18,8 @@ import {
   Map,
   Wrench,
   DollarSign,
-  Smartphone
+  Smartphone,
+  Gamepad2
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -58,6 +59,7 @@ export default function DashboardLayout({
     { href: "/strategies", label: "Estrategias", icon: Map, badge: 0 },
     { href: "/loadouts", label: "Equipamiento", icon: Wrench, badge: 0 },
     { href: "/sensitivity", label: "Sensibilidad IA", icon: Smartphone, badge: 0 },
+    { href: "/controls", label: "Controles IA", icon: Gamepad2, badge: 0 },
     { href: "/recharge", label: "Recargar UC", icon: DollarSign, badge: 0 },
   ]
   

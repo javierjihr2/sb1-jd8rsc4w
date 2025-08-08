@@ -83,3 +83,27 @@ export const SensitivitySchema = z.object({
     code: z.string().describe("Un código de sensibilidad de ejemplo que los jugadores podrían usar para importar la configuración."),
 });
 export type Sensitivity = z.infer<typeof SensitivitySchema>;
+
+
+export const ControlsInputSchema = z.object({
+  fingerCount: z.number().describe("El número de dedos que el jugador usa para jugar (2, 3, 4, o 5)."),
+});
+export type ControlsInput = z.infer<typeof ControlsInputSchema>;
+
+export const ControlsSchema = z.object({
+  layoutName: z.string().describe("Un nombre descriptivo para el diseño de controles, ej. 'Garra de 4 Dedos'.") ,
+  imageUrl: z.string().describe("Una URL a una imagen placeholder que ilustra la disposición de los controles. Debe ser de 400x300. ej: https://placehold.co/400x300.png"),
+  advantages: z.array(z.string()).describe("Una lista de 2-3 ventajas clave de usar esta configuración de controles."),
+  disadvantages: z.array(z.string()).describe("Una lista de 1-2 desventajas o desafíos de esta configuración."),
+  keyActions: z.object({
+    movement: z.string().describe("El/los dedo(s) responsable(s) del movimiento."),
+    aim: z.string().describe("El/los dedo(s) responsable(s) de apuntar."),
+    shoot: z.string().describe("El/los dedo(s) responsable(s) de disparar."),
+    mainActions: z.string().describe("El/los dedo(s) responsable(s) de acciones principales como saltar, agacharse, recargar."),
+  }).describe("Una descripción de qué dedos controlan las acciones clave."),
+  tips: z.array(z.object({
+    title: z.string().describe("Un título corto para el consejo."),
+    description: z.string().describe("Un consejo práctico para acostumbrarse o dominar esta configuración de controles."),
+  })).describe("Un array de 2 consejos para dominar la configuración."),
+});
+export type Controls = z.infer<typeof ControlsSchema>;
