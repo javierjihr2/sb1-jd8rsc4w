@@ -4,40 +4,38 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { playerProfile } from "@/lib/data"
-import { BrainCircuit, Loader2, Sparkles } from "lucide-react"
+import { BrainCircuit, Loader2, Sparkles, Terminal } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
-
-// Mock AI analysis function
-const getAIAnalysis = async (stats: typeof playerProfile.stats) => {
-    await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
-    
-    const analysis = {
-        playStyle: "Agresivo y Táctico",
-        strengths: [
-            "Excelente en enfrentamientos a corta y media distancia.",
-            "Buena toma de decisiones bajo presión.",
-            "Efectivo con rifles de asalto y SMGs."
-        ],
-        improvementAreas: [
-            "Mejorar la precisión en disparos a larga distancia con snipers.",
-            "Gestionar mejor los recursos en las fases finales de la partida.",
-            "Coordinación en equipo para rotaciones complejas."
-        ]
-    }
-    return analysis;
-}
-
+import type { PlayerAnalysis, PlayerAnalysisInput } from "@/ai/flows/playerAnalysisFlow"
+import { getPlayerAnalysis } from "@/ai/flows/playerAnalysisFlow"
 
 export default function PlayerAnalysisPage() {
-    const [analysis, setAnalysis] = useState<{ playStyle: string; strengths: string[]; improvementAreas: string[] } | null>(null);
+    const [analysis, setAnalysis] = useState<PlayerAnalysis | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const handleAnalysis = async () => {
         setIsLoading(true);
-        const result = await getAIAnalysis(playerProfile.stats);
-        setAnalysis(result);
-        setIsLoading(false);
+        setError(null);
+        setAnalysis(null);
+
+        try {
+            const input: PlayerAnalysisInput = {
+                wins: playerProfile.stats.wins,
+                kills: playerProfile.stats.kills,
+                kdRatio: playerProfile.stats.kdRatio,
+                rank: playerProfile.rank
+            };
+            const result = await getPlayerAnalysis(input);
+            setAnalysis(result);
+        } catch (e: any) {
+            setError("Ha ocurrido un error al generar el análisis. Por favor, inténtalo de nuevo más tarde.");
+            console.error(e);
+        } finally {
+            setIsLoading(false);
+        }
     }
 
     return (
@@ -68,28 +66,36 @@ export default function PlayerAnalysisPage() {
                                 <Loader2 className="h-5 w-5 animate-spin" />
                                 <span>Analizando tus partidas... Esto puede tardar un momento.</span>
                             </div>
-                            <Skeleton className="h-8 w-1/4" />
-                             <Skeleton className="h-6 w-full" />
-                             <Skeleton className="h-6 w-full" />
-                             <Skeleton className="h-6 w-3/4" />
+                            <Skeleton className="h-8 w-1/4 mt-4" />
+                            <Skeleton className="h-6 w-full" />
+                            <Skeleton className="h-6 w-full" />
+                            <Skeleton className="h-6 w-3/4" />
                         </div>
                     )}
 
+                    {error && !isLoading && (
+                        <Alert variant="destructive">
+                            <Terminal className="h-4 w-4" />
+                            <AlertTitle>Error</AlertTitle>
+                            <AlertDescription>{error}</AlertDescription>
+                        </Alert>
+                    )}
+
                     {analysis && !isLoading && (
-                         <div className="space-y-6">
+                         <div className="space-y-6 animate-in fade-in-50">
                             <div>
                                 <h3 className="text-lg font-semibold text-primary mb-2">Estilo de Juego Principal</h3>
-                                <p>{analysis.playStyle}</p>
+                                <p className="text-muted-foreground">{analysis.playStyle}</p>
                             </div>
                              <div>
                                 <h3 className="text-lg font-semibold text-primary mb-2">Puntos Fuertes</h3>
-                                <ul className="list-disc list-inside space-y-1">
+                                <ul className="list-disc list-inside space-y-1 text-muted-foreground">
                                     {analysis.strengths.map((strength, i) => <li key={i}>{strength}</li>)}
                                 </ul>
                             </div>
                              <div>
                                 <h3 className="text-lg font-semibold text-primary mb-2">Áreas de Mejora</h3>
-                                <ul className="list-disc list-inside space-y-1">
+                                <ul className="list-disc list-inside space-y-1 text-muted-foreground">
                                     {analysis.improvementAreas.map((area, i) => <li key={i}>{area}</li>)}
                                 </ul>
                             </div>

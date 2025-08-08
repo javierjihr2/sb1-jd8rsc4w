@@ -1,73 +1,147 @@
 
+"use client"
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Wrench, PlusCircle, Eye } from "lucide-react";
+import { Wrench, PlusCircle, Eye, Trash2 } from "lucide-react";
 import Image from "next/image";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+
+const initialLoadouts = [
+    { 
+        id: 1, 
+        name: "Asalto Agresivo", 
+        primary: { name: "M416", sight: "Holo", grip: "Vertical" }, 
+        secondary: { name: "UMP45", sight: "Red Dot", grip: "Half Grip" } 
+    },
+    { 
+        id: 2, 
+        name: "Francotirador Letal", 
+        primary: { name: "Kar98k", sight: "8x", grip: "Cheek Pad" }, 
+        secondary: { name: "Mini14", sight: "4x", grip: "Light Grip" } 
+    },
+];
 
 export default function LoadoutsPage() {
-    // Mock data for loadouts
-    const loadouts = [
-        { id: 1, name: "Asalto Agresivo", primary: "M416", secondary: "UMP45" },
-        { id: 2, name: "Francotirador Letal", primary: "Kar98k", secondary: "Mini14" },
-    ];
+    const { toast } = useToast();
+
+    const handleCreateLoadout = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        toast({
+            title: "Equipamiento Creado",
+            description: "Tu nuevo equipamiento ha sido guardado.",
+        });
+        (e.target as HTMLFormElement).reset();
+    }
 
     return (
-        <div className="space-y-8">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold">Constructor de Equipamiento</h1>
-                    <p className="text-muted-foreground">Crea, guarda y comparte tus combinaciones de armas favoritas.</p>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+            <div className="lg:col-span-2 space-y-8">
+                 <div>
+                    <h1 className="text-3xl font-bold">Mis Equipamientos</h1>
+                    <p className="text-muted-foreground">Tus configuraciones de armas guardadas para cada situación.</p>
                 </div>
-                <Button>
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Crear Nuevo Equipamiento
-                </Button>
-            </div>
-
-             <Card>
-                <CardHeader>
-                    <CardTitle>Mis Equipamientos</CardTitle>
-                    <CardDescription>Tus configuraciones de armas guardadas.</CardDescription>
-                </CardHeader>
-                <CardContent className="grid gap-6 md:grid-cols-2">
-                    {loadouts.map((loadout) => (
-                        <Card key={loadout.id} className="p-4">
-                            <h3 className="text-lg font-semibold mb-4">{loadout.name}</h3>
-                            <div className="space-y-4">
-                                <div className="flex items-center gap-4">
-                                    <Image src="https://placehold.co/100x50.png" alt={loadout.primary} width={100} height={50} className="rounded-md bg-muted" data-ai-hint="weapon"/>
-                                    <div>
-                                        <p className="text-sm text-muted-foreground">Principal</p>
-                                        <p className="font-medium">{loadout.primary}</p>
+                <div className="grid gap-6 md:grid-cols-2">
+                    {initialLoadouts.map((loadout) => (
+                        <Card key={loadout.id}>
+                            <CardHeader>
+                                <CardTitle className="flex justify-between items-center">
+                                    {loadout.name}
+                                    <Button variant="ghost" size="icon">
+                                        <Trash2 className="h-4 w-4 text-muted-foreground"/>
+                                    </Button>
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                {/* Primary Weapon */}
+                                <div className="space-y-3">
+                                    <Label className="text-muted-foreground">Principal</Label>
+                                    <div className="flex items-start gap-4">
+                                        <Image src="https://placehold.co/120x60.png" alt={loadout.primary.name} width={120} height={60} className="rounded-md bg-muted object-cover" data-ai-hint="weapon"/>
+                                        <div className="space-y-1 text-sm">
+                                            <p className="font-bold text-base">{loadout.primary.name}</p>
+                                            <p><span className="font-semibold">Mira:</span> {loadout.primary.sight}</p>
+                                            <p><span className="font-semibold">Agarre:</span> {loadout.primary.grip}</p>
+                                        </div>
                                     </div>
                                 </div>
-                                 <div className="flex items-center gap-4">
-                                     <Image src="https://placehold.co/100x50.png" alt={loadout.secondary} width={100} height={50} className="rounded-md bg-muted" data-ai-hint="weapon"/>
-                                     <div>
-                                        <p className="text-sm text-muted-foreground">Secundaria</p>
-                                        <p className="font-medium">{loadout.secondary}</p>
+                                {/* Secondary Weapon */}
+                                <div className="space-y-3">
+                                    <Label className="text-muted-foreground">Secundaria</Label>
+                                    <div className="flex items-start gap-4">
+                                        <Image src="https://placehold.co/120x60.png" alt={loadout.secondary.name} width={120} height={60} className="rounded-md bg-muted object-cover" data-ai-hint="weapon"/>
+                                        <div className="space-y-1 text-sm">
+                                            <p className="font-bold text-base">{loadout.secondary.name}</p>
+                                            <p><span className="font-semibold">Mira:</span> {loadout.secondary.sight}</p>
+                                            <p><span className="font-semibold">Agarre:</span> {loadout.secondary.grip}</p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div className="flex justify-end mt-4">
-                                <Button variant="outline" size="sm">
-                                    <Eye className="mr-2 h-4 w-4" />
-                                    Ver Detalles
-                                </Button>
-                            </div>
+                            </CardContent>
                         </Card>
                     ))}
-                     <div className="border-2 border-dashed rounded-lg flex flex-col items-center justify-center p-8 text-center">
-                        <Wrench className="h-10 w-10 text-muted-foreground mb-4"/>
-                        <h3 className="text-lg font-semibold mb-2">Crea tu primer equipamiento</h3>
-                        <p className="text-muted-foreground mb-4">Combina armas y accesorios para estar listo para cualquier situación.</p>
-                        <Button variant="secondary">
-                             <PlusCircle className="mr-2 h-4 w-4" />
-                            Empezar
-                        </Button>
-                    </div>
-                </CardContent>
-            </Card>
+                </div>
+            </div>
+
+            <div className="lg:col-span-1">
+                 <Card className="sticky top-20">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <PlusCircle className="h-5 w-5 text-primary"/>
+                            Crear Equipamiento
+                        </CardTitle>
+                        <CardDescription>
+                            Diseña tu combinación de armas y accesorios.
+                        </CardDescription>
+                    </CardHeader>
+                    <form onSubmit={handleCreateLoadout}>
+                        <CardContent className="space-y-6">
+                             <div className="space-y-2">
+                                <Label htmlFor="loadout-name">Nombre del Equipamiento</Label>
+                                <Input id="loadout-name" placeholder="Ej: Asalto Sigiloso" required />
+                            </div>
+                            
+                            <div className="space-y-4 p-4 border rounded-lg">
+                                 <h4 className="font-semibold">Arma Principal</h4>
+                                 <div className="space-y-2">
+                                    <Label htmlFor="primary-weapon">Arma</Label>
+                                    <Input id="primary-weapon" placeholder="Ej: M416" required/>
+                                 </div>
+                                 <div className="space-y-2">
+                                    <Label htmlFor="primary-sight">Mira</Label>
+                                    <Input id="primary-sight" placeholder="Ej: Red Dot Scope" />
+                                 </div>
+                                 <div className="space-y-2">
+                                    <Label htmlFor="primary-grip">Agarre</Label>
+                                    <Input id="primary-grip" placeholder="Ej: Vertical Foregrip" />
+                                 </div>
+                            </div>
+                            
+                            <div className="space-y-4 p-4 border rounded-lg">
+                                 <h4 className="font-semibold">Arma Secundaria</h4>
+                                 <div className="space-y-2">
+                                    <Label htmlFor="secondary-weapon">Arma</Label>
+                                    <Input id="secondary-weapon" placeholder="Ej: UMP45" required/>
+                                 </div>
+                                 <div className="space-y-2">
+                                    <Label htmlFor="secondary-sight">Mira</Label>
+                                    <Input id="secondary-sight" placeholder="Ej: Holographic Sight" />
+                                 </div>
+                                 <div className="space-y-2">
+                                    <Label htmlFor="secondary-grip">Agarre</Label>
+                                    <Input id="secondary-grip" placeholder="Ej: Angled Foregrip" />
+                                 </div>
+                            </div>
+
+                            <Button type="submit" className="w-full">
+                                Guardar Equipamiento
+                            </Button>
+                        </CardContent>
+                    </form>
+                </Card>
+            </div>
         </div>
     );
 }
