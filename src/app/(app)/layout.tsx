@@ -15,7 +15,7 @@ import {
   ShieldCheck,
   Newspaper,
   BrainCircuit,
-  Target,
+  Map,
   Wrench,
   DollarSign
 } from "lucide-react"
@@ -54,7 +54,7 @@ export default function DashboardLayout({
     { href: "/friends", label: "Amigos", icon: Users2, badge: 0 },
     { href: "/news", label: "Noticias", icon: Newspaper, badge: 0 },
     { href: "/player-analysis", label: "Análisis IA", icon: BrainCircuit, badge: 0 },
-    { href: "/strategies", label: "Estrategias", icon: Target, badge: 0 },
+    { href: "/strategies", label: "Estrategias", icon: Map, badge: 0 },
     { href: "/loadouts", label: "Equipamiento", icon: Wrench, badge: 0 },
     { href: "/recharge", label: "Recargar UC", icon: DollarSign, badge: 0 },
   ]
