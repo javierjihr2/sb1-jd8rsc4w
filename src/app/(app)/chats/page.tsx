@@ -1,0 +1,91 @@
+
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { recentChats } from "@/lib/data"
+import { Search, Send, Paperclip } from "lucide-react"
+
+export default function ChatsPage() {
+  const selectedChat = recentChats[0]; // Placeholder for selected chat logic
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 h-[calc(100vh-120px)]">
+      {/* Chat List */}
+      <Card className="col-span-1 flex flex-col">
+        <CardHeader className="p-4 border-b">
+          <CardTitle>Chats</CardTitle>
+          <div className="relative mt-2">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input placeholder="Buscar chats..." className="pl-8" />
+          </div>
+        </CardHeader>
+        <CardContent className="p-0 flex-1 overflow-y-auto">
+          <div className="flex flex-col">
+            {recentChats.map((chat) => (
+              <div key={chat.id} className={`flex items-center gap-3 p-4 border-b cursor-pointer hover:bg-muted/50 ${chat.id === selectedChat.id ? 'bg-muted' : ''}`}>
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src={chat.avatarUrl} alt={chat.name} data-ai-hint="gaming character" />
+                  <AvatarFallback>{chat.name.substring(0, 2)}</AvatarFallback>
+                </Avatar>
+                <div className="flex-1">
+                  <p className="font-semibold">{chat.name}</p>
+                  <p className="text-sm text-muted-foreground truncate">{chat.message}</p>
+                </div>
+                {chat.unread && <div className="h-2.5 w-2.5 rounded-full bg-primary" />}
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Chat Window */}
+      <Card className="md:col-span-2 lg:col-span-3 flex flex-col">
+        {selectedChat ? (
+          <>
+            <CardHeader className="p-4 border-b flex flex-row items-center gap-3">
+              <Avatar>
+                <AvatarImage src={selectedChat.avatarUrl} alt={selectedChat.name} data-ai-hint="gaming character"/>
+                <AvatarFallback>{selectedChat.name.substring(0,2)}</AvatarFallback>
+              </Avatar>
+              <div>
+                <CardTitle>{selectedChat.name}</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="flex-1 p-4 space-y-4 overflow-y-auto">
+              {/* Example messages */}
+              <div className="flex justify-end">
+                <div className="bg-primary text-primary-foreground p-3 rounded-lg max-w-xs">
+                  Hola, ¿listos para el torneo?
+                </div>
+              </div>
+              <div className="flex justify-start">
+                <div className="bg-muted p-3 rounded-lg max-w-xs">
+                  ¡Claro! Ya estoy calentando.
+                </div>
+              </div>
+               <div className="flex justify-end">
+                <div className="bg-primary text-primary-foreground p-3 rounded-lg max-w-xs">
+                  {selectedChat.message}
+                </div>
+              </div>
+            </CardContent>
+            <div className="p-4 border-t bg-background flex items-center gap-2">
+              <Button size="icon" variant="ghost">
+                <Paperclip className="h-5 w-5" />
+              </Button>
+              <Input placeholder="Escribe un mensaje..." className="flex-1" />
+              <Button size="icon">
+                <Send className="h-5 w-5" />
+              </Button>
+            </div>
+          </>
+        ) : (
+          <div className="flex items-center justify-center h-full">
+            <p className="text-muted-foreground">Selecciona un chat para empezar a conversar</p>
+          </div>
+        )}
+      </Card>
+    </div>
+  )
+}
