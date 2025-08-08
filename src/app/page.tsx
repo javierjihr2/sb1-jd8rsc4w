@@ -11,7 +11,7 @@ export default function LandingPage() {
       <header className="container mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 font-semibold text-primary">
           <Icons.logo className="h-8 w-8" />
-          <span className="text-xl font-bold">TeamUp: PUBG</span>
+          <span className="text-xl font-bold">SquadUp: Mobile Battles</span>
         </Link>
         <nav className="flex items-center gap-4">
           <Button variant="ghost" asChild>
@@ -27,15 +27,15 @@ export default function LandingPage() {
         <section className="relative h-[60vh] md:h-[calc(100vh-5rem)] flex items-center justify-center text-center text-white">
           <Image
             src="https://placehold.co/1920x1080.png"
-            alt="PUBG Mobile battle scene"
-            data-ai-hint="pubg mobile battle"
+            alt="Mobile battle scene"
+            data-ai-hint="mobile battle game"
             fill
             className="object-cover -z-10"
           />
           <div className="absolute inset-0 bg-black/70 -z-10" />
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <h1 className="text-4xl md:text-6xl font-headline font-extrabold tracking-tight leading-tight mb-4 text-shadow-lg">
-              Encuentra tu Escuadra Perfecta en PUBG Mobile
+              Encuentra tu Escuadra Perfecta para Batallas Móviles
             </h1>
             <p className="text-lg md:text-xl text-primary-foreground/80 max-w-3xl mx-auto mb-8">
               Conéctate con jugadores, únete a torneos y chatea con amigos. Tu próxima victoria comienza aquí.
@@ -86,7 +86,7 @@ export default function LandingPage() {
 
       <footer className="bg-card border-t">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} TeamUp: PUBG Mobile. Todos los derechos reservados.</p>
+          <p>&copy; {new Date().getFullYear()} SquadUp: Mobile Battles. Todos los derechos reservados.</p>
         </div>
       </footer>
     </div>

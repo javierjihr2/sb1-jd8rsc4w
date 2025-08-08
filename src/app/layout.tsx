@@ -4,8 +4,8 @@ import { Toaster } from "@/components/ui/toaster"
 import { ThemeProvider } from "@/components/theme-provider"
 
 export const metadata: Metadata = {
-  title: 'TeamUp: PUBG Mobile',
-  description: 'Encuentra tu equipo ideal para PUBG Mobile',
+  title: 'SquadUp: Mobile Battles',
+  description: 'Encuentra tu equipo ideal para juegos de batalla móvil',
 };
 
 export default function RootLayout({

@@ -1,5 +1,5 @@
-# Firebase Studio
+# SquadUp: Mobile Battles
 
-This is a NextJS starter in Firebase Studio.
+Esta es una aplicación de inicio creada en Firebase Studio.
 
-To get started, take a look at src/app/page.tsx.
+Para comenzar, echa un vistazo a `src/app/page.tsx`.

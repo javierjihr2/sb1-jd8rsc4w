@@ -1,7 +1,8 @@
 {
-  "name": "nextn",
+  "name": "squadup-mobile-battles",
   "version": "0.1.0",
   "private": true,
+  "description": "Encuentra tu equipo ideal para juegos de batalla móvil",
   "scripts": {
     "dev": "next dev --turbopack -p 9002",
     "genkit:dev": "genkit start -- tsx src/ai/dev.ts",

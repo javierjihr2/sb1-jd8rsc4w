@@ -8,7 +8,7 @@ export default function RechargePage() {
     const providers = [
         {
             name: "Midasbuy",
-            description: "Plataforma oficial para recargas de UC en PUBG Mobile. Segura y con bonificaciones frecuentes.",
+            description: "Plataforma oficial para recargas de UC en juegos populares. Segura y con bonificaciones frecuentes.",
             url: "#", // TODO: Reemplazar con tu link de referido de Midasbuy
             logoUrl: "https://placehold.co/100x40/000000/FFFFFF.png"
         },
@@ -63,7 +63,7 @@ export default function RechargePage() {
             </div>
              <div className="text-center text-muted-foreground text-sm">
                 <p>Por favor, asegúrate de que estás en el sitio web correcto antes de realizar cualquier transacción.</p>
-                <p>TeamUp: PUBG no se hace responsable de las compras realizadas en sitios de terceros.</p>
+                <p>SquadUp: Mobile Battles no se hace responsable de las compras realizadas en sitios de terceros.</p>
             </div>
         </div>
     );
