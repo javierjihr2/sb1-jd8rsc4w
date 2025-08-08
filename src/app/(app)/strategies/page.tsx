@@ -2,6 +2,7 @@
 "use client"
 
 import { useState } from "react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -12,11 +13,21 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Loader2, Sparkles, Map, MapPin, Gamepad2, Shield, Users, Trophy, Lightbulb, Terminal } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
+const mapOptions = [
+    { value: "erangel", label: "Erangel", imageUrl: "https://placehold.co/800x800.png" },
+    { value: "miramar", label: "Miramar", imageUrl: "https://placehold.co/800x800.png" },
+    { value: "sanhok", label: "Sanhok", imageUrl: "https://placehold.co/800x800.png" },
+    { value: "vikendi", label: "Vikendi", imageUrl: "https://placehold.co/800x800.png" },
+    { value: "livik", label: "Livik", imageUrl: "https://placehold.co/800x800.png" },
+    { value: "rondo", label: "Rondo", imageUrl: "https://placehold.co/800x800.png" },
+];
+
 export default function StrategiesPage() {
     const [input, setInput] = useState<Partial<StrategyInput>>({ squadSize: 4 });
     const [strategy, setStrategy] = useState<Strategy | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [selectedMapUrl, setSelectedMapUrl] = useState<string | null>(null);
 
     const handleGenerateStrategy = async () => {
         if (!input.map || !input.playStyle || !input.squadSize) {
@@ -29,6 +40,8 @@ export default function StrategiesPage() {
         try {
             const result = await getStrategy(input as StrategyInput);
             setStrategy(result);
+            const selectedMap = mapOptions.find(m => m.value === input.map);
+            setSelectedMapUrl(selectedMap?.imageUrl || null);
         } catch (e: any) {
             setError("Hubo un error al contactar a la IA. Por favor, inténtalo de nuevo.");
             console.error(e);
@@ -84,12 +97,9 @@ export default function StrategiesPage() {
                                     <SelectValue placeholder="Selecciona un mapa" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="erangel">Erangel</SelectItem>
-                                    <SelectItem value="miramar">Miramar</SelectItem>
-                                    <SelectItem value="sanhok">Sanhok</SelectItem>
-                                    <SelectItem value="vikendi">Vikendi</SelectItem>
-                                    <SelectItem value="livik">Livik</SelectItem>
-                                    <SelectItem value="rondo">Rondo</SelectItem>
+                                    {mapOptions.map(map => (
+                                        <SelectItem key={map.value} value={map.value}>{map.label}</SelectItem>
+                                    ))}
                                 </SelectContent>
                             </Select>
                         </div>
@@ -161,9 +171,18 @@ export default function StrategiesPage() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6">
-                            <div>
+                             <div>
                                 <h3 className="font-bold text-lg flex items-center gap-2"><MapPin className="h-5 w-5 text-accent"/> Zona de Aterrizaje: {strategy.dropZone.name}</h3>
-                                <p className="text-muted-foreground pl-7">{strategy.dropZone.reason}</p>
+                                <p className="text-muted-foreground pl-7 mb-4">{strategy.dropZone.reason}</p>
+                                {selectedMapUrl && (
+                                    <div className="relative aspect-square w-full rounded-lg overflow-hidden border">
+                                        <Image src={selectedMapUrl} alt={`Mapa de ${input.map}`} layout="fill" objectFit="cover" data-ai-hint={`${input.map} map`}/>
+                                        <div className="absolute inset-0 bg-black/20" />
+                                        <div className="absolute top-2 left-2 bg-background/80 p-2 rounded-md">
+                                            <p className="font-bold text-foreground">Aterrizar en: {strategy.dropZone.name}</p>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             <div className="space-y-4">
@@ -203,3 +222,4 @@ export default function StrategiesPage() {
         </div>
     );
 }
+
