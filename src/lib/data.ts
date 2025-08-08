@@ -81,29 +81,17 @@ export const recentChats: Chat[] = [
   },
 ];
 
-export const newsArticles: NewsArticle[] = [
-  {
+const mainArticle: NewsArticle = {
     id: 'n1',
     title: 'Actualización de Versión 3.3',
     summary: 'La nueva actualización trae consigo un nuevo modo de juego, mejoras en el mapa Erangel y nuevas skins de armas. ¡Descubre todo lo nuevo!',
     date: '2024-07-28',
     imageUrl: 'https://placehold.co/600x400.png',
     category: 'Actualizaciones',
-  },
-  {
-    id: 'n2',
-    title: 'Final del PMGC: ¡Team Secret se corona campeón!',
-    summary: 'Después de una intensa batalla, Team Secret se lleva el trofeo del PUBG Mobile Global Championship. Revive los mejores momentos.',
-    date: '2024-07-25',
-    imageUrl: 'https://placehold.co/600x400.png',
-    category: 'eSports',
-  },
-  {
-    id: 'n3',
-    title: 'Guía de estrategia: Dominando el modo Arena',
-    summary: 'Conviértete en un maestro del combate a corta distancia con nuestros consejos y trucos para el modo Arena. Aprende a controlar el mapa y a tu equipo.',
-    date: '2024-07-22',
-    imageUrl: 'https://placehold.co/600x400.png',
-    category: 'Guías',
-  },
+}
+
+export const newsArticles: NewsArticle[] = [
+  mainArticle,
+  {...mainArticle, id: 'n2', date: '2024-07-25'},
+  {...mainArticle, id: 'n3', date: '2024-07-22'},
 ];
