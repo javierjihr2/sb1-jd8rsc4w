@@ -4,7 +4,7 @@ export const playerProfile: PlayerProfile = {
   id: 'u1',
   name: 'Player1_Pro',
   email: 'pro_player@email.com',
-  avatarUrl: 'https://placehold.co/100x100/FF6B35/FFFFFF.png',
+  avatarUrl: 'https://placehold.co/100x100.png',
   level: 72,
   rank: 'Conquistador',
   stats: {
@@ -81,17 +81,30 @@ export const recentChats: Chat[] = [
   },
 ];
 
-const mainArticle: NewsArticle = {
+
+export const newsArticles: NewsArticle[] = [
+  {
     id: 'n1',
     title: 'Actualización de Versión 3.3',
     summary: 'La nueva actualización trae consigo un nuevo modo de juego, mejoras en el mapa Erangel y nuevas skins de armas. ¡Descubre todo lo nuevo!',
     date: '2024-07-28',
     imageUrl: 'https://placehold.co/600x400.png',
     category: 'Actualizaciones',
-}
-
-export const newsArticles: NewsArticle[] = [
-  mainArticle,
-  {...mainArticle, id: 'n2', date: '2024-07-25'},
-  {...mainArticle, id: 'n3', date: '2024-07-22'},
+  },
+  {
+    id: 'n2',
+    title: 'Colaboración con Súper-Deportivo',
+    summary: '¡Velocidad y adrenalina! Descubre los nuevos vehículos y skins de la colaboración exclusiva que llega a los campos de batalla.',
+    date: '2024-07-25',
+    imageUrl: 'https://placehold.co/600x400.png',
+    category: 'Eventos',
+  },
+  {
+    id: 'n3',
+    title: 'Guía del PMGC 2024',
+    summary: 'No te pierdas ni un detalle del torneo más grande del año. Conoce los equipos, horarios y cómo ver las partidas en vivo.',
+    date: '2024-07-22',
+    imageUrl: 'https://placehold.co/600x400.png',
+    category: 'eSports',
+  },
 ];
