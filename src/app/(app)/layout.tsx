@@ -12,7 +12,11 @@ import {
   Swords,
   Users2,
   HelpCircle,
-  ShieldCheck
+  ShieldCheck,
+  Newspaper,
+  BrainCircuit,
+  Target,
+  Wrench
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -47,7 +51,11 @@ export default function DashboardLayout({
     { href: "/tournaments", label: "Torneos", icon: Swords },
     { href: "/chats", label: "Chats", icon: MessageSquare, badge: recentChats.filter(c => c.unread).length },
     { href: "/friends", label: "Amigos", icon: Users2 },
-  ];
+    { href: "/news", label: "Noticias", icon: Newspaper },
+    { href: "/player-analysis", label: "Análisis IA", icon: BrainCircuit },
+    { href: "/strategies", label: "Estrategias", icon: Target },
+    { href: "/loadouts", label: "Equipamiento", icon: Wrench },
+  ]
   
   if (playerProfile.isAdmin) {
     navItems.push({ href: "/admin", label: "Admin", icon: ShieldCheck });
@@ -155,7 +163,7 @@ export default function DashboardLayout({
                     <CardTitle>Sistema de Soporte</CardTitle>
                     <CardDescription>
                       ¿Necesitas ayuda? Contacta con nuestro equipo de soporte.
-                    </CardDescription>
+                    </d_CardDescription>
                   </CardHeader>
                   <CardContent>
                     <Button size="sm" className="w-full">
@@ -185,8 +193,8 @@ export default function DashboardLayout({
           {children}
         </main>
         {/* Mobile Nav */}
-        <div className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t p-2 flex justify-around items-center">
-            {navItems.map((item) => (
+        <div className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t p-2 grid grid-cols-5 gap-1">
+            {navItems.slice(0, 5).map((item) => (
               <Link
                 key={item.label}
                 href={item.href}
@@ -203,7 +211,7 @@ export default function DashboardLayout({
                     </Badge>
                   )}
                 </div>
-                <span className="text-xs">{item.label}</span>
+                <span className="text-xs text-center">{item.label}</span>
               </Link>
             ))}
         </div>

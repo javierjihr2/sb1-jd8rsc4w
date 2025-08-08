@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { playerProfile } from "@/lib/data"
-import { Edit, Trophy, Shield, Swords, BarChart2 } from "lucide-react"
+import { Edit, Trophy, Shield, Swords, BarChart2, BrainCircuit } from "lucide-react"
+import Link from "next/link"
 
 export default function ProfilePage() {
     return (
@@ -83,6 +84,17 @@ export default function ProfilePage() {
                     </CardContent>
                 </Card>
             </div>
+             <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><BrainCircuit className="h-5 w-5 text-primary"/> Análisis de Jugador con IA</CardTitle>
+                    <CardDescription>Obtén un análisis detallado de tu estilo de juego, fortalezas y áreas de mejora, todo generado por inteligencia artificial.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Button asChild>
+                        <Link href="/player-analysis">Analizar mi Perfil</Link>
+                    </Button>
+                </CardContent>
+            </Card>
         </div>
     )
 }

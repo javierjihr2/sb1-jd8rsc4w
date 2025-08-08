@@ -29,3 +29,12 @@ export type Chat = {
   avatarUrl: string;
   unread: boolean;
 };
+
+export type NewsArticle = {
+  id: string;
+  title: string;
+  summary: string;
+  date: string;
+  imageUrl: string;
+  category: string;
+};
