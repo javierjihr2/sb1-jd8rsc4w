@@ -89,6 +89,7 @@ export default function StrategiesPage() {
                                     <SelectItem value="sanhok">Sanhok</SelectItem>
                                     <SelectItem value="vikendi">Vikendi</SelectItem>
                                     <SelectItem value="livik">Livik</SelectItem>
+                                    <SelectItem value="rondo">Rondo</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
