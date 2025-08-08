@@ -78,7 +78,7 @@ export default function StrategiesPage() {
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-            <div className="lg:col-span-1 space-y-8">
+            <div className="lg:col-span-1 space-y-8 sticky top-20">
                 <div>
                     <h1 className="text-3xl font-bold flex items-center gap-2"><Map className="w-8 h-8 text-primary"/> Generador de Estrategias</h1>
                     <p className="text-muted-foreground">Planifica tu partida perfecta con tácticas de nivel profesional generadas por IA.</p>
@@ -149,7 +149,7 @@ export default function StrategiesPage() {
                 )}
 
                 {!isLoading && !strategy && !error && (
-                     <Card className="h-full flex flex-col items-center justify-center text-center p-8 border-dashed">
+                     <Card className="h-full flex flex-col items-center justify-center text-center p-8 border-dashed min-h-[500px]">
                         <div className="p-4 bg-primary/10 rounded-full mb-4">
                             <Map className="h-12 w-12 text-primary" />
                         </div>

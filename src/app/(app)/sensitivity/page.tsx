@@ -80,19 +80,27 @@ export default function SensitivityPage() {
     );
 
     const PageSkeleton = () => (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(3)].map((_, i) => (
-                <div key={i} className="space-y-4">
-                     <Skeleton className="h-8 w-1/2" />
-                     <div className="border rounded-lg p-2">
-                        <Skeleton className="h-10 w-full mb-1" />
-                        <Skeleton className="h-10 w-full mb-1" />
-                        <Skeleton className="h-10 w-full mb-1" />
-                        <Skeleton className="h-10 w-full" />
-                     </div>
+        <Card>
+            <CardHeader>
+                <Skeleton className="h-8 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+            </CardHeader>
+            <CardContent>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {[...Array(3)].map((_, i) => (
+                        <div key={i} className="space-y-4">
+                            <Skeleton className="h-8 w-1/2" />
+                            <div className="border rounded-lg p-2">
+                                <Skeleton className="h-10 w-full mb-1" />
+                                <Skeleton className="h-10 w-full mb-1" />
+                                <Skeleton className="h-10 w-full mb-1" />
+                                <Skeleton className="h-10 w-full" />
+                            </div>
+                        </div>
+                    ))}
                 </div>
-            ))}
-        </div>
+            </CardContent>
+        </Card>
     );
 
 
@@ -105,7 +113,7 @@ export default function SensitivityPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
                 <div className="lg:col-span-1">
-                    <Card>
+                    <Card className="sticky top-20">
                         <CardHeader>
                             <CardTitle>Configura tu Perfil</CardTitle>
                             <CardDescription>Proporciona los detalles para una recomendación a medida.</CardDescription>
@@ -211,7 +219,7 @@ export default function SensitivityPage() {
                         <Card className="animate-in fade-in-50">
                             <CardHeader>
                                 <CardTitle>Tu Configuración de Sensibilidad Personalizada</CardTitle>
-                                <CardDescription className="capitalize">
+                                <CardDescription className="capitalize pt-1">
                                     Valores optimizados para un {lastUsedInput.deviceType}
                                     {lastUsedInput.deviceBrand && ` ${lastUsedInput.deviceBrand}`}
                                     {lastUsedInput.deviceModel && ` ${lastUsedInput.deviceModel}`}

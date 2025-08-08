@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { getControls } from "@/ai/flows/controlsFlow";
 import type { Controls, ControlsInput } from "@/ai/schemas";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Loader2, Sparkles, Gamepad2, ThumbsUp, ThumbsDown, CheckCircle, Brain, Terminal, Smartphone } from "lucide-react";
+import { Loader2, Sparkles, Gamepad2, ThumbsUp, ThumbsDown, CheckCircle, Brain, Terminal } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Label } from "@/components/ui/label";
 
@@ -194,5 +194,3 @@ export default function ControlsPage() {
         </div>
     );
 }
-
-    
