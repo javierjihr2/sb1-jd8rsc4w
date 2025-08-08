@@ -163,7 +163,7 @@ export default function DashboardLayout({
                     <CardTitle>Sistema de Soporte</CardTitle>
                     <CardDescription>
                       ¿Necesitas ayuda? Contacta con nuestro equipo de soporte.
-                    </d_CardDescription>
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <Button size="sm" className="w-full">
