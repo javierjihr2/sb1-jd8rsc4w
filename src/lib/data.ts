@@ -62,30 +62,43 @@ export const recentChats: Chat[] = [
   {
     id: 'c1',
     name: 'AlphaSquad',
-    message: '¿Listos para el torneo de mañana?',
     avatarUrl: 'https://placehold.co/40x40/1E90FF/FFFFFF.png',
     unread: true,
+    messages: [
+        { sender: 'other', text: '¿Listos para el torneo de mañana?' },
+        { sender: 'me', text: '¡Más que listos! Estuve practicando toda la tarde.' },
+        { sender: 'other', text: 'Perfecto, nos vemos a las 8pm para calentar.' },
+    ]
   },
   {
     id: 'c2',
     name: 'Ninja_Dude',
-    message: '¡Buena partida!',
     avatarUrl: 'https://placehold.co/40x40/32CD32/FFFFFF.png',
     unread: true,
+     messages: [
+        { sender: 'other', text: '¡Buena partida la de antes!' },
+        { sender: 'me', text: '¡Igualmente! Ese último squad casi nos complica.' },
+        { sender: 'other', text: 'Pero los dominamos. 🔥 ¿Jugamos otra más tarde?' },
+    ]
   },
   {
     id: 'c3',
     name: 'ShadowStriker',
-    message: 'Te envié una solicitud de amistad.',
     avatarUrl: 'https://placehold.co/40x40/8A2BE2/FFFFFF.png',
     unread: false,
+     messages: [
+        { sender: 'other', text: 'Te envié una solicitud de amistad.' },
+    ]
   },
   {
     id: 'c4',
     name: 'Phoenix_Queen',
-    message: 'Necesitamos un cuarto para la práctica.',
     avatarUrl: 'https://placehold.co/40x40/FF4500/FFFFFF.png',
     unread: false,
+     messages: [
+        { sender: 'other', text: 'Necesitamos un cuarto para la práctica de esta noche, ¿te unes?' },
+        { sender: 'me', text: 'Claro, ¿a qué hora?' },
+    ]
   },
 ];
 

@@ -35,12 +35,19 @@ export type Tournament = {
   region: 'N.A.' | 'S.A.';
 };
 
+export type Message = {
+    sender: 'me' | 'other';
+    text: string;
+    timestamp?: string;
+};
+
+
 export type Chat = {
   id: string;
   name: string;
-  message: string;
   avatarUrl: string;
   unread: boolean;
+  messages: Message[];
 };
 
 export type NewsArticle = {
