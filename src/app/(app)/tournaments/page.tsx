@@ -1,4 +1,7 @@
 
+"use client"
+
+import { useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -20,8 +23,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { tournaments, playerProfile } from "@/lib/data"
 import { PlusCircle, Filter } from "lucide-react"
 import type { Tournament } from "@/lib/types"
+import { useToast } from "@/hooks/use-toast"
 
-const TournamentTable = ({ tournaments }: { tournaments: Tournament[] }) => (
+const TournamentTable = ({ 
+  tournaments,
+  onRegister,
+  registeredTournamentIds,
+}: { 
+  tournaments: Tournament[],
+  onRegister: (tournament: Tournament) => void,
+  registeredTournamentIds: Set<string>
+}) => (
   <Table>
     <TableHeader>
       <TableRow>
@@ -33,34 +45,53 @@ const TournamentTable = ({ tournaments }: { tournaments: Tournament[] }) => (
       </TableRow>
     </TableHeader>
     <TableBody>
-      {tournaments.map((tournament) => (
-        <TableRow key={tournament.id}>
-          <TableCell>
-            <div className="font-medium">{tournament.name}</div>
-            <div className="text-sm text-muted-foreground md:hidden">
-              {tournament.mode} - {tournament.prize}
-            </div>
-          </TableCell>
-          <TableCell className="hidden sm:table-cell">
-            <Badge variant="outline">{tournament.mode}</Badge>
-          </TableCell>
-          <TableCell className="hidden md:table-cell">
-            <Badge variant={tournament.status === "Abierto" ? "secondary" : tournament.status === "Próximamente" ? "default" : "destructive"}>{tournament.status}</Badge>
-          </TableCell>
-          <TableCell className="text-right text-primary font-bold hidden sm:table-cell">{tournament.prize}</TableCell>
-          <TableCell className="text-right">
-            <Button size="sm" variant="outline" disabled={tournament.status !== 'Abierto'}>
-                Inscribirse
-            </Button>
-          </TableCell>
-        </TableRow>
-      ))}
+      {tournaments.map((tournament) => {
+        const isRegistered = registeredTournamentIds.has(tournament.id);
+        return (
+          <TableRow key={tournament.id}>
+            <TableCell>
+              <div className="font-medium">{tournament.name}</div>
+              <div className="text-sm text-muted-foreground md:hidden">
+                {tournament.mode} - {tournament.prize}
+              </div>
+            </TableCell>
+            <TableCell className="hidden sm:table-cell">
+              <Badge variant="outline">{tournament.mode}</Badge>
+            </TableCell>
+            <TableCell className="hidden md:table-cell">
+              <Badge variant={tournament.status === "Abierto" ? "secondary" : tournament.status === "Próximamente" ? "default" : "destructive"}>{tournament.status}</Badge>
+            </TableCell>
+            <TableCell className="text-right text-primary font-bold hidden sm:table-cell">{tournament.prize}</TableCell>
+            <TableCell className="text-right">
+              <Button 
+                size="sm" 
+                variant={isRegistered ? "default" : "outline"}
+                disabled={tournament.status !== 'Abierto' || isRegistered}
+                onClick={() => onRegister(tournament)}
+              >
+                {isRegistered ? "Inscrito" : "Inscribirse"}
+              </Button>
+            </TableCell>
+          </TableRow>
+        )
+      })}
     </TableBody>
   </Table>
 );
 
 
 export default function TournamentsPage() {
+  const { toast } = useToast();
+  const [registeredTournamentIds, setRegisteredTournamentIds] = useState(new Set<string>());
+
+  const handleRegister = (tournament: Tournament) => {
+    setRegisteredTournamentIds(prev => new Set(prev).add(tournament.id));
+    toast({
+      title: "¡Inscripción Exitosa!",
+      description: `Te has inscrito correctamente en el torneo "${tournament.name}".`,
+    })
+  }
+
   const naTournaments = tournaments.filter(t => t.region === 'N.A.');
   const saTournaments = tournaments.filter(t => t.region === 'S.A.');
 
@@ -99,7 +130,7 @@ export default function TournamentsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <TournamentTable tournaments={naTournaments} />
+              <TournamentTable tournaments={naTournaments} onRegister={handleRegister} registeredTournamentIds={registeredTournamentIds} />
             </CardContent>
           </Card>
         </TabsContent>
@@ -112,7 +143,7 @@ export default function TournamentsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <TournamentTable tournaments={saTournaments} />
+              <TournamentTable tournaments={saTournaments} onRegister={handleRegister} registeredTournamentIds={registeredTournamentIds} />
             </CardContent>
           </Card>
         </TabsContent>
