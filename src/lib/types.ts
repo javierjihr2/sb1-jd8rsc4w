@@ -19,7 +19,7 @@ export type PlayerProfile = {
 };
 
 // Re-exporting this type for use in data.ts without circular dependency issues with AI schemas.
-export type PlayerProfileInput = PlayerProfileInputSchema;
+export type PlayerProfileInput = PlayerProfileInputSchema & { favoriteMap: string };
 
 
 export type Tournament = {
@@ -79,5 +79,3 @@ export type FeedPost = {
     likes: number;
     comments: number;
 }
-
-    
