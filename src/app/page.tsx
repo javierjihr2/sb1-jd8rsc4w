@@ -15,10 +15,10 @@ export default function LandingPage() {
         </Link>
         <nav className="flex items-center gap-4">
           <Button variant="ghost" asChild>
-            <Link href="/dashboard">Iniciar Sesión</Link>
+            <Link href="/login">Iniciar Sesión</Link>
           </Button>
           <Button asChild>
-            <Link href="/dashboard">Registrarse</Link>
+            <Link href="/login">Registrarse</Link>
           </Button>
         </nav>
       </header>
@@ -41,7 +41,7 @@ export default function LandingPage() {
               Conéctate con jugadores, únete a torneos y chatea con amigos. Tu próxima victoria comienza aquí.
             </p>
             <Button size="lg" asChild>
-              <Link href="/dashboard">¡Empezar ahora!</Link>
+              <Link href="/login">¡Empezar ahora!</Link>
             </Button>
           </div>
         </section>

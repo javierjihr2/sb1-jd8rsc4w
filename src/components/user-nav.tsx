@@ -16,25 +16,42 @@ import { playerProfile } from "@/lib/data"
 import { User, Settings, LogOut, ShieldCheck, Moon, Sun } from "lucide-react"
 import Link from "next/link"
 import { useTheme } from "next-themes"
+import { useAuth } from "@/app/auth-provider"
+import { auth } from "@/lib/firebase"
+import { signOut } from "firebase/auth"
+import { useRouter } from "next/navigation"
 
 export function UserNav() {
   const { setTheme, theme } = useTheme()
+  const { user } = useAuth()
+  const router = useRouter()
+
+  const handleSignOut = async () => {
+    await signOut(auth);
+    router.push('/login');
+  }
+
+  const userDisplayName = user?.displayName || playerProfile.name;
+  const userDisplayEmail = user?.email || playerProfile.email;
+  const userDisplayAvatar = user?.photoURL || playerProfile.avatarUrl;
+
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-9 w-9">
-            <AvatarImage src={playerProfile.avatarUrl} alt={`@${playerProfile.name}`} data-ai-hint="gaming character" />
-            <AvatarFallback>{playerProfile.name.substring(0, 2)}</AvatarFallback>
+            <AvatarImage src={userDisplayAvatar} alt={`@${userDisplayName}`} data-ai-hint="gaming character" />
+            <AvatarFallback>{userDisplayName.substring(0, 2)}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{playerProfile.name}</p>
+            <p className="text-sm font-medium leading-none">{userDisplayName}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              {playerProfile.email}
+              {userDisplayEmail}
             </p>
           </div>
         </DropdownMenuLabel>
@@ -65,7 +82,7 @@ export function UserNav() {
           <span>{theme === 'dark' ? 'Modo Claro' : 'Modo Oscuro'}</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={handleSignOut}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>Cerrar sesión</span>
         </DropdownMenuItem>

@@ -2,7 +2,7 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import {
   Bell,
   Home,
@@ -20,7 +20,8 @@ import {
   DollarSign,
   Smartphone,
   Gamepad2,
-  Users
+  Users,
+  Loader2
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -42,6 +43,8 @@ import { Icons } from "@/components/icons"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { recentChats, playerProfile } from "@/lib/data"
+import { useAuth } from "../auth-provider"
+import { useEffect } from "react"
 
 export default function DashboardLayout({
   children,
@@ -49,6 +52,15 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   const pathname = usePathname();
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login');
+    }
+  }, [user, loading, router]);
+
 
   const navItems = [
     { href: "/dashboard", label: "Dashboard", icon: Home, badge: 0 },
@@ -67,6 +79,14 @@ export default function DashboardLayout({
   
   if (playerProfile.isAdmin) {
     navItems.push({ href: "/admin", label: "Admin", icon: ShieldCheck, badge: 0 });
+  }
+
+  if (loading || !user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    );
   }
 
   return (

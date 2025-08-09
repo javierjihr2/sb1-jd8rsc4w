@@ -2,6 +2,7 @@ import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { ThemeProvider } from "@/components/theme-provider"
+import { AuthProvider } from './auth-provider';
 
 export const metadata: Metadata = {
   title: 'SquadUp: Mobile Battles',
@@ -17,6 +18,7 @@ export default function RootLayout({
     <html lang="es" suppressHydrationWarning>
       <head/>
       <body>
+        <AuthProvider>
          <ThemeProvider
             attribute="class"
             defaultTheme="system"
@@ -26,6 +28,7 @@ export default function RootLayout({
             {children}
             <Toaster />
           </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );
