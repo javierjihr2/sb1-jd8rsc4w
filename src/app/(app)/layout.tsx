@@ -63,7 +63,7 @@ export default function DashboardLayout({
 
 
   const navItems = [
-    { href: "/dashboard", label: "Dashboard", icon: Home, badge: 0 },
+    { href: "/dashboard", label: "Centro de Mando", icon: Home, badge: 0 },
     { href: "/tournaments", label: "Torneos", icon: Swords, badge: 0 },
     { href: "/chats", label: "Chats", icon: MessageSquare, badge: recentChats.filter(c => c.unread).length },
     { href: "/friends", label: "Amigos", icon: Users2, badge: 0 },
