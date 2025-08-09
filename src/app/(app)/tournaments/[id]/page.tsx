@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { notFound } from "next/navigation"
 import { tournaments, playerProfile, teamMates, registeredTeams, getRegistrationStatus, updateRegistrationStatus } from "@/lib/data"
 import { Badge } from "@/components/ui/badge"
@@ -11,7 +11,18 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
-import { Calendar, Users, Trophy, Shield, MessageSquare, PlusCircle, AlertCircle } from "lucide-react"
+import { Calendar, Users, Trophy, Shield, MessageSquare, PlusCircle, AlertCircle, Send } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import type { Message } from "@/lib/types"
+
+// Datos de ejemplo para el chat del torneo
+const initialTournamentMessages: Message[] = [
+    { sender: 'other', text: '¡Equipo, listos! La primera partida empieza en 30 minutos. ¿Todos conectados?' },
+    { sender: 'other', text: 'Confirmado. ¿Cuál es la estrategia para el primer mapa? ¿Caemos en Georgopol?' },
+    { sender: 'me', text: 'Sí, caigamos en Georgopol Sur, en los contenedores. Aseguremos el loot rápido y controlemos el puente.' },
+    { sender: 'other', text: 'Entendido. Yo me encargo de la cobertura con el francotirador si lo encuentro.' },
+];
 
 export default function TournamentDetailPage({ params }: { params: { id: string } }) {
   const { toast } = useToast();
@@ -20,22 +31,40 @@ export default function TournamentDetailPage({ params }: { params: { id: string 
   const [selectedTeammates, setSelectedTeammates] = useState<Set<string>>(new Set())
   const [registrationStatus, setRegistrationStatus] = useState<'not_registered' | 'pending' | 'approved' | 'rejected'>('not_registered');
   const [isMounted, setIsMounted] = useState(false);
+  const [showChat, setShowChat] = useState(false);
+  
+  const [messages, setMessages] = useState<Message[]>(initialTournamentMessages);
+  const [newMessage, setNewMessage] = useState("");
+  const lastMessageRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Simulate fetching initial status after component mounts
-    setRegistrationStatus(getRegistrationStatus(tournament?.id || ''));
-    setIsMounted(true); // Ensure re-hydration matches server state
+    // Simular la obtención del estado inicial después de que el componente se monte
+    const currentStatus = getRegistrationStatus(tournament?.id || '');
+    setRegistrationStatus(currentStatus);
+    if(currentStatus === 'approved'){
+        setShowChat(true); // Mostrar chat si ya está aprobado
+    }
+    setIsMounted(true); // Asegurar que la re-hidratación coincida con el estado del servidor
   }, [tournament?.id]);
   
   useEffect(() => {
-    // This effect runs when another browser tab (e.g. admin) changes the status
+    // Este efecto se ejecuta cuando otra pestaña del navegador (por ejemplo, admin) cambia el estado
     const handleStorageChange = () => {
-      setRegistrationStatus(getRegistrationStatus(tournament?.id || ''));
+      const currentStatus = getRegistrationStatus(tournament?.id || '');
+      setRegistrationStatus(currentStatus);
+       if(currentStatus === 'approved'){
+        setShowChat(true);
+      }
     };
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
   }, [tournament?.id]);
-
+  
+   useEffect(() => {
+    if (lastMessageRef.current) {
+      lastMessageRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
 
   if (!tournament) {
     notFound()
@@ -79,6 +108,20 @@ export default function TournamentDetailPage({ params }: { params: { id: string 
       description: `Tu solicitud para el torneo "${tournament.name}" está pendiente de aprobación.`,
     })
   }
+
+  const handleSendMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newMessage.trim()) return;
+
+    const message: Message = {
+      sender: 'me',
+      text: newMessage,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    };
+    
+    setMessages(prev => [...prev, message]);
+    setNewMessage("");
+  };
   
   const getButtonState = () => {
     switch (registrationStatus) {
@@ -95,10 +138,9 @@ export default function TournamentDetailPage({ params }: { params: { id: string 
   }
 
   const buttonState = getButtonState();
-  const canAccessChat = registrationStatus === 'approved';
 
   if (!isMounted) {
-    return null; // Avoid hydration mismatch
+    return null; // Evitar el desajuste de hidratación
   }
 
   return (
@@ -120,15 +162,58 @@ export default function TournamentDetailPage({ params }: { params: { id: string 
                 <p className="text-muted-foreground">
                     Prepárate para la batalla en el torneo {tournament.name}. Equipos de toda la región {tournament.region} competirán por la gloria y un premio de {tournament.prize}.
                 </p>
-                <div className="mt-4 flex gap-2">
-                    <Button disabled={!canAccessChat}>
-                        <MessageSquare className="mr-2 h-4 w-4"/>
-                        Acceder al Chat del Torneo
-                    </Button>
-                </div>
+                {registrationStatus === 'approved' && !showChat && (
+                    <div className="mt-4 flex gap-2">
+                        <Button onClick={() => setShowChat(true)}>
+                            <MessageSquare className="mr-2 h-4 w-4"/>
+                            Acceder al Chat del Torneo
+                        </Button>
+                    </div>
+                 )}
              </CardContent>
           </Card>
           
+          {showChat && (
+            <Card>
+                <CardHeader>
+                    <CardTitle>Chat del Torneo</CardTitle>
+                    <CardDescription>Comunícate con tu equipo y planea tu estrategia.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="h-[400px] flex flex-col">
+                        <ScrollArea className="flex-1 mb-4">
+                            <div className="p-4 space-y-4 text-sm">
+                                {messages.map((msg, index) => (
+                                    <div 
+                                        key={index} 
+                                        className={`flex gap-3 items-end ${msg.sender === 'me' ? 'justify-end' : 'justify-start'}`}
+                                        ref={index === messages.length - 1 ? lastMessageRef : null}
+                                    >
+                                        {msg.sender !== 'me' && <Avatar className="h-8 w-8"><AvatarImage src="https://placehold.co/40x40.png" data-ai-hint="gaming character"/><AvatarFallback>T</AvatarFallback></Avatar>}
+                                        <div className={`p-3 rounded-xl max-w-md ${msg.sender === 'me' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
+                                            {msg.text}
+                                        </div>
+                                         {msg.sender === 'me' && <Avatar className="h-8 w-8"><AvatarImage src={playerProfile.avatarUrl} data-ai-hint="gaming character"/><AvatarFallback>Yo</AvatarFallback></Avatar>}
+                                    </div>
+                                ))}
+                            </div>
+                        </ScrollArea>
+                        <form onSubmit={handleSendMessage} className="flex items-center gap-2">
+                            <Input 
+                                placeholder="Escribe un mensaje táctico..." 
+                                className="flex-1 bg-background" 
+                                value={newMessage}
+                                onChange={(e) => setNewMessage(e.target.value)}
+                            />
+                            <Button type="submit" size="icon">
+                                <Send className="h-5 w-5" />
+                            </Button>
+                        </form>
+                    </div>
+                </CardContent>
+            </Card>
+          )}
+
            {/* Equipos Inscritos */}
           <Card>
             <CardHeader>
