@@ -1,4 +1,5 @@
-import type { PlayerProfile, Tournament, Chat, NewsArticle, Team } from './types';
+
+import type { PlayerProfile, Tournament, Chat, NewsArticle, Team, RegistrationRequest } from './types';
 import type { PlayerProfileInput } from '@/ai/schemas';
 
 export const playerProfile: PlayerProfile = {
@@ -175,3 +176,31 @@ export const registeredTeams: Team[] = [
 ];
 
 export const teamMates = friendsForComparison.filter(f => f.id !== 'p1');
+
+export const initialRegistrationRequests: RegistrationRequest[] = [
+  {
+    id: 'req1',
+    teamName: 'Dream Team',
+    tournamentId: 't2',
+    tournamentName: 'Duelo de Titanes',
+    status: 'Pendiente',
+    players: [
+        { id: 'p1', name: 'Player1_Pro', avatarUrl: 'https://placehold.co/100x100.png'},
+        { id: 'c2', name: 'Ninja_Dude', avatarUrl: 'https://placehold.co/40x40/32CD32/FFFFFF.png'},
+    ]
+  }
+];
+
+// Helper functions to simulate registration state persistence (using localStorage)
+export const getRegistrationStatus = (tournamentId: string) => {
+  if (typeof window === 'undefined') return 'not_registered';
+  const status = window.localStorage.getItem(`tourney_reg_${tournamentId}`);
+  return (status || 'not_registered') as 'not_registered' | 'pending' | 'approved' | 'rejected';
+}
+
+export const updateRegistrationStatus = (tournamentId: string, status: 'not_registered' | 'pending' | 'approved' | 'rejected') => {
+  if (typeof window === 'undefined') return;
+  window.localStorage.setItem(`tourney_reg_${tournamentId}`, status);
+  // Dispatch a storage event to notify other tabs (like the admin tab)
+  window.dispatchEvent(new Event('storage'));
+}

@@ -1,3 +1,4 @@
+
 export type PlayerProfile = {
   id: string;
   name: string;
@@ -50,4 +51,13 @@ export type Team = {
     id: string;
     name: string;
     players: Player[];
+};
+
+export type RegistrationRequest = {
+    id: string;
+    teamName: string;
+    tournamentId: string;
+    tournamentName: string;
+    players: Player[];
+    status: 'Pendiente' | 'Aprobado' | 'Rechazado';
 };

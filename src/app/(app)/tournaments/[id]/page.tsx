@@ -1,9 +1,9 @@
 
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { notFound } from "next/navigation"
-import { tournaments, playerProfile, teamMates, registeredTeams } from "@/lib/data"
+import { tournaments, playerProfile, teamMates, registeredTeams, getRegistrationStatus, updateRegistrationStatus } from "@/lib/data"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -11,13 +11,31 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
-import { Calendar, Users, Trophy, Shield, MessageSquare, PlusCircle } from "lucide-react"
+import { Calendar, Users, Trophy, Shield, MessageSquare, PlusCircle, AlertCircle } from "lucide-react"
 
 export default function TournamentDetailPage({ params }: { params: { id: string } }) {
   const { toast } = useToast();
   const tournament = tournaments.find(t => t.id === params.id)
+  
   const [selectedTeammates, setSelectedTeammates] = useState<Set<string>>(new Set())
-  const [isRegistered, setIsRegistered] = useState(false);
+  const [registrationStatus, setRegistrationStatus] = useState<'not_registered' | 'pending' | 'approved' | 'rejected'>('not_registered');
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    // Simulate fetching initial status after component mounts
+    setRegistrationStatus(getRegistrationStatus(tournament?.id || ''));
+    setIsMounted(true); // Ensure re-hydration matches server state
+  }, [tournament?.id]);
+  
+  useEffect(() => {
+    // This effect runs when another browser tab (e.g. admin) changes the status
+    const handleStorageChange = () => {
+      setRegistrationStatus(getRegistrationStatus(tournament?.id || ''));
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [tournament?.id]);
+
 
   if (!tournament) {
     notFound()
@@ -53,14 +71,35 @@ export default function TournamentDetailPage({ params }: { params: { id: string 
         return;
     }
     
-    setIsRegistered(true);
+    updateRegistrationStatus(tournament.id, 'pending');
+    setRegistrationStatus('pending');
+
     toast({
-      title: "¡Inscripción Exitosa!",
-      description: `Tu equipo ha sido inscrito en el torneo "${tournament.name}".`,
+      title: "Solicitud Enviada",
+      description: `Tu solicitud para el torneo "${tournament.name}" está pendiente de aprobación.`,
     })
   }
+  
+  const getButtonState = () => {
+    switch (registrationStatus) {
+      case 'pending':
+        return { text: 'Solicitud Pendiente', disabled: true };
+      case 'approved':
+        return { text: 'Inscripción Aprobada', disabled: true };
+      case 'rejected':
+        return { text: 'Solicitud Rechazada', disabled: true };
+      case 'not_registered':
+      default:
+        return { text: `Inscribir ${tournament.mode}`, disabled: tournament.status !== 'Abierto' };
+    }
+  }
 
-  const canRegister = tournament.status === 'Abierto';
+  const buttonState = getButtonState();
+  const canAccessChat = registrationStatus === 'approved';
+
+  if (!isMounted) {
+    return null; // Avoid hydration mismatch
+  }
 
   return (
     <div className="space-y-8">
@@ -82,7 +121,7 @@ export default function TournamentDetailPage({ params }: { params: { id: string 
                     Prepárate para la batalla en el torneo {tournament.name}. Equipos de toda la región {tournament.region} competirán por la gloria y un premio de {tournament.prize}.
                 </p>
                 <div className="mt-4 flex gap-2">
-                    <Button disabled={!canRegister}>
+                    <Button disabled={!canAccessChat}>
                         <MessageSquare className="mr-2 h-4 w-4"/>
                         Acceder al Chat del Torneo
                     </Button>
@@ -120,11 +159,11 @@ export default function TournamentDetailPage({ params }: { params: { id: string 
             <CardHeader>
               <CardTitle className="flex items-center gap-2"><PlusCircle className="h-5 w-5 text-primary"/> Inscribir Escuadra</CardTitle>
               <CardDescription>
-                {canRegister ? "Selecciona tu equipo y prepárate." : "Las inscripciones están cerradas."}
+                {tournament.status === 'Abierto' ? "Selecciona tu equipo y envía la solicitud." : "Las inscripciones están cerradas."}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-                {tournament.mode !== 'Solo' && canRegister && (
+                {tournament.mode !== 'Solo' && (
                     <div>
                         <h4 className="font-semibold mb-2">Tu Escuadra</h4>
                         <div className="space-y-3">
@@ -151,6 +190,7 @@ export default function TournamentDetailPage({ params }: { params: { id: string 
                                         id={`teammate-${teammate.id}`} 
                                         onCheckedChange={() => handleSelectTeammate(teammate.id)}
                                         checked={selectedTeammates.has(teammate.id)}
+                                        disabled={registrationStatus !== 'not_registered'}
                                     />
                                     <Label htmlFor={`teammate-${teammate.id}`} className="flex items-center gap-2 cursor-pointer w-full">
                                         <Avatar className="h-8 w-8">
@@ -169,10 +209,14 @@ export default function TournamentDetailPage({ params }: { params: { id: string 
                     </div>
                 )}
               
-                <Button onClick={handleRegisterTeam} className="w-full" disabled={!canRegister || isRegistered}>
-                    {isRegistered ? 'Inscrito' : canRegister ? `Inscribir ${tournament.mode}` : 'Inscripciones Cerradas'}
+                <Button onClick={handleRegisterTeam} className="w-full" disabled={buttonState.disabled}>
+                    {buttonState.text}
                 </Button>
-                 {isRegistered && <p className="text-sm text-center text-green-600">¡Tu equipo está listo para la batalla!</p>}
+
+                 {registrationStatus === 'approved' && <p className="text-sm text-center text-green-600">¡Inscripción aprobada! Ya puedes acceder al chat del torneo.</p>}
+                 {registrationStatus === 'rejected' && <p className="text-sm text-center text-red-600 flex items-center justify-center gap-1"><AlertCircle className="h-4 w-4"/> Tu solicitud ha sido rechazada.</p>}
+                 {registrationStatus === 'pending' && <p className="text-sm text-center text-amber-600">Tu solicitud está pendiente de aprobación por un administrador.</p>}
+
             </CardContent>
           </Card>
         </div>
