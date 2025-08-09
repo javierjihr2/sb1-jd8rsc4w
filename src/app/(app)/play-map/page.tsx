@@ -10,8 +10,9 @@ import { Label } from "@/components/ui/label";
 import { getMapPlan } from "@/ai/flows/mapPlannerFlow";
 import type { MapPlanner, MapPlannerInput } from "@/ai/schemas";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Loader2, Sparkles, Map, MapPin, Gamepad2, Shield, Users, Trophy, Lightbulb, Terminal, Route, Bomb, ThumbsUp, ThumbsDown, Car } from "lucide-react";
+import { Loader2, Sparkles, Map, MapPin, Gamepad2, Shield, Users, Trophy, Lightbulb, Terminal, Route, Bomb, ThumbsUp, ThumbsDown, Car, Target } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 
 const mapOptions = [
     { value: "erangel", label: "Erangel", imageUrl: "https://placehold.co/200x200.png" },
@@ -163,6 +164,32 @@ export default function PlayMapPage() {
         </Card>
     );
 
+    const renderWeaponCard = (title: string, weapon: any) => (
+        <Card className="bg-muted/30 flex-1">
+            <CardHeader>
+                <CardTitle className="text-lg">{title}</CardTitle>
+                <CardDescription>{weapon.name}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm">
+                <div>
+                    <h4 className="font-semibold">Mira Recomendada:</h4>
+                    <p className="text-muted-foreground">{weapon.sight}</p>
+                </div>
+                <div>
+                    <h4 className="font-semibold">Accesorios Clave:</h4>
+                    <ul className="list-disc list-inside text-muted-foreground">
+                       {weapon.attachments.map((att: string, i: number) => <li key={i}>{att}</li>)}
+                    </ul>
+                </div>
+                 <div>
+                    <h4 className="font-semibold">Justificación Táctica:</h4>
+                    <p className="text-muted-foreground italic">"{weapon.justification}"</p>
+                </div>
+            </CardContent>
+        </Card>
+    );
+
+
     return (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
             <div className="lg:col-span-1 space-y-8 lg:sticky top-20">
@@ -178,7 +205,7 @@ export default function PlayMapPage() {
                     <CardContent className="space-y-4">
                         <div className="space-y-2">
                             <Label>Mapa</Label>
-                            <Select onValueChange={(value) => setInput(p => ({ ...p, map: value, dropZone: undefined }))} value={input.map}>
+                            <Select onValueChange={(value) => setInput(p => ({ ...p, map: value, dropZone: undefined, zonePointA: undefined, zonePointB: undefined }))} value={input.map}>
                                 <SelectTrigger><SelectValue placeholder="Selecciona un mapa" /></SelectTrigger>
                                 <SelectContent>{mapOptions.map(m => <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>)}</SelectContent>
                             </Select>
@@ -197,6 +224,13 @@ export default function PlayMapPage() {
                                     ))}
                                 </SelectContent>
                             </Select>
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Posible Cierre de Zona (Opcional)</Label>
+                            <div className="grid grid-cols-2 gap-2">
+                                <Select onValueChange={(v) => setInput(p => ({...p, zonePointA: v}))} value={input.zonePointA} disabled={!input.map}><SelectTrigger><SelectValue placeholder="Punto A"/></SelectTrigger><SelectContent>{input.map && mapDropZones[input.map]?.map(dz => (<SelectItem key={dz.value} value={dz.value}>{dz.label}</SelectItem>))}</SelectContent></Select>
+                                <Select onValueChange={(v) => setInput(p => ({...p, zonePointB: v}))} value={input.zonePointB} disabled={!input.map}><SelectTrigger><SelectValue placeholder="Punto B"/></SelectTrigger><SelectContent>{input.map && mapDropZones[input.map]?.map(dz => (<SelectItem key={dz.value} value={dz.value}>{dz.label}</SelectItem>))}</SelectContent></Select>
+                            </div>
                         </div>
                          <div className="space-y-2">
                             <Label>Estilo de Juego</Label>
@@ -322,60 +356,63 @@ export default function PlayMapPage() {
                             </CardContent>
                         </Card>
 
-                        <div className="grid md:grid-cols-2 gap-6">
-                            <Card>
-                                 <CardHeader>
-                                    <CardTitle className="flex items-center gap-2"><Bomb className="h-5 w-5 text-primary"/> Equipamiento Ideal</CardTitle>
-                                 </CardHeader>
-                                 <CardContent>
-                                    <p><strong className="text-accent">Principal:</strong> {plan.recommendedLoadout.primaryWeapon}</p>
-                                    <p><strong className="text-accent">Secundaria:</strong> {plan.recommendedLoadout.secondaryWeapon}</p>
-                                    <p className="text-sm text-muted-foreground mt-2 italic">{plan.recommendedLoadout.reason}</p>
-                                 </CardContent>
-                            </Card>
-                            
-                            <Card>
-                                <CardHeader>
-                                <CardTitle className="flex items-center gap-2"><Route className="h-5 w-5 text-primary"/> Plan de Rotación Detallado</CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-4">
-                                <div>
-                                    <h4 className="font-semibold mb-1">Ruta Sugerida:</h4>
-                                    <p className="text-sm text-muted-foreground">{plan.rotationPlan.route}</p>
-                                </div>
-                                <div>
-                                    <h4 className="font-semibold mb-1">Consideraciones:</h4>
-                                    <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                                    {plan.rotationPlan.considerations.map((item, i) => <li key={i}>{item}</li>)}
-                                    </ul>
-                                </div>
-                                <div className="grid grid-cols-2 gap-4 text-sm">
-                                    <div>
-                                    <h4 className="font-semibold mb-1 flex items-center gap-1"><ThumbsUp className="h-4 w-4 text-green-500" /> Ventajas</h4>
-                                    <ul className="list-disc list-inside text-muted-foreground space-y-1">
-                                        {plan.rotationPlan.advantages.map((item, i) => <li key={i}>{item}</li>)}
-                                    </ul>
-                                    </div>
-                                    <div>
-                                    <h4 className="font-semibold mb-1 flex items-center gap-1"><ThumbsDown className="h-4 w-4 text-red-500"/> Desventajas</h4>
-                                    <ul className="list-disc list-inside text-muted-foreground space-y-1">
-                                        {plan.rotationPlan.disadvantages.map((item, i) => <li key={i}>{item}</li>)}
-                                    </ul>
-                                    </div>
-                                </div>
-                                </CardContent>
-                            </Card>
-                        </div>
+                        <Card>
+                             <CardHeader>
+                                <CardTitle className="flex items-center gap-2"><Bomb className="h-5 w-5 text-primary"/> Equipamiento Táctico Recomendado</CardTitle>
+                             </CardHeader>
+                             <CardContent className="space-y-4 md:space-y-0 md:flex md:gap-4">
+                                {renderWeaponCard("Arma Principal", plan.recommendedLoadout.primaryWeapon)}
+                                {renderWeaponCard("Arma Secundaria", plan.recommendedLoadout.secondaryWeapon)}
+                             </CardContent>
+                        </Card>
+                        
                         <Card>
                             <CardHeader>
-                                <CardTitle className="flex items-center gap-2"><Car className="h-5 w-5 text-primary"/> Sugerencia de Vehículo</CardTitle>
+                            <CardTitle className="flex items-center gap-2"><Route className="h-5 w-5 text-primary"/> Plan de Rotación Detallado</CardTitle>
+                             {lastUsedInput.zonePointA && lastUsedInput.zonePointB && (
+                                <CardDescription>Ruta optimizada para un posible cierre entre <Badge variant="secondary">{lastUsedInput.zonePointA}</Badge> y <Badge variant="secondary">{lastUsedInput.zonePointB}</Badge>.</CardDescription>
+                            )}
                             </CardHeader>
-                            <CardContent className="space-y-2">
-                                <p><strong className="text-accent">Tipo de Vehículo:</strong> {plan.rotationPlan.vehicleSuggestion.vehicleType}</p>
-                                <p><strong className="text-accent">Razón:</strong> {plan.rotationPlan.vehicleSuggestion.reason}</p>
-                                <p className="text-sm text-muted-foreground pt-2 italic">{plan.rotationPlan.vehicleSuggestion.fuelCheck}</p>
+                            <CardContent className="space-y-4">
+                            <div>
+                                <h4 className="font-semibold mb-1">Ruta Sugerida:</h4>
+                                <p className="text-sm text-muted-foreground">{plan.rotationPlan.route}</p>
+                            </div>
+                            <div>
+                                <h4 className="font-semibold mb-1 flex items-center gap-2"><Target className="h-4 w-4"/>Consideraciones Clave:</h4>
+                                <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                                {plan.rotationPlan.considerations.map((item, i) => <li key={i}>{item}</li>)}
+                                </ul>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                <div>
+                                <h4 className="font-semibold mb-1 flex items-center gap-1"><ThumbsUp className="h-4 w-4 text-green-500" /> Ventajas</h4>
+                                <ul className="list-disc list-inside text-muted-foreground space-y-1">
+                                    {plan.rotationPlan.advantages.map((item, i) => <li key={i}>{item}</li>)}
+                                </ul>
+                                </div>
+                                <div>
+                                <h4 className="font-semibold mb-1 flex items-center gap-1"><ThumbsDown className="h-4 w-4 text-red-500"/> Desventajas</h4>
+                                <ul className="list-disc list-inside text-muted-foreground space-y-1">
+                                    {plan.rotationPlan.disadvantages.map((item, i) => <li key={i}>{item}</li>)}
+                                </ul>
+                                </div>
+                            </div>
+                             <Card className="bg-muted/50">
+                                <CardHeader className="flex-row items-center gap-4 space-y-0 p-4">
+                                     <div className="p-2 bg-primary/10 rounded-full"><Car className="h-6 w-6 text-primary" /></div>
+                                     <div>
+                                        <h4 className="font-semibold">Sugerencia de Vehículo: {plan.rotationPlan.vehicleSuggestion.vehicleType}</h4>
+                                        <p className="text-sm text-muted-foreground">{plan.rotationPlan.vehicleSuggestion.reason}</p>
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="p-4 pt-0">
+                                     <p className="text-xs text-muted-foreground italic">{plan.rotationPlan.vehicleSuggestion.fuelCheck}</p>
+                                </CardContent>
+                             </Card>
                             </CardContent>
                         </Card>
+
                     </div>
                 )}
             </div>

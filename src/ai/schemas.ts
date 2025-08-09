@@ -40,9 +40,18 @@ export const MapPlannerInputSchema = z.object({
   playStyle: z.string().describe('El estilo de juego deseado para el equipo (ej., Agresivo, Pasivo, Equilibrado).'),
   squadSize: z.number().describe('El número de jugadores en la escuadra (1-4).'),
   riskLevel: z.string().describe("El nivel de riesgo que el jugador está dispuesto a asumir (Bajo, Medio, Alto)."),
-  focus: z.string().describe("El enfoque principal de la partida (Rotación, Combate, Loteo).")
+  focus: z.string().describe("El enfoque principal de la partida (Rotación, Combate, Loteo)."),
+  zonePointA: z.string().optional().describe("El primer punto de un posible corredor de cierre de zona para el final de la partida."),
+  zonePointB: z.string().optional().describe("El segundo punto de un posible corredor de cierre de zona para el final de la partida."),
 });
 export type MapPlannerInput = z.infer<typeof MapPlannerInputSchema>;
+
+const WeaponLoadoutSchema = z.object({
+  name: z.string().describe("El nombre del arma recomendada."),
+  sight: z.string().describe("La mira recomendada para el arma (ej. 'Mira 6x', 'Punto Rojo')."),
+  attachments: z.array(z.string()).describe("Una lista de 2-3 accesorios clave recomendados para el arma (ej. 'Culata táctica', 'Cargador ampliado rápido')."),
+  justification: z.string().describe("Una justificación concisa de por qué esta configuración de arma es ideal para el plan."),
+});
 
 export const MapPlannerSchema = z.object({
   planTitle: z.string().describe('Un título creativo y descriptivo para el plan de partida.'),
@@ -57,10 +66,9 @@ export const MapPlannerSchema = z.object({
       plan: z.string().describe('El plan conciso para el juego tardío, incluyendo la estrategia del círculo final e identificación de posiciones clave.'),
   }),
   recommendedLoadout: z.object({
-      primaryWeapon: z.string().describe("El arma principal recomendada para este plan."),
-      secondaryWeapon: z.string().describe("El arma secundaria recomendada para este plan."),
-      reason: z.string().describe("Una justificación muy breve y concisa de por qué este equipamiento es ideal."),
-  }).describe("Equipamiento recomendado para ejecutar el plan con éxito."),
+      primaryWeapon: WeaponLoadoutSchema,
+      secondaryWeapon: WeaponLoadoutSchema,
+  }).describe("Equipamiento detallado y recomendado para ejecutar el plan con éxito."),
   rotationPlan: z.object({
     route: z.string().describe("La descripción de la ruta de rotación principal."),
     considerations: z.array(z.string()).describe("Una lista de 2-3 puntos clave o hitos a considerar durante la rotación."),
