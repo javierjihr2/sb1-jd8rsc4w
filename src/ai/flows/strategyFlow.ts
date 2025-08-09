@@ -25,7 +25,13 @@ El usuario quiere jugar en el mapa '{{{map}}}' con una escuadra de {{{squadSize}
 
 Genera una estrategia completa que cubra todas las fases del juego. Sé específico y proporciona instrucciones claras y concisas. El tono debe ser autoritario y experto. El plan para el final del juego debe tener muy en cuenta tu conocimiento de los cambios de zona comunes y los círculos finales para el mapa seleccionado.
 
-Proporciona la respuesta en el formato JSON solicitado. Los consejos deben ser concisos y muy relevantes para la estrategia.`,
+Proporciona la respuesta en el formato JSON solicitado. Los consejos deben ser concisos y muy relevantes para la estrategia.
+1. **strategyTitle**: Un título creativo y descriptivo para la estrategia.
+2. **dropZone**: Recomienda una zona de aterrizaje específica y da una razón táctica para ello.
+3. **earlyGame**: Define un plan para la fase inicial (looteo, primera rotación).
+4. **midGame**: Define un plan para la fase media (control de zonas, cuándo luchar).
+5. **lateGame**: Define un plan para el final de la partida (posicionamiento en el círculo final, control de zonas de poder).
+6. **tips**: Ofrece 2-3 consejos tácticos esenciales para ejecutar con éxito el plan.`,
 });
 
 const strategyFlow = ai.defineFlow(

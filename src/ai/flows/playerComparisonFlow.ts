@@ -46,7 +46,7 @@ Perfiles de los Jugadores:
   - Horario de Juego: {{{player2.playSchedule}}}
 
 Instrucciones:
-1.  **Análisis de Sinergia:** En 2-3 frases, describe cómo sus estilos de juego se complementan. Sé directo y evita el texto de relleno.
+1.  **Análisis de Sinergia:** En 2-3 frases, describe cómo sus estilos de juego se complementan. Sé directo y evita el texto de relleno. Considera sus armas y rangos.
 2.  **Fortalezas Combinadas:** Enumera 2-3 fortalezas clave que este dúo tendría. Sé breve y usa viñetas.
 3.  **Consejos para el Dúo:** Ofrece 2 consejos prácticos y accionables para que maximicen su potencial. Cada consejo debe ser una sola frase.
 4.  **Veredicto:** Ofrece un veredicto final en una sola frase concisa sobre su potencial como dúo.
@@ -68,3 +68,4 @@ const playerComparisonFlow = ai.defineFlow(
     return output;
   }
 );
+
