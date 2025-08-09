@@ -37,10 +37,9 @@ export type PlayerAnalysis = z.infer<typeof PlayerAnalysisSchema>;
 export const MapPlannerInputSchema = z.object({
   map: z.string().describe('El mapa del juego (ej., Erangel, Miramar).'),
   dropZone: z.string().describe('La zona de aterrizaje específica seleccionada por el jugador (ej. Pochinki, School).'),
-  playStyle: z.string().describe('El estilo de juego deseado para el equipo (ej., Agresivo, Pasivo, Equilibrado).'),
+  playStyle: z.string().describe('El estilo de juego deseado para el equipo (ej., Agresivo, Estratégico, Equilibrado).'),
   squadSize: z.number().describe('El número de jugadores en la escuadra (1-4).'),
-  riskLevel: z.string().describe("El nivel de riesgo que el jugador está dispuesto a asumir (Bajo, Medio, Alto)."),
-  focus: z.string().describe("El enfoque principal de la partida (Rotación, Combate, Loteo)."),
+  currentLocation: z.string().optional().describe("La ubicación actual del jugador en el mapa desde donde se necesita el plan de rotación."),
   zonePointA: z.string().optional().describe("El primer punto de un posible corredor de cierre de zona para el final de la partida."),
   zonePointB: z.string().optional().describe("El segundo punto de un posible corredor de cierre de zona para el final de la partida."),
   zoneCircleNumber: z.number().optional().describe("El número del círculo de la zona segura actual."),

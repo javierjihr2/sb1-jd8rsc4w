@@ -116,7 +116,7 @@ export default function PlayMapPage() {
     const [lastUsedInput, setLastUsedInput] = useState<Partial<MapPlannerInput> | null>(null);
 
     const handleGeneratePlan = async () => {
-        if (!input.map || !input.dropZone || !input.playStyle || !input.squadSize || !input.riskLevel || !input.focus) {
+        if (!input.map || !input.dropZone || !input.playStyle || !input.squadSize) {
             setError("Por favor, completa todos los campos para generar un plan.");
             return;
         }
@@ -206,7 +206,7 @@ export default function PlayMapPage() {
                     <CardContent className="space-y-4">
                         <div className="space-y-2">
                             <Label>Mapa</Label>
-                            <Select onValueChange={(value) => setInput(p => ({ ...p, map: value, dropZone: undefined, zonePointA: undefined, zonePointB: undefined }))} value={input.map}>
+                            <Select onValueChange={(value) => setInput(p => ({ ...p, map: value, dropZone: undefined, zonePointA: undefined, zonePointB: undefined, currentLocation: undefined }))} value={input.map}>
                                 <SelectTrigger><SelectValue placeholder="Selecciona un mapa" /></SelectTrigger>
                                 <SelectContent>{mapOptions.map(m => <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>)}</SelectContent>
                             </Select>
@@ -219,6 +219,21 @@ export default function PlayMapPage() {
                                 disabled={!input.map}
                             >
                                 <SelectTrigger id="dropzone"><SelectValue placeholder={!input.map ? "Primero selecciona un mapa" : "Selecciona una zona"} /></SelectTrigger>
+                                <SelectContent>
+                                    {input.map && mapDropZones[input.map]?.map(dz => (
+                                        <SelectItem key={dz.value} value={dz.value}>{dz.label}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                         <div className="space-y-2">
+                            <Label>Tu Ubicación Actual (Opcional)</Label>
+                            <Select 
+                                onValueChange={(value) => setInput(p => ({ ...p, currentLocation: value }))} 
+                                value={input.currentLocation}
+                                disabled={!input.map}
+                            >
+                                <SelectTrigger><SelectValue placeholder={!input.map ? "Primero selecciona un mapa" : "Selecciona tu ubicación actual"} /></SelectTrigger>
                                 <SelectContent>
                                     {input.map && mapDropZones[input.map]?.map(dz => (
                                         <SelectItem key={dz.value} value={dz.value}>{dz.label}</SelectItem>
@@ -249,31 +264,9 @@ export default function PlayMapPage() {
                             <Select onValueChange={(value) => setInput(p => ({ ...p, playStyle: value }))} value={input.playStyle}>
                                 <SelectTrigger><SelectValue placeholder="Selecciona un estilo" /></SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="A por todas (Rusher)">A por todas (Rusher)</SelectItem>
-                                    <SelectItem value="Con calma (Estrategico)">Con calma (Estratégico)</SelectItem>
-                                    <SelectItem value="Equilibrado (Adaptable)">Equilibrado (Adaptable)</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                         <div className="space-y-2">
-                            <Label>Nivel de Riesgo</Label>
-                            <Select onValueChange={(value) => setInput(p => ({ ...p, riskLevel: value }))} value={input.riskLevel}>
-                                <SelectTrigger><SelectValue placeholder="Define el riesgo" /></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="Bajo">Bajo (Caídas seguras)</SelectItem>
-                                    <SelectItem value="Medio">Medio (Zonas disputadas)</SelectItem>
-                                    <SelectItem value="Alto">Alto (Hot drops)</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                         <div className="space-y-2">
-                            <Label>Enfoque Principal</Label>
-                            <Select onValueChange={(value) => setInput(p => ({ ...p, focus: value }))} value={input.focus}>
-                                <SelectTrigger><SelectValue placeholder="Prioridad de la partida" /></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="Rotacion y Posicionamiento">Rotación y Posicionamiento</SelectItem>
-                                    <SelectItem value="Busqueda de Combate">Búsqueda de Combate</SelectItem>
-                                    <SelectItem value="Loteo Extremo">Loteo Extremo</SelectItem>
+                                    <SelectItem value="Agresivo (Hot Drops y Combate)">Agresivo (Hot Drops y Combate)</SelectItem>
+                                    <SelectItem value="Estrategico (Caidas Seguras y Rotacion)">Estratégico (Caídas Seguras y Rotación)</SelectItem>
+                                    <SelectItem value="Equilibrado (Adaptable a la Zona)">Equilibrado (Adaptable a la Zona)</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
