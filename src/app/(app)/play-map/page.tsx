@@ -297,19 +297,28 @@ export default function PlayMapPage() {
                              <CardHeader>
                                 <CardTitle className="flex items-center gap-2"><Lightbulb className="h-5 w-5 text-primary"/> Fases de la Partida</CardTitle>
                              </CardHeader>
-                             <CardContent className="grid md:grid-cols-3 gap-4 text-left">
-                                <div className="p-4 bg-muted/50 rounded-lg">
-                                    <h4 className="font-semibold flex items-center gap-2 mb-2"><Shield className="h-5 w-5 text-accent"/> Juego Temprano</h4>
-                                    <p className="text-muted-foreground text-sm">{plan.earlyGame.plan}</p>
-                                </div>
-                                 <div className="p-4 bg-muted/50 rounded-lg">
-                                    <h4 className="font-semibold flex items-center gap-2 mb-2"><Gamepad2 className="h-5 w-5 text-accent"/> Juego Medio</h4>
-                                    <p className="text-muted-foreground text-sm">{plan.midGame.plan}</p>
-                                </div>
-                                <div className="p-4 bg-muted/50 rounded-lg">
-                                    <h4 className="font-semibold flex items-center gap-2 mb-2"><Trophy className="h-5 w-5 text-accent"/> Juego Tardío</h4>
-                                    <p className="text-muted-foreground text-sm">{plan.lateGame.plan}</p>
-                                </div>
+                             <CardContent className="space-y-4">
+                                <Card className="p-4 flex flex-col md:flex-row items-center gap-4 bg-muted/50">
+                                    <Image src="https://placehold.co/150x100.png" width={150} height={100} alt="Juego Temprano" className="rounded-lg object-cover" data-ai-hint="looting game" />
+                                    <div className="flex-1">
+                                        <h4 className="font-semibold flex items-center gap-2 mb-2 text-lg"><Shield className="h-5 w-5 text-accent"/> Juego Temprano</h4>
+                                        <p className="text-muted-foreground text-sm">{plan.earlyGame.plan}</p>
+                                    </div>
+                                </Card>
+                               <Card className="p-4 flex flex-col md:flex-row items-center gap-4 bg-muted/50">
+                                    <Image src="https://placehold.co/150x100.png" width={150} height={100} alt="Juego Medio" className="rounded-lg object-cover" data-ai-hint="combat game" />
+                                    <div className="flex-1">
+                                        <h4 className="font-semibold flex items-center gap-2 mb-2 text-lg"><Gamepad2 className="h-5 w-5 text-accent"/> Juego Medio</h4>
+                                        <p className="text-muted-foreground text-sm">{plan.midGame.plan}</p>
+                                    </div>
+                                </Card>
+                                <Card className="p-4 flex flex-col md:flex-row items-center gap-4 bg-muted/50">
+                                    <Image src="https://placehold.co/150x100.png" width={150} height={100} alt="Juego Tardío" className="rounded-lg object-cover" data-ai-hint="final circle" />
+                                    <div className="flex-1">
+                                        <h4 className="font-semibold flex items-center gap-2 mb-2 text-lg"><Trophy className="h-5 w-5 text-accent"/> Juego Tardío</h4>
+                                        <p className="text-muted-foreground text-sm">{plan.lateGame.plan}</p>
+                                    </div>
+                                </Card>
                             </CardContent>
                         </Card>
 
@@ -341,3 +350,5 @@ export default function PlayMapPage() {
         </div>
     );
 }
+
+    
