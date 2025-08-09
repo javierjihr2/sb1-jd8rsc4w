@@ -70,7 +70,7 @@ export default function DashboardLayout({
     { href: "/tournaments", label: "Torneos", icon: Swords, badge: 0 },
     { href: "/chats", label: "Chats", icon: MessageSquare, badge: recentChats.filter(c => c.unread).length },
     { href: "/friends", label: "Amigos", icon: Users2, badge: 0 },
-    { href: "/matchmaking", label: "Buscar Equipo", icon: Search, badge: 0 },
+    { href: "/matchmaking", label: "MATCH PUBGM", icon: Search, badge: 0 },
     { href: "/loadouts", label: "Equipamiento", icon: Wrench, badge: 0 },
     { href: "/recharge", label: "Recargar UC", icon: DollarSign, badge: 0 },
     { href: "/news", label: "Noticias", icon: Newspaper, badge: 0 },
