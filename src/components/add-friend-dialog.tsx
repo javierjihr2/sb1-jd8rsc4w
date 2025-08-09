@@ -95,13 +95,26 @@ export function AddFriendDialog({ children, triggerButton, isFilterDialog = fals
                             <SelectValue placeholder="Cualquier País" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="mx">México</SelectItem>
-                            <SelectItem value="co">Colombia</SelectItem>
                             <SelectItem value="ar">Argentina</SelectItem>
+                            <SelectItem value="bo">Bolivia</SelectItem>
+                            <SelectItem value="br">Brasil</SelectItem>
+                            <SelectItem value="ca">Canadá</SelectItem>
                             <SelectItem value="cl">Chile</SelectItem>
-                            <SelectItem value="pe">Perú</SelectItem>
-                            <SelectItem value="es">España</SelectItem>
+                            <SelectItem value="co">Colombia</SelectItem>
+                            <SelectItem value="cr">Costa Rica</SelectItem>
+                            <SelectItem value="ec">Ecuador</SelectItem>
+                            <SelectItem value="sv">El Salvador</SelectItem>
                             <SelectItem value="us">Estados Unidos</SelectItem>
+                            <SelectItem value="gt">Guatemala</SelectItem>
+                            <SelectItem value="hn">Honduras</SelectItem>
+                            <SelectItem value="mx">México</SelectItem>
+                            <SelectItem value="pa">Panamá</SelectItem>
+                            <SelectItem value="py">Paraguay</SelectItem>
+                            <SelectItem value="pe">Perú</SelectItem>
+                            <SelectItem value="pr">Puerto Rico</SelectItem>
+                            <SelectItem value="do">República Dominicana</SelectItem>
+                            <SelectItem value="uy">Uruguay</SelectItem>
+                            <SelectItem value="ve">Venezuela</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
