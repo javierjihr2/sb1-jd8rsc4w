@@ -89,3 +89,10 @@ export type FeedPost = {
     likes: number;
     comments: number;
 }
+
+export type RechargeProvider = {
+    name: string;
+    description: string;
+    url: string;
+    logoUrl: string;
+};

@@ -1,25 +1,14 @@
 
+"use client"
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { DollarSign, ExternalLink, Info } from "lucide-react";
 import Link from "next/link";
+import { rechargeProviders } from "@/lib/data";
 
 export default function RechargePage() {
-    const providers = [
-        {
-            name: "Midasbuy",
-            description: "Plataforma oficial para recargas de UC en juegos populares. Segura y con bonificaciones frecuentes.",
-            url: "YOUR_MIDASBUY_AFFILIATE_LINK_HERE", 
-            logoUrl: "https://placehold.co/100x40/000000/FFFFFF.png"
-        },
-        {
-            name: "Eneba",
-            description: "Marketplace de claves de juegos y tarjetas de regalo donde a menudo se encuentran descuentos para UC.",
-            url: "YOUR_ENEBA_AFFILIATE_LINK_HERE", 
-            logoUrl: "https://placehold.co/100x40/3c3c3c/FFFFFF.png"
-        }
-    ]
-
+    
     return (
         <div className="space-y-8">
             <div>
@@ -33,7 +22,7 @@ export default function RechargePage() {
             </div>
 
             <div className="grid gap-6 md:grid-cols-2">
-                {providers.map(provider => (
+                {rechargeProviders.map(provider => (
                      <Card key={provider.name}>
                         <CardHeader>
                             <CardTitle className="flex items-center justify-between">
@@ -66,5 +55,5 @@ export default function RechargePage() {
                 <p>SquadUp: Mobile Battles no se hace responsable de las compras realizadas en sitios de terceros.</p>
             </div>
         </div>
-    );
+    )
 }

@@ -22,8 +22,8 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
-import { Code, UserPlus, Newspaper, Check, X, Users, Swords, PlusCircle, Pencil, Trash2, LayoutDashboard, Settings, DollarSign, BarChart, BellRing, Wrench } from "lucide-react"
-import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles, friendsForComparison as users } from "@/lib/data"
+import { Code, UserPlus, Newspaper, Check, X, Users, Swords, PlusCircle, Pencil, Trash2, LayoutDashboard, Settings, DollarSign, BarChart, BellRing, Wrench, Link as LinkIcon } from "lucide-react"
+import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles, friendsForComparison as users, rechargeProviders } from "@/lib/data"
 import type { RegistrationRequest, Tournament, NewsArticle } from "@/lib/types"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -482,6 +482,21 @@ export default function AdminPage() {
                                 </Select>
                                 <p className="text-xs text-muted-foreground">Los jugadores por debajo de este rango no aparecerán en la búsqueda de "Buscar Equipo".</p>
                            </div>
+                        </div>
+
+                        <div className="space-y-4 p-4 border rounded-lg">
+                           <h3 className="font-semibold flex items-center gap-2"><LinkIcon className="h-5 w-5 text-primary"/>Configuración de Afiliados</h3>
+                            <p className="text-sm text-muted-foreground">
+                                Edita los enlaces de afiliados para la página de recargas de UC.
+                            </p>
+                           {rechargeProviders.map((provider, index) => (
+                               <div key={index} className="space-y-3 p-3 bg-muted/50 rounded-lg">
+                                   <Label htmlFor={`provider-name-${index}`} className="font-semibold">{`Proveedor ${index + 1}`}</Label>
+                                   <Input id={`provider-name-${index}`} defaultValue={provider.name} />
+                                   <Label htmlFor={`provider-url-${index}`} className="text-sm">URL del Afiliado</Label>
+                                   <Input id={`provider-url-${index}`} defaultValue={provider.url} />
+                               </div>
+                           ))}
                         </div>
 
                     </CardContent>

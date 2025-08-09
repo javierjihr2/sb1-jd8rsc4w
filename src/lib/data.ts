@@ -1,6 +1,6 @@
 
 
-import type { PlayerProfile, Tournament, Chat, NewsArticle, Team, RegistrationRequest, FeedPost } from './types';
+import type { PlayerProfile, Tournament, Chat, NewsArticle, Team, RegistrationRequest, FeedPost, RechargeProvider } from './types';
 import type { PlayerProfileInput } from '@/ai/schemas';
 
 export const playerProfile: PlayerProfile = {
@@ -264,3 +264,18 @@ export const updateRegistrationStatus = (tournamentId: string, status: 'not_regi
   // Dispatch a storage event to notify other tabs (like the admin tab)
   window.dispatchEvent(new Event('storage'));
 }
+
+export const rechargeProviders: RechargeProvider[] = [
+    {
+        name: "Midasbuy",
+        description: "Plataforma oficial para recargas de UC en juegos populares. Segura y con bonificaciones frecuentes.",
+        url: "YOUR_MIDASBUY_AFFILIATE_LINK_HERE", 
+        logoUrl: "https://placehold.co/100x40/000000/FFFFFF.png"
+    },
+    {
+        name: "Eneba",
+        description: "Marketplace de claves de juegos y tarjetas de regalo donde a menudo se encuentran descuentos para UC.",
+        url: "YOUR_ENEBA_AFFILIATE_LINK_HERE", 
+        logoUrl: "https://placehold.co/100x40/3c3c3c/FFFFFF.png"
+    }
+];
