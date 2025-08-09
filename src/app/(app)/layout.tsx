@@ -22,6 +22,7 @@ import {
   Gamepad2,
   Users,
   Loader2,
+  Rss,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -64,6 +65,7 @@ export default function DashboardLayout({
 
   const navItems = [
     { href: "/dashboard", label: "Inicio", icon: Home, badge: 0 },
+    { href: "/feed", label: "Feed", icon: Rss, badge: 0 },
     { href: "/tournaments", label: "Torneos", icon: Swords, badge: 0 },
     { href: "/chats", label: "Chats", icon: MessageSquare, badge: recentChats.filter(c => c.unread).length },
     { href: "/friends", label: "Amigos", icon: Users2, badge: 0 },
