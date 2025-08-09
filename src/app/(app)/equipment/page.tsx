@@ -489,7 +489,6 @@ export default function EquipmentPage() {
                                     </div>
                                 </CardContent>
                             </Card>
-                        </div>
                         )}
                     </div>
                 </TabsContent>
@@ -497,3 +496,5 @@ export default function EquipmentPage() {
         </div>
     );
 }
+
+    
