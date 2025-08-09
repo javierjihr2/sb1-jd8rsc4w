@@ -9,10 +9,10 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { friendsForComparison } from "@/lib/data"
-import { Search, Heart, X, BarChartHorizontal, Users } from "lucide-react"
+import { Search, Heart, X, BarChartHorizontal, Users, Filter } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import Link from "next/link"
-import type { PlayerProfileInput } from "@/lib/types"
+import { AddFriendDialog } from "@/components/add-friend-dialog" // Reutilizaremos este diálogo para los filtros
 
 // Helper to shuffle an array
 const shuffleArray = (array: any[]) => {
@@ -29,6 +29,8 @@ const mapBackgrounds: {[key: string]: string} = {
     erangel: 'https://placehold.co/600x400.png',
     miramar: 'https://placehold.co/600x400.png',
     sanhok: 'https://placehold.co/600x400.png',
+    vikendi: 'https://placehold.co/600x400.png',
+    livik: 'https://placehold.co/600x400.png',
 }
 
 export default function MatchmakingPage() {
@@ -59,6 +61,19 @@ export default function MatchmakingPage() {
           </h1>
           <p className="text-muted-foreground max-w-lg mx-auto">Explora perfiles de la comunidad. Envía una solicitud de amistad o analiza la sinergia para encontrar a tu compañero de equipo ideal.</p>
         </div>
+        
+        <div className="flex justify-center w-full">
+            <AddFriendDialog
+              triggerButton={
+                <Button variant="outline">
+                  <Filter className="mr-2 h-4 w-4" />
+                  Filtros
+                </Button>
+              }
+              isFilterDialog={true}
+            />
+        </div>
+
 
       {currentPlayer ? (
         <Card className="w-full max-w-md overflow-hidden animate-in fade-in-50">
@@ -82,7 +97,7 @@ export default function MatchmakingPage() {
                 <Badge variant="secondary" className="mt-1">{currentPlayer.rank}</Badge>
 
                 <p className="text-sm text-muted-foreground mt-3 h-10">
-                    "Busco un dúo para llegar a Conquistador. Activo principalmente por las {currentPlayer.playSchedule}."
+                    "{currentPlayer.bio}"
                 </p>
 
                 <div className="space-y-3 mt-4 text-left text-sm">
@@ -111,7 +126,7 @@ export default function MatchmakingPage() {
                     <X className="h-6 w-6"/>
                 </Button>
                 <Button asChild variant="outline" size="lg">
-                    <Link href={`/compare?player1=${"p1"}&player2=${currentPlayer.id}`}>
+                    <Link href={`/compare?player1=p1&player2=${currentPlayer.id}`}>
                         <BarChartHorizontal className="h-6 w-6"/>
                     </Link>
                 </Button>

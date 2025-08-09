@@ -1,4 +1,5 @@
 
+
 import type { PlayerProfile, Tournament, Chat, NewsArticle, Team, RegistrationRequest, FeedPost } from './types';
 import type { PlayerProfileInput } from '@/ai/schemas';
 
@@ -124,7 +125,7 @@ export const newsArticles: NewsArticle[] = [
   },
 ];
 
-export const friendsForComparison: (PlayerProfileInput & { favoriteMap: string })[] = [
+export const friendsForComparison: (PlayerProfileInput & { favoriteMap: string, bio: string })[] = [
     {
       id: 'p1',
       name: 'Player1_Pro',
@@ -133,7 +134,8 @@ export const friendsForComparison: (PlayerProfileInput & { favoriteMap: string }
       stats: { wins: 124, kills: 2345, kdRatio: 4.8 },
       favoriteWeapons: ['M416', 'Kar98k'],
       playSchedule: 'Noches (20:00 - 00:00)',
-      favoriteMap: 'erangel'
+      favoriteMap: 'erangel',
+      bio: 'Busco dúo para llegar a Conquistador. Activo principalmente por las noches.'
     },
     {
       id: 'c2',
@@ -143,7 +145,8 @@ export const friendsForComparison: (PlayerProfileInput & { favoriteMap: string }
       stats: { wins: 98, kills: 1890, kdRatio: 4.2 },
       favoriteWeapons: ['AKM', 'SKS'],
       playSchedule: 'Fines de semana',
-      favoriteMap: 'sanhok'
+      favoriteMap: 'sanhok',
+      bio: 'Jugador agresivo, amante de Sanhok. Busco gente para rushear sin miedo.'
     },
     {
       id: 'c3',
@@ -153,7 +156,8 @@ export const friendsForComparison: (PlayerProfileInput & { favoriteMap: string }
       stats: { wins: 75, kills: 1500, kdRatio: 3.5 },
       favoriteWeapons: ['UMP45', 'M24'],
       playSchedule: 'Tardes (16:00 - 19:00)',
-      favoriteMap: 'miramar'
+      favoriteMap: 'miramar',
+      bio: 'Francotirador paciente. Me gusta controlar zonas y jugar táctico en Miramar.'
     },
     {
       id: 'c4',
@@ -163,10 +167,11 @@ export const friendsForComparison: (PlayerProfileInput & { favoriteMap: string }
       stats: { wins: 60, kills: 1200, kdRatio: 3.1 },
       favoriteWeapons: ['DP-28', 'Vector'],
       playSchedule: 'Variable',
-      favoriteMap: 'erangel'
+      favoriteMap: 'erangel',
+      bio: 'Juego por diversión pero me gusta ganar. Abierta a cualquier modo de juego.'
     },
-     { id: 'f1', name: 'GamerX_Treme', avatarUrl: 'https://placehold.co/40x40/FF6347/FFFFFF.png', rank: 'Platino II', stats: { wins: 30, kills: 600, kdRatio: 2.5 }, favoriteWeapons: ['SCAR-L', 'UMP45'], playSchedule: 'Noches', favoriteMap: 'sanhok'},
-     { id: 'f2', name: 'ProSlayer_99', avatarUrl: 'https://placehold.co/40x40/4682B4/FFFFFF.png', rank: 'Diamante V', stats: { wins: 55, kills: 1100, kdRatio: 2.9 }, favoriteWeapons: ['M762', 'Mini14'], playSchedule: 'Fines de semana', favoriteMap: 'miramar'},
+     { id: 'f1', name: 'GamerX_Treme', avatarUrl: 'https://placehold.co/40x40/FF6347/FFFFFF.png', rank: 'Platino II', stats: { wins: 30, kills: 600, kdRatio: 2.5 }, favoriteWeapons: ['SCAR-L', 'UMP45'], playSchedule: 'Noches', favoriteMap: 'sanhok', bio: 'Mejorando cada día. Busco gente para subir de rango juntos.'},
+     { id: 'f2', name: 'ProSlayer_99', avatarUrl: 'https://placehold.co/40x40/4682B4/FFFFFF.png', rank: 'Diamante V', stats: { wins: 55, kills: 1100, kdRatio: 2.9 }, favoriteWeapons: ['M762', 'Mini14'], playSchedule: 'Fines de semana', favoriteMap: 'miramar', bio: 'Conductor experto y buen support. ¡Vamos por esos Chicken Dinners!'},
 ];
 
 export const registeredTeams: Team[] = [

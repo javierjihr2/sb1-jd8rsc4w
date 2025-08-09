@@ -16,37 +16,110 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
 import { useState } from "react"
-import { Send } from "lucide-react"
+import { Send, Search } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
 
-export function AddFriendDialog({ children }: { children: React.ReactNode }) {
+
+interface AddFriendDialogProps {
+  children?: React.ReactNode;
+  triggerButton?: React.ReactNode;
+  isFilterDialog?: boolean;
+}
+
+
+export function AddFriendDialog({ children, triggerButton, isFilterDialog = false }: AddFriendDialogProps) {
   const { toast } = useToast()
   const [isOpen, setIsOpen] = useState(false)
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const formData = new FormData(event.currentTarget)
-    const friendName = formData.get("name")
     
-    toast({
-      title: "Solicitud Enviada",
-      description: `Tu solicitud de amistad para ${friendName} ha sido enviada.`,
-    })
+    if (isFilterDialog) {
+        // Lógica para filtros
+        toast({
+            title: "Filtros Aplicados",
+            description: "Se han actualizado los resultados de búsqueda.",
+        })
+    } else {
+        // Lógica para añadir amigo
+        const friendName = formData.get("name")
+        toast({
+            title: "Solicitud Enviada",
+            description: `Tu solicitud de amistad para ${friendName} ha sido enviada.`,
+        })
+    }
+    
     setIsOpen(false)
   }
+
+  const dialogTitle = isFilterDialog ? "Filtrar Jugadores" : "Añadir Amigo";
+  const dialogDescription = isFilterDialog ? "Ajusta tus preferencias para encontrar los compañeros de equipo ideales." : "Busca a un jugador por su nombre de usuario y envíale una solicitud de amistad.";
+  const submitButtonIcon = isFilterDialog ? <Search className="mr-2 h-4 w-4"/> : <Send className="mr-2 h-4 w-4"/>;
+  const submitButtonText = isFilterDialog ? "Aplicar Filtros" : "Enviar Solicitud";
+
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        {children}
+        {triggerButton ? triggerButton : children}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Añadir Amigo</DialogTitle>
+          <DialogTitle>{dialogTitle}</DialogTitle>
           <DialogDescription>
-            Busca a un jugador por su nombre de usuario y envíale una solicitud de amistad.
+            {dialogDescription}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
+         {isFilterDialog ? (
+             <div className="grid gap-4 py-4">
+                <div className="space-y-2">
+                    <Label htmlFor="filter-rank">Rango Mínimo</Label>
+                    <Select name="rank">
+                        <SelectTrigger id="filter-rank">
+                            <SelectValue placeholder="Cualquier Rango" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="bronce">Bronce</SelectItem>
+                            <SelectItem value="plata">Plata</SelectItem>
+                            <SelectItem value="oro">Oro</SelectItem>
+                            <SelectItem value="platino">Platino</SelectItem>
+                            <SelectItem value="diamante">Diamante</SelectItem>
+                            <SelectItem value="corona">Corona</SelectItem>
+                            <SelectItem value="as">As</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+                 <div className="space-y-2">
+                    <Label htmlFor="filter-playstyle">Estilo de Juego</Label>
+                    <Select name="playstyle">
+                        <SelectTrigger id="filter-playstyle">
+                            <SelectValue placeholder="Cualquier Estilo" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="agresivo">Agresivo</SelectItem>
+                            <SelectItem value="pasivo">Pasivo</SelectItem>
+                            <SelectItem value="equilibrado">Equilibrado</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="filter-schedule">Horario de Juego</Label>
+                    <Select name="schedule">
+                        <SelectTrigger id="filter-schedule">
+                            <SelectValue placeholder="Cualquier Horario" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="mañana">Mañana</SelectItem>
+                            <SelectItem value="tarde">Tarde</SelectItem>
+                            <SelectItem value="noche">Noche</SelectItem>
+                            <SelectItem value="findesemana">Fines de Semana</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+            </div>
+         ) : (
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="name" className="text-right">
@@ -66,10 +139,11 @@ export function AddFriendDialog({ children }: { children: React.ReactNode }) {
               />
             </div>
           </div>
+          )}
           <DialogFooter>
             <Button type="submit">
-                <Send className="mr-2 h-4 w-4"/>
-                Enviar Solicitud
+                {submitButtonIcon}
+                {submitButtonText}
             </Button>
           </DialogFooter>
         </form>
