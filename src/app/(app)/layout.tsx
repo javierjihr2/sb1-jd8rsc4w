@@ -77,7 +77,7 @@ export default function DashboardLayout({
     { href: "/support", label: "Soporte", icon: HelpCircle, badge: 0 },
     { href: "/player-analysis", label: "Análisis de Jugador", icon: BrainCircuit },
     { href: "/strategies", label: "Estrategias de Mapa", icon: Map },
-    { href: "/compare", label: "Comparador de Dúos", icon: Users2 },
+    { href: "/compare", label: "Comparador de Dúos", icon: Users },
     { href: "/sensitivity", label: "Asistente de Sensibilidad", icon: Smartphone },
     { href: "/controls", label: "Generador de Controles", icon: Gamepad2 },
     { href: "/player-analysis#avatar", label: "Generador de Avatar IA", icon: ImageIcon },

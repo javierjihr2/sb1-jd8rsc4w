@@ -71,7 +71,7 @@ export default function PlayerAnalysisPage() {
     const handleDownload = (imageUrl: string) => {
         const link = document.createElement('a');
         link.href = imageUrl;
-        link.download = `avatar-${Date.now()}.png`;
+        link.download = `squadup-avatar-${Date.now()}.png`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);

@@ -27,24 +27,21 @@ export default function StrategiesPage() {
     const [strategy, setStrategy] = useState<Strategy | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [selectedMapInfo, setSelectedMapInfo] = useState<{ value: string; label: string; imageUrl: string } | null>(null);
+    const [lastUsedInput, setLastUsedInput] = useState<StrategyInput | null>(null);
 
     const handleGenerateStrategy = async () => {
         if (!input.map || !input.playStyle || !input.squadSize) {
             setError("Por favor, completa todos los campos para generar una estrategia.");
             return;
         }
+        const fullInput = input as StrategyInput;
         setIsLoading(true);
         setError(null);
         setStrategy(null);
-        setSelectedMapInfo(null);
         try {
-            const result = await getStrategy(input as StrategyInput);
+            const result = await getStrategy(fullInput);
             setStrategy(result);
-            const selectedMap = mapOptions.find(m => m.value === input.map);
-            if (selectedMap) {
-                setSelectedMapInfo(selectedMap);
-            }
+            setLastUsedInput(fullInput);
         } catch (e: any) {
             setError("Hubo un error al contactar a la IA. Por favor, inténtalo de nuevo.");
             console.error(e);
@@ -52,6 +49,8 @@ export default function StrategiesPage() {
             setIsLoading(false);
         }
     };
+
+    const selectedMapInfo = lastUsedInput ? mapOptions.find(m => m.value === lastUsedInput.map) : null;
 
     const StrategySkeleton = () => (
         <Card>
@@ -163,14 +162,14 @@ export default function StrategiesPage() {
                     </Card>
                 )}
                 
-                {strategy && !isLoading && selectedMapInfo && (
+                {strategy && !isLoading && lastUsedInput && selectedMapInfo && (
                     <Card className="animate-in fade-in-50">
                         <CardHeader>
                             <CardTitle className="text-3xl text-primary">{strategy.strategyTitle}</CardTitle>
                             <CardDescription className="flex items-center gap-4 pt-2 capitalize">
                                 <span className="flex items-center gap-1"><MapPin className="h-4 w-4"/> {selectedMapInfo.label}</span>
-                                <span className="flex items-center gap-1"><Gamepad2 className="h-4 w-4"/> {input.playStyle}</span>
-                                <span className="flex items-center gap-1"><Users className="h-4 w-4"/> {input.squadSize} Jugador(es)</span>
+                                <span className="flex items-center gap-1"><Gamepad2 className="h-4 w-4"/> {lastUsedInput.playStyle}</span>
+                                <span className="flex items-center gap-1"><Users className="h-4 w-4"/> {lastUsedInput.squadSize} Jugador(es)</span>
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-8">
