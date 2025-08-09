@@ -22,13 +22,13 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
-import { Code, UserPlus, Newspaper, Check, X, Users, Swords, PlusCircle, Pencil, Trash2, LayoutDashboard, Settings, DollarSign, BarChart } from "lucide-react"
+import { Code, UserPlus, Newspaper, Check, X, Users, Swords, PlusCircle, Pencil, Trash2, LayoutDashboard, Settings, DollarSign, BarChart, BellRing, Wrench } from "lucide-react"
 import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles, friendsForComparison as users } from "@/lib/data"
 import type { RegistrationRequest, Tournament, NewsArticle } from "@/lib/types"
-import type { PlayerProfileInput } from "@/ai/schemas"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Switch } from "@/components/ui/switch"
 
 
 export default function AdminPage() {
@@ -57,6 +57,14 @@ export default function AdminPage() {
     toast({
       title: "Torneo Creado",
       description: "El nuevo torneo ha sido añadido a la lista.",
+    })
+  }
+  
+  const handleSaveSettings = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    toast({
+      title: "Ajustes Guardados",
+      description: "Las configuraciones globales de la aplicación han sido actualizadas.",
     })
   }
 
@@ -424,16 +432,63 @@ export default function AdminPage() {
         </TabsContent>
         <TabsContent value="settings" className="mt-6">
             <Card>
-                <CardHeader>
-                    <CardTitle>Ajustes Generales</CardTitle>
-                    <CardDescription>Configura las opciones globales de la aplicación. (Próximamente)</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="text-center text-muted-foreground py-12">
-                        <Settings className="h-12 w-12 mx-auto mb-4"/>
-                        <p>Esta sección está en desarrollo.</p>
-                    </div>
-                </CardContent>
+                <form onSubmit={handleSaveSettings}>
+                    <CardHeader>
+                        <CardTitle>Ajustes Generales</CardTitle>
+                        <CardDescription>Configura las opciones globales de la aplicación.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-8">
+                        <div className="flex items-center justify-between p-4 border rounded-lg">
+                            <div>
+                                <Label htmlFor="maintenance-mode" className="font-semibold">Modo Mantenimiento</Label>
+                                <p className="text-sm text-muted-foreground">Activa esta opción para deshabilitar el acceso a la app para todos los usuarios excepto administradores.</p>
+                            </div>
+                            <Switch id="maintenance-mode" />
+                        </div>
+
+                        <div className="space-y-4 p-4 border rounded-lg">
+                            <h3 className="font-semibold flex items-center gap-2"><BellRing className="h-5 w-5 text-primary"/>Notificación Global</h3>
+                            <div className="space-y-2">
+                                <Label htmlFor="global-notification">Mensaje del Anuncio</Label>
+                                <Textarea id="global-notification" placeholder="Ej: Mantenimiento programado para esta noche a las 2AM." />
+                            </div>
+                             <div className="flex items-center space-x-2">
+                                <Switch id="show-global-notification" />
+                                <Label htmlFor="show-global-notification">Mostrar anuncio global a todos los usuarios</Label>
+                            </div>
+                        </div>
+
+                        <div className="space-y-4 p-4 border rounded-lg">
+                           <h3 className="font-semibold flex items-center gap-2"><Wrench className="h-5 w-5 text-primary"/>Configuraciones de la Aplicación</h3>
+                           <div className="space-y-2">
+                                <Label htmlFor="welcome-message">Mensaje de Bienvenida para Nuevos Usuarios</Label>
+                                <Input id="welcome-message" defaultValue="¡Bienvenido a SquadUp! Encuentra a tu equipo ideal." />
+                           </div>
+                           <div className="space-y-2">
+                                <Label htmlFor="matchmaking-rank">Rango Mínimo para Matchmaking</Label>
+                                <Select defaultValue="diamante">
+                                    <SelectTrigger id="matchmaking-rank">
+                                        <SelectValue placeholder="Selecciona un rango mínimo" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="bronce">Bronce</SelectItem>
+                                        <SelectItem value="plata">Plata</SelectItem>
+                                        <SelectItem value="oro">Oro</SelectItem>
+                                        <SelectItem value="platino">Platino</SelectItem>
+                                        <SelectItem value="diamante">Diamante</SelectItem>
+                                        <SelectItem value="corona">Corona</SelectItem>
+                                        <SelectItem value="as">As</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <p className="text-xs text-muted-foreground">Los jugadores por debajo de este rango no aparecerán en la búsqueda de "Buscar Equipo".</p>
+                           </div>
+                        </div>
+
+                    </CardContent>
+                    <CardFooter>
+                        <Button type="submit">Guardar Ajustes</Button>
+                    </CardFooter>
+                </form>
             </Card>
         </TabsContent>
 
