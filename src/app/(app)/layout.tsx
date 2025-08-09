@@ -46,7 +46,6 @@ import { cn } from "@/lib/utils"
 import { recentChats, playerProfile } from "@/lib/data"
 import { useAuth } from "../auth-provider"
 import { useEffect } from "react"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 
 export default function DashboardLayout({
   children,
