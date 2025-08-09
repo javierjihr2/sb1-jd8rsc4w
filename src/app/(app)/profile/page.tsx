@@ -11,6 +11,7 @@ import { Trophy, Shield, Swords, BarChart2, BrainCircuit, Image as ImageIcon, Se
 import Link from "next/link"
 import { Textarea } from "@/components/ui/textarea"
 import { EditProfileDialog } from "@/components/edit-profile-dialog"
+import Image from "next/image"
 
 const posts = [
   {
@@ -40,7 +41,18 @@ export default function ProfilePage() {
                                 <AvatarFallback>{playerProfile.name.substring(0, 2)}</AvatarFallback>
                             </Avatar>
                             <div className="mt-4 sm:mb-2 flex-1">
-                                <h1 className="text-3xl font-bold">{playerProfile.name}</h1>
+                                <div className="flex items-center gap-2">
+                                  <h1 className="text-3xl font-bold">{playerProfile.name}</h1>
+                                  {playerProfile.countryCode && (
+                                    <Image 
+                                      src={`https://flagsapi.com/${playerProfile.countryCode}/shiny/64.png`}
+                                      alt={`${playerProfile.countryCode} flag`}
+                                      width={24}
+                                      height={18}
+                                      className="rounded-sm"
+                                    />
+                                  )}
+                                </div>
                                 <p className="text-muted-foreground">ID: {playerProfile.id}</p>
                                 <p className="text-sm text-muted-foreground mt-2 max-w-prose">{playerProfile.bio}</p>
                             </div>
@@ -168,5 +180,3 @@ export default function ProfilePage() {
         </div>
     )
 }
-
-    

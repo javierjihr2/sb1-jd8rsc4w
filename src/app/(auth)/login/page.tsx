@@ -28,6 +28,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/hooks/use-toast"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Terminal } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 const GoogleIcon = () => (
     <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
@@ -56,10 +57,15 @@ export default function LoginPage() {
   const { toast } = useToast()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [country, setCountry] = useState("")
   const [error, setError] = useState<string | null>(null)
 
   const handleAuthAction = async (action: "login" | "register") => {
     setError(null)
+    if (action === 'register' && !country) {
+      setError("Por favor, selecciona tu país de origen.");
+      return;
+    }
     try {
       if (action === "login") {
         await signInWithEmailAndPassword(auth, email, password)
@@ -161,6 +167,36 @@ export default function LoginPage() {
                 <Label htmlFor="register-password">Contraseña</Label>
                 <Input id="register-password" type="password" required value={password} onChange={e => setPassword(e.target.value)} />
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="register-country">País</Label>
+                 <Select onValueChange={setCountry} value={country}>
+                    <SelectTrigger id="register-country">
+                        <SelectValue placeholder="Selecciona tu país" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="AR">Argentina</SelectItem>
+                        <SelectItem value="BO">Bolivia</SelectItem>
+                        <SelectItem value="BR">Brasil</SelectItem>
+                        <SelectItem value="CA">Canadá</SelectItem>
+                        <SelectItem value="CL">Chile</SelectItem>
+                        <SelectItem value="CO">Colombia</SelectItem>
+                        <SelectItem value="CR">Costa Rica</SelectItem>
+                        <SelectItem value="EC">Ecuador</SelectItem>
+                        <SelectItem value="SV">El Salvador</SelectItem>
+                        <SelectItem value="US">Estados Unidos</SelectItem>
+                        <SelectItem value="GT">Guatemala</SelectItem>
+                        <SelectItem value="HN">Honduras</SelectItem>
+                        <SelectItem value="MX">México</SelectItem>
+                        <SelectItem value="PA">Panamá</SelectItem>
+                        <SelectItem value="PY">Paraguay</SelectItem>
+                        <SelectItem value="PE">Perú</SelectItem>
+                        <SelectItem value="PR">Puerto Rico</SelectItem>
+                        <SelectItem value="DO">República Dominicana</SelectItem>
+                        <SelectItem value="UY">Uruguay</SelectItem>
+                        <SelectItem value="VE">Venezuela</SelectItem>
+                    </SelectContent>
+                </Select>
+              </div>
             </CardContent>
             <CardFooter>
               <Button className="w-full" onClick={() => handleAuthAction("register")}>Crear Cuenta</Button>
@@ -178,5 +214,3 @@ export default function LoginPage() {
     </div>
   )
 }
-
-    

@@ -10,6 +10,7 @@ export type PlayerProfile = {
   bio: string;
   level: number;
   rank: string;
+  countryCode: string;
   stats: {
     wins: number;
     kills: number;
@@ -22,6 +23,7 @@ export type PlayerProfile = {
 export type PlayerProfileInput = PlayerProfileInputSchema & { 
   favoriteMap: string;
   bio: string;
+  countryCode: string;
 };
 
 
