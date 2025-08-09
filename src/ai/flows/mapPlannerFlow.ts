@@ -45,15 +45,15 @@ Instrucciones para generar el plan (sé muy detallado y explicativo):
 5.  **lateGame.plan**: Define un plan preciso para el final de la partida (últimos círculos). Céntrate en el posicionamiento para el círculo final, anticipando el cierre entre el Punto A y el Punto B si fueron proporcionados. Explica cómo usar las coberturas (naturales y edificios) y cómo iniciar el enfrentamiento final para asegurar la victoria. La urgencia del plan debe reflejar la **Cantidad de zonas cerradas**.
 6.  **recommendedLoadout**: Sugiere un equipamiento DETALLADO y basado en roles.
     *   **Adaptación al Tamaño de Escuadra:** Adapta las recomendaciones de roles al tamaño de la escuadra. Para una escuadra completa (4 jugadores), sugiere equipamiento para roles clave como **IGL (In-Game Leader), Fragger, Support y Sniper**. Para un dúo (2 jugadores), sugiere roles complementarios (ej: Fragger y Support/Sniper). Para un jugador solo, sugiere un equipamiento versátil.
-    *   **Armas por Rol:** Para cada rol, elige una **Arma Principal y Secundaria**. Elige armas que se encuentren en el mapa especificado y que se alineen con la estrategia y el rol.
-    *   **Miras y Accesorios:** Para cada arma, recomienda la mejor **mira** (ej. "Mira 6x", "Punto Rojo") y una lista de 2-3 **accesorios clave** (ej. "Culata táctica", "Cargador ampliado rápido", "Silenciador").
+    *   **Armas por Rol:** Para cada rol, elige una **Arma Principal y Secundaria**. ¡MUY IMPORTANTE! Elige armas que **REALMENTE se encuentren en el mapa especificado**. Por ejemplo, la MP5K no está en Livik. Sé preciso.
+    *   **Miras y Accesorios:** Para cada arma, recomienda la mejor **mira** (ej. "Mira 6x", "Punto Rojo") y una lista de 2-3 **accesorios clave** (ej. "Culata táctica", "Cargador ampliado rápido", "Silenciador"). Las recomendaciones deben ser **prácticas y efectivas**; por ejemplo, no recomiendes una mira 4x para una AKM, ya que no es una combinación óptima para la mayoría de los jugadores.
     *   **Justificación por Rol:** Proporciona una justificación concisa para cada equipamiento, explicando por qué esa configuración es ideal para ese rol específico dentro del plan general.
 7.  **rotationPlan**: Describe un plan de rotación completo y muy detallado.
     *   **route**: Describe la ruta general (desde la zona de aterrizaje o la ubicación actual), considerando el posible cierre de zona y el círculo actual.
     *   **considerations**: Enumera 2-3 puntos clave o hitos a considerar durante la rotación.
     *   **advantages**: Menciona 1-2 ventajas de esta ruta.
     *   **disadvantages**: Menciona 1-2 desventajas o riesgos.
-    *   **vehicleSuggestion**: Sugiere el mejor tipo de vehículo para el mapa y la ruta (ej. "UAZ para terreno abierto en Erangel", "Motocicleta para velocidad en Sanhok"), explica por qué, y añade un recordatorio sobre el combustible.
+    *   **vehicleSuggestion**: Sugiere el mejor tipo de vehículo **disponible en ese mapa** para la ruta (ej. "UAZ para terreno abierto en Erangel", "Motocicleta para velocidad en Sanhok", "Tukshai en Sanhok"). Explica por qué, y añade un recordatorio sobre el combustible. ¡NO sugieras vehículos que no existen en el mapa especificado (ej. Dacia en Livik)!
 
 Proporciona la respuesta en el formato JSON solicitado. El tono debe ser el de un entrenador experto, seguro y muy didáctico.
 `,
