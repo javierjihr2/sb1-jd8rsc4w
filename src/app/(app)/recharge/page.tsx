@@ -9,16 +9,16 @@ export default function RechargePage() {
         {
             name: "Midasbuy",
             description: "Plataforma oficial para recargas de UC en juegos populares. Segura y con bonificaciones frecuentes.",
-            url: "#", // TODO: Reemplazar con tu link de referido de Midasbuy
+            url: "YOUR_MIDASBUY_AFFILIATE_LINK_HERE", 
             logoUrl: "https://placehold.co/100x40/000000/FFFFFF.png"
         },
         {
             name: "Eneba",
             description: "Marketplace de claves de juegos y tarjetas de regalo donde a menudo se encuentran descuentos para UC.",
-            url: "#", // TODO: Reemplazar con tu link de referido de Eneba
+            url: "YOUR_ENEBA_AFFILIATE_LINK_HERE", 
             logoUrl: "https://placehold.co/100x40/3c3c3c/FFFFFF.png"
         }
-    ];
+    ]
 
     return (
         <div className="space-y-8">
@@ -41,7 +41,7 @@ export default function RechargePage() {
                                <img src={provider.logoUrl} alt={`${provider.name} logo`} className="h-8 object-contain rounded-md" data-ai-hint="logo"/>
                             </CardTitle>
                             <CardDescription>{provider.description}</CardDescription>
-                        </CardHeader>
+                        </Header>
                         <CardContent>
                              <div className="flex items-start p-3 bg-muted/50 rounded-lg text-sm">
                                 <Info className="h-5 w-5 mr-3 text-primary flex-shrink-0" />
@@ -51,7 +51,7 @@ export default function RechargePage() {
                             </div>
                         </CardContent>
                         <CardFooter>
-                           <Button asChild className="w-full">
+                           <Button asChild className="w-full" disabled={provider.url.startsWith('YOUR_')}>
                                 <Link href={provider.url} target="_blank" rel="noopener noreferrer">
                                     <ExternalLink className="mr-2 h-4 w-4" />
                                     Ir a {provider.name}
