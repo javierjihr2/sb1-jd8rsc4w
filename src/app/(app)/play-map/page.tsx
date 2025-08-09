@@ -10,9 +10,10 @@ import { Label } from "@/components/ui/label";
 import { getMapPlan } from "@/ai/flows/mapPlannerFlow";
 import type { MapPlanner, MapPlannerInput } from "@/ai/schemas";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Loader2, Sparkles, Map, MapPin, Gamepad2, Shield, Users, Trophy, Lightbulb, Terminal, Route, Bomb, ThumbsUp, ThumbsDown, Car, Target } from "lucide-react";
+import { Loader2, Sparkles, Map, MapPin, Gamepad2, Shield, Users, Trophy, Lightbulb, Terminal, Route, Bomb, ThumbsUp, ThumbsDown, Car, Target, CircleDot } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 
 const mapOptions = [
     { value: "erangel", label: "Erangel", imageUrl: "https://placehold.co/200x200.png" },
@@ -233,6 +234,17 @@ export default function PlayMapPage() {
                             </div>
                         </div>
                          <div className="space-y-2">
+                            <Label>Número de Círculo (Opcional)</Label>
+                            <Input 
+                                type="number" 
+                                min="1" 
+                                max="8" 
+                                placeholder="Ej: 3"
+                                value={input.zoneCircleNumber || ''}
+                                onChange={(e) => setInput(p => ({ ...p, zoneCircleNumber: e.target.value ? parseInt(e.target.value) : undefined }))}
+                            />
+                        </div>
+                         <div className="space-y-2">
                             <Label>Estilo de Juego</Label>
                             <Select onValueChange={(value) => setInput(p => ({ ...p, playStyle: value }))} value={input.playStyle}>
                                 <SelectTrigger><SelectValue placeholder="Selecciona un estilo" /></SelectTrigger>
@@ -316,6 +328,7 @@ export default function PlayMapPage() {
                                     <span className="flex items-center gap-1"><MapPin className="h-4 w-4"/> {lastUsedInput.map}</span>
                                     <span className="flex items-center gap-1"><Gamepad2 className="h-4 w-4"/> {lastUsedInput.playStyle}</span>
                                     <span className="flex items-center gap-1"><Users className="h-4 w-4"/> {lastUsedInput.squadSize} Jugador(es)</span>
+                                    {lastUsedInput.zoneCircleNumber && <span className="flex items-center gap-1"><CircleDot className="h-4 w-4"/> Círculo {lastUsedInput.zoneCircleNumber}</span>}
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="flex flex-col sm:flex-row items-center gap-6">
