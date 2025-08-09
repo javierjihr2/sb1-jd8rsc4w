@@ -56,9 +56,9 @@ export default function DashboardLayout({
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.push('/login');
-    }
+    // if (!loading && !user) {
+    //   router.push('/login');
+    // }
   }, [user, loading, router]);
 
 
@@ -81,7 +81,7 @@ export default function DashboardLayout({
     navItems.push({ href: "/admin", label: "Admin", icon: ShieldCheck, badge: 0 });
   }
 
-  if (loading || !user) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
