@@ -1,4 +1,6 @@
 
+import type { PlayerProfileInput } from "./schemas";
+
 export type PlayerProfile = {
   id: string;
   name: string;
@@ -62,3 +64,13 @@ export type RegistrationRequest = {
     players: Player[];
     status: 'Pendiente' | 'Aprobado' | 'Rechazado';
 };
+
+export type FeedPost = {
+    id: string;
+    author: PlayerProfileInput;
+    timestamp: string;
+    content: string;
+    imageUrl?: string;
+    likes: number;
+    comments: number;
+}

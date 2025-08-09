@@ -1,5 +1,5 @@
 
-import type { PlayerProfile, Tournament, Chat, NewsArticle, Team, RegistrationRequest } from './types';
+import type { PlayerProfile, Tournament, Chat, NewsArticle, Team, RegistrationRequest, FeedPost } from './types';
 import type { PlayerProfileInput } from '@/ai/schemas';
 
 export const playerProfile: PlayerProfile = {
@@ -114,6 +114,14 @@ export const newsArticles: NewsArticle[] = [
     imageUrl: 'https://placehold.co/600x400.png',
     category: 'eSports',
   },
+   {
+    id: 'n4',
+    title: 'Nuevo Pase Royale A5',
+    summary: 'El nuevo Pase Royale trae recompensas exclusivas, trajes míticos y un nuevo personaje. ¡Completa las misiones y súbelo al máximo!',
+    date: '2024-07-20',
+    imageUrl: 'https://placehold.co/600x400.png',
+    category: 'Actualizaciones',
+  },
 ];
 
 export const friendsForComparison: PlayerProfileInput[] = [
@@ -191,6 +199,35 @@ export const initialRegistrationRequests: RegistrationRequest[] = [
     ]
   }
 ];
+
+export const feedPosts: FeedPost[] = [
+  {
+    id: 'post1',
+    author: friendsForComparison.find(f => f.id === 'c2')!,
+    timestamp: 'Hace 15 minutos',
+    content: '¡Qué locura la nueva actualización! El modo de juego es increíble. ¿Alguien para probarlo?',
+    likes: 12,
+    comments: 3,
+  },
+  {
+    id: 'post2',
+    author: friendsForComparison.find(f => f.id === 'c4')!,
+    timestamp: 'Hace 1 hora',
+    content: 'Buscando un cuarto miembro para nuestro squad para el torneo de la "Copa Verano 2024". Requisito: Rango Diamante o superior. ¡MD si te interesa!',
+    imageUrl: 'https://placehold.co/800x400.png',
+    likes: 25,
+    comments: 8,
+  },
+  {
+    id: 'post3',
+    author: friendsForComparison.find(f => f.id === 'c3')!,
+    timestamp: 'Hace 3 horas',
+    content: 'Finalmente llegué a As Dominador esta temporada. ¡El esfuerzo valió la pena! Gracias a mi dúo por el apoyo. 💪',
+    likes: 42,
+    comments: 11,
+  }
+];
+
 
 // Helper functions to simulate registration state persistence (using localStorage)
 export const getRegistrationStatus = (tournamentId: string) => {
