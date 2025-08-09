@@ -46,6 +46,7 @@ import { cn } from "@/lib/utils"
 import { recentChats, playerProfile } from "@/lib/data"
 import { useAuth } from "../auth-provider"
 import { useEffect } from "react"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 export default function DashboardLayout({
   children,
@@ -104,7 +105,7 @@ export default function DashboardLayout({
               <span className="text-2xl">SquadUp</span>
             </Link>
           </div>
-          <div className="flex-1 overflow-y-auto">
+          <ScrollArea className="flex-1">
             <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
               {navItems.map((item) => (
                 <Link
@@ -140,7 +141,7 @@ export default function DashboardLayout({
                 </Link>
               ))}
             </nav>
-          </div>
+          </ScrollArea>
           <div className="mt-auto p-4">
             <Card className="bg-sidebar-background/50 border-sidebar-border/50">
               <CardHeader className="p-2 pt-0 md:p-4">
@@ -173,7 +174,7 @@ export default function DashboardLayout({
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="flex flex-col bg-sidebar text-sidebar-foreground pt-4 border-r-0">
-              <nav className="grid gap-6 text-lg font-medium">
+              <nav className="grid gap-2 text-lg font-medium">
                 <Link
                   href="/"
                   className="flex items-center justify-center gap-2 text-lg font-semibold text-sidebar-primary mb-4"
@@ -181,26 +182,30 @@ export default function DashboardLayout({
                   <Icons.logo className="h-6 w-6" />
                   <span className="text-2xl">SquadUp</span>
                 </Link>
-                {[...navItems, ...aiNavItems].map((item) => (
-                  <Link
-                    key={item.label}
-                    href={item.href}
-                     className={cn(
-                      "flex items-center gap-4 rounded-xl px-3 py-2 text-sidebar-foreground hover:text-white hover:bg-sidebar-accent/20",
-                      pathname === item.href ? "bg-sidebar-accent/10 text-sidebar-primary font-bold" : ""
-                    )}
-                  >
-                    <item.icon className="h-5 w-5" />
-                    {item.label}
-                    {item.badge && item.badge > 0 && (
-                      <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                        {item.badge}
-                      </Badge>
-                    )}
-                  </Link>
-                ))}
               </nav>
-              <div className="mt-auto">
+              <ScrollArea className="flex-1">
+                <nav className="grid gap-4 text-base font-medium px-4">
+                  {[...navItems, ...aiNavItems].map((item) => (
+                    <Link
+                      key={item.label}
+                      href={item.href}
+                       className={cn(
+                        "flex items-center gap-4 rounded-xl px-3 py-2 text-sidebar-foreground hover:text-white hover:bg-sidebar-accent/20",
+                        pathname === item.href ? "bg-sidebar-accent/10 text-sidebar-primary font-bold" : ""
+                      )}
+                    >
+                      <item.icon className="h-5 w-5" />
+                      {item.label}
+                      {item.badge > 0 && (
+                        <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                          {item.badge}
+                        </Badge>
+                      )}
+                    </Link>
+                  ))}
+                </nav>
+              </ScrollArea>
+              <div className="mt-auto p-4">
                 <Card className="bg-sidebar-background/50 border-sidebar-border/50">
                   <CardHeader>
                     <CardTitle className="text-white">Sistema de Soporte</CardTitle>
