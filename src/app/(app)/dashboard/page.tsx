@@ -5,7 +5,8 @@ import {
   Swords,
   Users2,
   ChevronRight,
-  MessageSquare
+  MessageSquare,
+  BrainCircuit
 } from "lucide-react"
 
 import {
@@ -40,6 +41,34 @@ import { playerProfile, tournaments, recentChats } from "@/lib/data"
 export default function DashboardPage() {
   return (
     <>
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle className="text-3xl font-bold">¡Bienvenido a SquadUp, {playerProfile.name}!</CardTitle>
+          <CardDescription className="text-base">
+            Tu copiloto de IA para dominar el campo de batalla. Analiza, crea estrategias y encuentra a tu equipo perfecto.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="mb-4">
+            Esto es más que una simple aplicación; es tu centro de mando personal para llevar tu juego al siguiente nivel. Aquí tienes un resumen de lo que puedes hacer:
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="p-4 bg-muted/50 rounded-lg">
+              <h3 className="font-semibold flex items-center gap-2 mb-1"><BrainCircuit className="h-5 w-5 text-primary"/>Análisis con IA</h3>
+              <p className="text-sm text-muted-foreground">Descubre tu estilo de juego, fortalezas y áreas de mejora con un análisis profundo de tus estadísticas.</p>
+            </div>
+            <div className="p-4 bg-muted/50 rounded-lg">
+              <h3 className="font-semibold flex items-center gap-2 mb-1"><Swords className="h-5 w-5 text-primary"/>Estrategias Tácticas</h3>
+              <p className="text-sm text-muted-foreground">Genera planes de batalla completos para cualquier mapa y estilo de juego.</p>
+            </div>
+            <div className="p-4 bg-muted/50 rounded-lg">
+              <h3 className="font-semibold flex items-center gap-2 mb-1"><Users2 className="h-5 w-5 text-primary"/>Sinergia de Equipo</h3>
+              <p className="text-sm text-muted-foreground">Compara perfiles con tus amigos para encontrar al compañero de dúo perfecto.</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
