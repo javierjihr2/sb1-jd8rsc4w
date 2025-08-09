@@ -83,8 +83,12 @@ export default function DashboardLayout({
       { href: "/controls", label: "Generador de Controles", icon: Gamepad2 },
   ]
 
+  const bottomNavItems = [
+    { href: "/support", label: "Soporte", icon: HelpCircle, badge: 0 },
+  ]
+
   if (playerProfile.isAdmin) {
-    navItems.push({ href: "/admin", label: "Admin", icon: ShieldCheck, badge: 0 });
+    bottomNavItems.push({ href: "/admin", label: "Admin", icon: ShieldCheck, badge: 0 });
   }
 
   if (loading) {
@@ -142,21 +146,23 @@ export default function DashboardLayout({
               ))}
             </nav>
           </ScrollArea>
-          <div className="mt-auto p-4">
-            <Card className="bg-sidebar-background/50 border-sidebar-border/50">
-              <CardHeader className="p-2 pt-0 md:p-4">
-                <CardTitle className="text-white">Sistema de Soporte</CardTitle>
-                <CardDescription>
-                  ¿Necesitas ayuda? Contacta con nuestro equipo de soporte.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-2 pt-0 md:p-4 md:pt-0">
-                <Button size="sm" className="w-full">
-                  <HelpCircle className="mr-2 h-4 w-4"/>
-                  Solicitar Asistencia
-                </Button>
-              </CardContent>
-            </Card>
+           <div className="mt-auto p-4 space-y-2">
+            <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
+               <div className="my-2 border-t border-sidebar-border/50" />
+               {bottomNavItems.map((item) => (
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    className={cn(
+                      "flex items-center gap-3 rounded-lg px-3 py-2 text-sidebar-foreground transition-all hover:text-white hover:bg-sidebar-accent/20",
+                      pathname === item.href ? "bg-sidebar-accent/10 text-sidebar-primary font-bold" : ""
+                    )}
+                  >
+                    <item.icon className="h-4 w-4" />
+                    {item.label}
+                  </Link>
+                ))}
+            </nav>
           </div>
         </div>
       </div>
@@ -185,7 +191,7 @@ export default function DashboardLayout({
               </nav>
               <ScrollArea className="flex-1">
                 <nav className="grid gap-4 text-base font-medium px-4">
-                  {[...navItems, ...aiNavItems].map((item) => (
+                  {[...navItems, ...aiNavItems, ...bottomNavItems].map((item) => (
                     <Link
                       key={item.label}
                       href={item.href}
@@ -205,22 +211,6 @@ export default function DashboardLayout({
                   ))}
                 </nav>
               </ScrollArea>
-              <div className="mt-auto p-4">
-                <Card className="bg-sidebar-background/50 border-sidebar-border/50">
-                  <CardHeader>
-                    <CardTitle className="text-white">Sistema de Soporte</CardTitle>
-                    <CardDescription>
-                      ¿Necesitas ayuda? Contacta con nuestro equipo de soporte.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Button size="sm" className="w-full">
-                      <HelpCircle className="mr-2 h-4 w-4" />
-                      Solicitar Asistencia
-                    </Button>
-                  </CardContent>
-                </Card>
-              </div>
             </SheetContent>
           </Sheet>
           <div className="w-full flex-1">
