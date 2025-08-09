@@ -74,23 +74,6 @@ export function AddFriendDialog({ children, triggerButton, isFilterDialog = fals
         <form onSubmit={handleSubmit}>
          {isFilterDialog ? (
              <div className="grid gap-4 py-4">
-                <div className="space-y-2">
-                    <Label htmlFor="filter-rank">Rango Mínimo</Label>
-                    <Select name="rank">
-                        <SelectTrigger id="filter-rank">
-                            <SelectValue placeholder="Cualquier Rango" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="bronce">Bronce</SelectItem>
-                            <SelectItem value="plata">Plata</SelectItem>
-                            <SelectItem value="oro">Oro</SelectItem>
-                            <SelectItem value="platino">Platino</SelectItem>
-                            <SelectItem value="diamante">Diamante</SelectItem>
-                            <SelectItem value="corona">Corona</SelectItem>
-                            <SelectItem value="as">As</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
                  <div className="space-y-2">
                     <Label htmlFor="filter-playstyle">Estilo de Juego</Label>
                     <Select name="playstyle">
@@ -98,9 +81,27 @@ export function AddFriendDialog({ children, triggerButton, isFilterDialog = fals
                             <SelectValue placeholder="Cualquier Estilo" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="agresivo">Agresivo</SelectItem>
-                            <SelectItem value="pasivo">Pasivo</SelectItem>
-                            <SelectItem value="equilibrado">Equilibrado</SelectItem>
+                            <SelectItem value="rusher">Rusher / Entry Fragger</SelectItem>
+                            <SelectItem value="support">Soporte / Apoyo</SelectItem>
+                            <SelectItem value="sniper">Francotirador / DMR</SelectItem>
+                            <SelectItem value="igl">Líder Estratégico (IGL)</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="filter-country">País</Label>
+                    <Select name="country">
+                        <SelectTrigger id="filter-country">
+                            <SelectValue placeholder="Cualquier País" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="mx">México</SelectItem>
+                            <SelectItem value="co">Colombia</SelectItem>
+                            <SelectItem value="ar">Argentina</SelectItem>
+                            <SelectItem value="cl">Chile</SelectItem>
+                            <SelectItem value="pe">Perú</SelectItem>
+                            <SelectItem value="es">España</SelectItem>
+                            <SelectItem value="us">Estados Unidos</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
