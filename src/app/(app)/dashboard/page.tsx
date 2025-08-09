@@ -1,6 +1,7 @@
 
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import {
@@ -27,10 +28,59 @@ import {
 } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { playerProfile, feedPosts, newsArticles, tournaments } from "@/lib/data"
+import { playerProfile, feedPosts as initialFeedPosts, newsArticles, tournaments } from "@/lib/data"
+import { Input } from "@/components/ui/input"
+import { useToast } from "@/hooks/use-toast"
+import type { FeedPost } from "@/lib/types"
 
 export default function DashboardPage() {
+  const { toast } = useToast()
+  const [feedPosts, setFeedPosts] = useState<FeedPost[]>(initialFeedPosts.map(p => ({...p, commentsList: p.commentsList || [], liked: false })));
+  const [newComments, setNewComments] = useState<{[key: string]: string}>({});
+
   const upcomingTournaments = tournaments.filter(t => t.status === 'Abierto' || t.status === 'Próximamente').slice(0, 2);
+
+  const handleLike = (postId: string) => {
+    setFeedPosts(posts => posts.map(p => {
+      if (p.id === postId) {
+        const liked = !p.liked;
+        const likes = liked ? p.likes + 1 : p.likes - 1;
+        return { ...p, liked, likes };
+      }
+      return p;
+    }));
+  };
+
+  const handleShare = () => {
+    toast({
+      title: "Publicación Compartida",
+      description: "Has compartido esta publicación con tus amigos.",
+    });
+  };
+  
+  const handleCommentSubmit = (e: React.FormEvent<HTMLFormElement>, postId: string) => {
+    e.preventDefault();
+    const commentText = newComments[postId];
+    if (!commentText || !commentText.trim()) return;
+
+    const newComment = {
+        author: playerProfile.name,
+        text: commentText,
+    };
+
+    setFeedPosts(posts => posts.map(p => {
+        if (p.id === postId) {
+            return { 
+                ...p, 
+                commentsList: [...p.commentsList, newComment],
+                comments: p.comments + 1 
+            };
+        }
+        return p;
+    }));
+    
+    setNewComments(prev => ({...prev, [postId]: ''}));
+  };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
@@ -90,17 +140,45 @@ export default function DashboardPage() {
                                 <Image src={post.imageUrl} alt="Imagen de la publicación" width={800} height={400} className="w-full h-auto object-cover" data-ai-hint="gaming screenshot"/>
                             </div>
                         )}
+                         {post.commentsList && post.commentsList.length > 0 && (
+                            <div className="mt-4 pt-4 border-t space-y-3">
+                                {post.commentsList.map((comment, index) => (
+                                    <div key={index} className="text-sm flex items-start gap-2">
+                                        <Avatar className="h-6 w-6">
+                                           <AvatarImage src={comment.author === playerProfile.name ? playerProfile.avatarUrl : undefined} data-ai-hint="gaming character"/>
+                                            <AvatarFallback>{comment.author.substring(0,1)}</AvatarFallback>
+                                        </Avatar>
+                                        <p><span className="font-semibold">{comment.author}:</span> {comment.text}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </CardContent>
-                    <CardFooter className="flex items-center gap-4">
-                        <Button variant="ghost" className="flex items-center gap-2 text-muted-foreground">
-                            <Heart className="h-5 w-5"/> <span>{post.likes}</span>
-                        </Button>
-                        <Button variant="ghost" className="flex items-center gap-2 text-muted-foreground">
-                            <MessageCircle className="h-5 w-5"/> <span>{post.comments}</span>
-                        </Button>
-                        <Button variant="ghost" className="flex items-center gap-2 text-muted-foreground ml-auto">
-                            <Send className="h-5 w-5"/> <span>Compartir</span>
-                        </Button>
+                    <CardFooter className="flex flex-col items-start gap-2">
+                        <div className="flex items-center gap-2">
+                            <Button variant="ghost" size="sm" className="flex items-center gap-2 text-muted-foreground" onClick={() => handleLike(post.id)}>
+                                <Heart className={`h-5 w-5 ${post.liked ? 'text-red-500 fill-current' : ''}`}/> <span>{post.likes}</span>
+                            </Button>
+                            <Button variant="ghost" size="sm" className="flex items-center gap-2 text-muted-foreground">
+                                <MessageCircle className="h-5 w-5"/> <span>{post.comments}</span>
+                            </Button>
+                            <Button variant="ghost" size="sm" className="flex items-center gap-2 text-muted-foreground ml-auto" onClick={handleShare}>
+                                <Send className="h-5 w-5"/> <span>Compartir</span>
+                            </Button>
+                        </div>
+                        <form className="w-full flex items-center gap-2 pt-2" onSubmit={(e) => handleCommentSubmit(e, post.id)}>
+                             <Avatar className="h-8 w-8">
+                                <AvatarImage src={playerProfile.avatarUrl} data-ai-hint="gaming character"/>
+                                <AvatarFallback>{playerProfile.name.substring(0,1)}</AvatarFallback>
+                            </Avatar>
+                            <Input 
+                                placeholder="Escribe un comentario..." 
+                                className="h-9"
+                                value={newComments[post.id] || ''}
+                                onChange={(e) => setNewComments(prev => ({...prev, [post.id]: e.target.value}))}
+                            />
+                            <Button type="submit" size="sm" disabled={!newComments[post.id]}>Enviar</Button>
+                        </form>
                     </CardFooter>
                 </Card>
             ))}

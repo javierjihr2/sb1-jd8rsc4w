@@ -80,6 +80,11 @@ export type RegistrationRequest = {
     status: 'Pendiente' | 'Aprobado' | 'Rechazado';
 };
 
+export type Comment = {
+  author: string;
+  text: string;
+}
+
 export type FeedPost = {
     id: string;
     author: PlayerProfileInput;
@@ -88,6 +93,8 @@ export type FeedPost = {
     imageUrl?: string;
     likes: number;
     comments: number;
+    commentsList: Comment[];
+    liked?: boolean;
 }
 
 export type RechargeProvider = {
