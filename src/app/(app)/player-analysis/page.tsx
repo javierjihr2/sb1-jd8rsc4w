@@ -23,13 +23,14 @@ export default function PlayerAnalysisPage() {
         setAnalysis(null);
 
         try {
+            // La lista de amigos se obtiene en el servidor, aquí solo enviamos los datos del jugador
             const input: Omit<PlayerAnalysisInput, 'friends'> = {
                 wins: playerProfile.stats.wins,
                 kills: playerProfile.stats.kills,
                 kdRatio: playerProfile.stats.kdRatio,
                 rank: playerProfile.rank
             };
-            const result = await getPlayerAnalysis(input as PlayerAnalysisInput);
+            const result = await getPlayerAnalysis(input);
             setAnalysis(result);
         } catch (e: any) {
             setError("Ha ocurrido un error al generar el análisis. Por favor, inténtalo de nuevo más tarde.");

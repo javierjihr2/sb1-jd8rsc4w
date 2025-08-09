@@ -12,10 +12,14 @@ import {ai} from '@/ai/genkit';
 import { PlayerAnalysisInputSchema, PlayerAnalysisSchema, type PlayerAnalysis, type PlayerAnalysisInput } from '../schemas';
 import { recentChats } from '@/lib/data';
 
+// El cliente llama a esta función. La lista de amigos ahora se gestiona en el servidor.
 export async function getPlayerAnalysis(
-  input: PlayerAnalysisInput
+  input: Omit<PlayerAnalysisInput, 'friends'>
 ): Promise<PlayerAnalysis> {
-  return playerAnalysisFlow(input);
+  // Obtenemos la lista de amigos aquí para pasarla al flujo.
+  const friends = recentChats.slice(1).map(c => ({ name: c.name, avatarUrl: c.avatarUrl }));
+  const fullInput = { ...input, friends };
+  return playerAnalysisFlow(fullInput);
 }
 
 const prompt = ai.definePrompt({
@@ -52,10 +56,7 @@ const playerAnalysisFlow = ai.defineFlow(
     outputSchema: PlayerAnalysisSchema,
   },
   async (input) => {
-    // Tomamos los amigos de los chats recientes para el ejemplo
-    const friends = recentChats.slice(1).map(c => ({ name: c.name, avatarUrl: c.avatarUrl }));
-    
-    const {output} = await prompt({...input, friends});
+    const {output} = await prompt(input);
     if (!output) {
         throw new Error("El modelo de IA no devolvió un análisis válido.");
     }
