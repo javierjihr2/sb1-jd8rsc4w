@@ -36,6 +36,7 @@ export type PlayerAnalysis = z.infer<typeof PlayerAnalysisSchema>;
 
 export const MapPlannerInputSchema = z.object({
   map: z.string().describe('El mapa del juego (ej., Erangel, Miramar).'),
+  dropZone: z.string().describe('La zona de aterrizaje específica seleccionada por el jugador (ej. Pochinki, School).'),
   playStyle: z.string().describe('El estilo de juego deseado para el equipo (ej., Agresivo, Pasivo, Equilibrado).'),
   squadSize: z.number().describe('El número de jugadores en la escuadra (1-4).'),
   riskLevel: z.string().describe("El nivel de riesgo que el jugador está dispuesto a asumir (Bajo, Medio, Alto)."),
@@ -45,10 +46,7 @@ export type MapPlannerInput = z.infer<typeof MapPlannerInputSchema>;
 
 export const MapPlannerSchema = z.object({
   planTitle: z.string().describe('Un título creativo y descriptivo para el plan de partida.'),
-  dropZone: z.object({
-      name: z.string().describe('El nombre de la zona de aterrizaje recomendada.'),
-      reason: z.string().describe('Una breve razón por la cual esta zona de aterrizaje se recomienda para la estrategia.'),
-  }),
+  dropZoneJustification: z.string().describe('Una justificación táctica de por qué la zona de aterrizaje elegida es una buena (o mala) elección y cómo aprovecharla.'),
   earlyGame: z.object({
       plan: z.string().describe('El plan conciso para el juego temprano, incluyendo prioridades de looteo y posicionamiento inicial.'),
   }),

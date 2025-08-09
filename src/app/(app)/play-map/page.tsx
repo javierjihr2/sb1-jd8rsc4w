@@ -12,6 +12,7 @@ import type { MapPlanner, MapPlannerInput } from "@/ai/schemas";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Loader2, Sparkles, Map, MapPin, Gamepad2, Shield, Users, Trophy, Lightbulb, Terminal, Route, Bomb } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
 
 const mapOptions = [
     { value: "erangel", label: "Erangel", imageUrl: "https://placehold.co/200x200.png" },
@@ -30,7 +31,7 @@ export default function PlayMapPage() {
     const [lastUsedInput, setLastUsedInput] = useState<Partial<MapPlannerInput> | null>(null);
 
     const handleGeneratePlan = async () => {
-        if (!input.map || !input.playStyle || !input.squadSize || !input.riskLevel || !input.focus) {
+        if (!input.map || !input.dropZone || !input.playStyle || !input.squadSize || !input.riskLevel || !input.focus) {
             setError("Por favor, completa todos los campos para generar un plan.");
             return;
         }
@@ -98,6 +99,15 @@ export default function PlayMapPage() {
                                 <SelectTrigger><SelectValue placeholder="Selecciona un mapa" /></SelectTrigger>
                                 <SelectContent>{mapOptions.map(m => <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>)}</SelectContent>
                             </Select>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="dropzone">Tu Zona de Aterrizaje</Label>
+                            <Input 
+                                id="dropzone" 
+                                placeholder="Ej: Pochinki, School, Mylta"
+                                value={input.dropZone || ''}
+                                onChange={(e) => setInput(p => ({ ...p, dropZone: e.target.value }))} 
+                            />
                         </div>
                          <div className="space-y-2">
                             <Label>Estilo de Juego</Label>
@@ -168,7 +178,7 @@ export default function PlayMapPage() {
                             <Map className="h-12 w-12 text-primary" />
                         </div>
                         <h2 className="text-2xl font-bold">Tu Plan de Batalla te Espera</h2>
-                        <p className="text-muted-foreground max-w-md text-justify">
+                        <p className="text-muted-foreground max-w-md">
                            Usa el panel de la izquierda para configurar los detalles de tu partida y la IA creará un plan táctico completo para ayudarte a conseguir la victoria.
                         </p>
                     </Card>
@@ -188,8 +198,8 @@ export default function PlayMapPage() {
                             <CardContent className="flex flex-col sm:flex-row items-center gap-6">
                                 <Image src={selectedMapImage} alt={`Mapa de ${lastUsedInput.map}`} width={200} height={200} className="object-cover rounded-lg border-2" data-ai-hint={`${lastUsedInput.map} map`}/>
                                 <div>
-                                    <h3 className="font-bold text-lg flex items-center gap-2 mb-2"><MapPin className="h-5 w-5 text-accent"/> Zona de Aterrizaje: {plan.dropZone.name}</h3>
-                                    <p className="text-muted-foreground text-sm text-justify">{plan.dropZone.reason}</p>
+                                    <h3 className="font-bold text-lg flex items-center gap-2 mb-2"><MapPin className="h-5 w-5 text-accent"/> Zona de Aterrizaje: {lastUsedInput.dropZone}</h3>
+                                    <p className="text-muted-foreground text-sm">{plan.dropZoneJustification}</p>
                                 </div>
                             </CardContent>
                         </Card>
@@ -201,15 +211,15 @@ export default function PlayMapPage() {
                              <CardContent className="grid md:grid-cols-3 gap-4 text-left">
                                 <div className="p-4 bg-muted/50 rounded-lg">
                                     <h4 className="font-semibold flex items-center gap-2 mb-2"><Shield className="h-5 w-5 text-accent"/> Juego Temprano</h4>
-                                    <p className="text-muted-foreground text-sm text-justify">{plan.earlyGame.plan}</p>
+                                    <p className="text-muted-foreground text-sm">{plan.earlyGame.plan}</p>
                                 </div>
                                  <div className="p-4 bg-muted/50 rounded-lg">
                                     <h4 className="font-semibold flex items-center gap-2 mb-2"><Gamepad2 className="h-5 w-5 text-accent"/> Juego Medio</h4>
-                                    <p className="text-muted-foreground text-sm text-justify">{plan.midGame.plan}</p>
+                                    <p className="text-muted-foreground text-sm">{plan.midGame.plan}</p>
                                 </div>
                                 <div className="p-4 bg-muted/50 rounded-lg">
                                     <h4 className="font-semibold flex items-center gap-2 mb-2"><Trophy className="h-5 w-5 text-accent"/> Juego Tardío</h4>
-                                    <p className="text-muted-foreground text-sm text-justify">{plan.lateGame.plan}</p>
+                                    <p className="text-muted-foreground text-sm">{plan.lateGame.plan}</p>
                                 </div>
                             </CardContent>
                         </Card>
@@ -222,7 +232,7 @@ export default function PlayMapPage() {
                                  <CardContent>
                                     <p><strong className="text-accent">Principal:</strong> {plan.recommendedLoadout.primaryWeapon}</p>
                                     <p><strong className="text-accent">Secundaria:</strong> {plan.recommendedLoadout.secondaryWeapon}</p>
-                                    <p className="text-sm text-muted-foreground mt-2 text-justify">{plan.recommendedLoadout.reason}</p>
+                                    <p className="text-sm text-muted-foreground mt-2">{plan.recommendedLoadout.reason}</p>
                                  </CardContent>
                             </Card>
                             
@@ -231,7 +241,7 @@ export default function PlayMapPage() {
                                     <CardTitle className="flex items-center gap-2"><Route className="h-5 w-5 text-primary"/> Plan de Rotación</CardTitle>
                                  </CardHeader>
                                  <CardContent>
-                                    <p className="text-muted-foreground text-sm text-justify">{plan.rotationPlan}</p>
+                                    <p className="text-muted-foreground text-sm">{plan.rotationPlan}</p>
                                  </CardContent>
                             </Card>
                         </div>
@@ -242,5 +252,6 @@ export default function PlayMapPage() {
         </div>
     );
 }
+
 
 
