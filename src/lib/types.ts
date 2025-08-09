@@ -4,6 +4,7 @@ export type PlayerProfile = {
   name: string;
   email: string;
   avatarUrl: string;
+  bio: string;
   level: number;
   rank: string;
   stats: {

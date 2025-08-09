@@ -7,9 +7,10 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { playerProfile } from "@/lib/data"
-import { Edit, Trophy, Shield, Swords, BarChart2, BrainCircuit, Image as ImageIcon, Send, Sticker } from "lucide-react"
+import { Trophy, Shield, Swords, BarChart2, BrainCircuit, Image as ImageIcon, Send, Sticker, Settings } from "lucide-react"
 import Link from "next/link"
 import { Textarea } from "@/components/ui/textarea"
+import { EditProfileDialog } from "@/components/edit-profile-dialog"
 
 const posts = [
   {
@@ -41,15 +42,9 @@ export default function ProfilePage() {
                             <div className="mt-4 sm:mb-2 flex-1">
                                 <h1 className="text-3xl font-bold">{playerProfile.name}</h1>
                                 <p className="text-muted-foreground">ID: {playerProfile.id}</p>
-                                <div className="flex flex-wrap gap-2 mt-2">
-                                    <Badge variant="secondary">Nivel: {playerProfile.level}</Badge>
-                                    <Badge variant="secondary" className="bg-primary/20 text-primary border-primary/30">{playerProfile.rank}</Badge>
-                                </div>
+                                <p className="text-sm text-muted-foreground mt-2 max-w-prose">{playerProfile.bio}</p>
                             </div>
-                            <Button variant="outline" className="mt-4 sm:mb-2">
-                                <Edit className="mr-2 h-4 w-4" />
-                                Editar Perfil
-                            </Button>
+                            <EditProfileDialog />
                         </div>
                     </CardContent>
                 </Card>
@@ -67,7 +62,7 @@ export default function ProfilePage() {
                             <Progress value={(playerProfile.stats.wins / 200) * 100} />
 
                             <div className="flex justify-between items-center">
-                                <span>Kills</span>
+                                <span>Bajas</span>
                                 <span className="font-bold">{playerProfile.stats.kills}</span>
                             </div>
                             <Progress value={(playerProfile.stats.kills / 3000) * 100} />
@@ -80,17 +75,17 @@ export default function ProfilePage() {
                         </div>
                         <div className="space-y-3">
                             <div className="flex items-center gap-4 p-3 bg-muted/50 rounded-lg">
-                                <div className="p-2 bg-primary/10 rounded-full"><Swords className="h-5 w-5 text-primary" /></div>
-                                <div>
-                                    <p className="font-semibold">Experto en Asalto</p>
-                                    <p className="text-sm text-muted-foreground">1000 kills con rifles de asalto.</p>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-4 p-3 bg-muted/50 rounded-lg">
-                                <div className="p-2 bg-primary/10 rounded-full"><Shield className="h-5 w-5 text-primary" /></div>
+                                <div className="p-2 bg-primary/10 rounded-full"><Trophy className="h-5 w-5 text-primary" /></div>
                                 <div>
                                     <p className="font-semibold">Pollo para Cenar x50</p>
                                     <p className="text-sm text-muted-foreground">Gana 50 partidas.</p>
+                                </div>
+                            </div>
+                             <div className="flex items-center gap-4 p-3 bg-muted/50 rounded-lg">
+                                <div className="p-2 bg-primary/10 rounded-full"><Swords className="h-5 w-5 text-primary" /></div>
+                                <div>
+                                    <p className="font-semibold">Experto en Asalto</p>
+                                    <p className="text-sm text-muted-foreground">1000 bajas con rifles de asalto.</p>
                                 </div>
                             </div>
                         </div>

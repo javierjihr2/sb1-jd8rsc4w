@@ -7,6 +7,7 @@ export const playerProfile: PlayerProfile = {
   name: 'Player1_Pro',
   email: 'pro_player@email.com',
   avatarUrl: 'https://placehold.co/100x100.png',
+  bio: 'Jugador profesional de PUBG Mobile, especialista en rifles de asalto y estratega de equipo. Buscando dúo para dominar en los torneos.',
   level: 72,
   rank: 'Conquistador',
   stats: {
