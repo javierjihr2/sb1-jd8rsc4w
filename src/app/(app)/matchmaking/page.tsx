@@ -9,10 +9,14 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { friendsForComparison } from "@/lib/data"
-import { Search, Heart, X, BarChartHorizontal, Users, Filter } from "lucide-react"
+import { Search, MessageSquare, X, BarChartHorizontal, Users, Filter, Sparkles, Loader2, ClipboardCopy, Terminal } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import Link from "next/link"
-import { AddFriendDialog } from "@/components/add-friend-dialog" // Reutilizaremos este diálogo para los filtros
+import { AddFriendDialog } from "@/components/add-friend-dialog"
+import { generateIcebreaker } from "@/ai/flows/icebreakerFlow"
+import type { IcebreakerOutput } from "@/ai/schemas"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 // Helper to shuffle an array
 const shuffleArray = (array: any[]) => {
@@ -38,28 +42,58 @@ export default function MatchmakingPage() {
   const [availablePlayers] = useState(() => shuffleArray([...friendsForComparison.filter(p => p.id !== 'p1')]));
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  const [isIcebreakerLoading, setIsIcebreakerLoading] = useState(false);
+  const [icebreakerResult, setIcebreakerResult] = useState<IcebreakerOutput | null>(null);
+  const [icebreakerError, setIcebreakerError] = useState<string | null>(null);
+  const [isIcebreakerDialogOpen, setIsIcebreakerDialogOpen] = useState(false);
+
+
   const handleNextPlayer = () => {
     setCurrentIndex(prev => (prev + 1) % availablePlayers.length);
   }
 
-  const handleAddFriend = (playerName: string) => {
-    toast({
-      title: "Solicitud Enviada",
-      description: `Has mostrado interés en ${playerName}. ¡Le enviaremos una notificación!`,
-    })
-    handleNextPlayer();
+  const handleConnect = async (targetPlayer: any) => {
+    setIsIcebreakerLoading(true);
+    setIcebreakerError(null);
+    setIcebreakerResult(null);
+    setIsIcebreakerDialogOpen(true);
+
+    try {
+      const player1 = friendsForComparison.find(f => f.id === 'p1');
+      if (!player1) throw new Error("Current user profile not found");
+      
+      const result = await generateIcebreaker({
+          player1: { name: player1.name, rank: player1.rank, favoriteWeapons: player1.favoriteWeapons, favoriteMap: player1.favoriteMap },
+          player2: { name: targetPlayer.name, rank: targetPlayer.rank, favoriteWeapons: targetPlayer.favoriteWeapons, favoriteMap: targetPlayer.favoriteMap },
+      });
+      setIcebreakerResult(result);
+    } catch (e: any) {
+        setIcebreakerError("Hubo un error al generar el rompehielos. Por favor, inténtalo de nuevo.");
+        console.error(e);
+    } finally {
+        setIsIcebreakerLoading(false);
+    }
   }
-  
+
+  const handleCopy = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast({
+      title: "Copiado",
+      description: "¡Mensaje copiado! Ahora puedes pegarlo en un chat.",
+    })
+  }
+
   const currentPlayer = availablePlayers[currentIndex];
 
   return (
+    <>
     <div className="space-y-8 flex flex-col items-center">
        <div className="text-center">
           <h1 className="text-3xl font-bold flex items-center justify-center gap-2">
             <Search className="w-8 h-8 text-primary"/>
             Descubrir Jugadores
           </h1>
-          <p className="text-muted-foreground max-w-lg mx-auto">Explora perfiles de la comunidad. Envía una solicitud de amistad o analiza la sinergia para encontrar a tu compañero de equipo ideal.</p>
+          <p className="text-muted-foreground max-w-lg mx-auto">Explora perfiles de la comunidad. Usa la IA para romper el hielo o analiza la sinergia para encontrar a tu compañero ideal.</p>
         </div>
         
         <div className="flex justify-center w-full">
@@ -130,8 +164,8 @@ export default function MatchmakingPage() {
                         <BarChartHorizontal className="h-6 w-6"/>
                     </Link>
                 </Button>
-                <Button variant="outline" size="lg" className="bg-green-500/10 text-green-500 border-green-500/20 hover:bg-green-500/20 hover:text-green-600" onClick={() => handleAddFriend(currentPlayer.name)}>
-                    <Heart className="h-6 w-6"/>
+                <Button variant="outline" size="lg" className="bg-blue-500/10 text-blue-500 border-blue-500/20 hover:bg-blue-500/20 hover:text-blue-600" onClick={() => handleConnect(currentPlayer)}>
+                    <MessageSquare className="h-6 w-6"/>
                 </Button>
             </div>
         </Card>
@@ -143,5 +177,39 @@ export default function MatchmakingPage() {
         </Card>
       )}
     </div>
+
+    <Dialog open={isIcebreakerDialogOpen} onOpenChange={setIsIcebreakerDialogOpen}>
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle className="flex items-center gap-2"><Sparkles className="text-primary"/> Rompehielos con IA</DialogTitle>
+                <DialogDescription>
+                    La IA ha generado estos mensajes para ayudarte a iniciar una conversación. ¡Copia tu favorito!
+                </DialogDescription>
+            </DialogHeader>
+            <div className="py-4 space-y-4">
+                {isIcebreakerLoading && (
+                    <div className="flex items-center justify-center h-24">
+                        <Loader2 className="h-8 w-8 animate-spin text-primary"/>
+                    </div>
+                )}
+                {icebreakerError && !isIcebreakerLoading &&(
+                    <Alert variant="destructive">
+                        <Terminal className="h-4 w-4" />
+                        <AlertTitle>Error</AlertTitle>
+                        <AlertDescription>{icebreakerError}</AlertDescription>
+                    </Alert>
+                )}
+                {icebreakerResult && !isIcebreakerLoading && icebreakerResult.messages.map((msg, index) => (
+                    <div key={index} className="flex items-center gap-2 p-3 rounded-lg bg-muted/50">
+                        <p className="flex-1 text-sm italic">"{msg}"</p>
+                        <Button variant="ghost" size="icon" onClick={() => handleCopy(msg)}>
+                            <ClipboardCopy className="h-4 w-4"/>
+                        </Button>
+                    </div>
+                ))}
+            </div>
+        </DialogContent>
+    </Dialog>
+    </>
   )
 }

@@ -181,3 +181,22 @@ export const AvatarSchema = z.object({
   imageUrls: z.array(z.string()).describe('Una lista de URLs de las imágenes de avatar generadas, deben ser data URIs.'),
 });
 export type Avatar = z.infer<typeof AvatarSchema>;
+
+
+const PlayerProfileForIcebreakerSchema = z.object({
+    name: z.string(),
+    rank: z.string(),
+    favoriteWeapons: z.array(z.string()),
+    favoriteMap: z.string(),
+});
+
+export const IcebreakerInputSchema = z.object({
+    player1: PlayerProfileForIcebreakerSchema.describe("El perfil del jugador que envía el mensaje."),
+    player2: PlayerProfileForIcebreakerSchema.describe("El perfil del jugador que recibe el mensaje."),
+});
+export type IcebreakerInput = z.infer<typeof IcebreakerInputSchema>;
+
+export const IcebreakerOutputSchema = z.object({
+    messages: z.array(z.string()).length(3).describe("Una lista de exactamente 3 mensajes rompehielos únicos y creativos."),
+});
+export type IcebreakerOutput = z.infer<typeof IcebreakerOutputSchema>;
