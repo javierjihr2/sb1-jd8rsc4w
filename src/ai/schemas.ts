@@ -145,9 +145,19 @@ export const PlayerComparisonInputSchema = z.object({
 export type PlayerComparisonInput = z.infer<typeof PlayerComparisonInputSchema>;
 
 export const PlayerComparisonSchema = z.object({
-  synergyAnalysis: z.string().describe("Un análisis detallado de la sinergia entre los estilos de juego de ambos jugadores."),
-  combinedStrengths: z.array(z.string()).describe("Una lista de las fortalezas clave que este dúo tendría."),
-  duoTips: z.array(z.string()).describe("Una lista de consejos prácticos para que el dúo maximice su potencial."),
-  verdict: z.string().describe("Un veredicto final sobre el potencial del dúo."),
+  synergyAnalysis: z.string().describe("Un análisis conciso y directo de la sinergia entre los estilos de juego."),
+  combinedStrengths: z.array(z.string()).describe("Una lista de 2-3 fortalezas clave que este dúo tendría."),
+  duoTips: z.array(z.string()).describe("Una lista de 2 consejos prácticos para que el dúo maximice su potencial."),
+  verdict: z.string().describe("Un veredicto final en una sola frase concisa sobre su potencial como dúo."),
 });
 export type PlayerComparison = z.infer<typeof PlayerComparisonSchema>;
+
+export const AvatarInputSchema = z.object({
+  prompt: z.string().describe('La descripción del usuario para el avatar que desea generar.'),
+});
+export type AvatarInput = z.infer<typeof AvatarInputSchema>;
+
+export const AvatarSchema = z.object({
+  imageUrl: z.string().describe('La URL de la imagen del avatar generado, debe ser un data URI.'),
+});
+export type Avatar = z.infer<typeof AvatarSchema>;
