@@ -92,7 +92,7 @@ export default function DashboardLayout({
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
       <div className="hidden border-r bg-card text-card-foreground md:block">
-        <div className="flex h-full max-h-screen flex-col gap-8 pt-6">
+        <div className="flex h-full max-h-screen flex-col gap-8 pt-4">
           <div className="flex h-14 items-center justify-center border-b px-4 lg:h-[60px] lg:px-6">
             <Link href="/" className="flex items-center gap-2 font-semibold text-primary">
               <Icons.logo className="h-8 w-8" />
@@ -152,7 +152,7 @@ export default function DashboardLayout({
                 <span className="sr-only">Toggle navigation menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="flex flex-col bg-card text-card-foreground pt-6">
+            <SheetContent side="left" className="flex flex-col bg-card text-card-foreground pt-4">
               <nav className="grid gap-6 text-lg font-medium">
                 <Link
                   href="/"
