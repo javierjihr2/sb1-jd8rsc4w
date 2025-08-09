@@ -14,12 +14,12 @@ import { Loader2, Sparkles, Map, MapPin, Gamepad2, Shield, Users, Trophy, Lightb
 import { Skeleton } from "@/components/ui/skeleton";
 
 const mapOptions = [
-    { value: "erangel", label: "Erangel", imageUrl: "https://placehold.co/600x600.png" },
-    { value: "miramar", label: "Miramar", imageUrl: "https://placehold.co/600x600.png" },
-    { value: "sanhok", label: "Sanhok", imageUrl: "https://placehold.co/600x600.png" },
-    { value: "vikendi", label: "Vikendi", imageUrl: "https://placehold.co/600x600.png" },
-    { value: "livik", label: "Livik", imageUrl: "https://placehold.co/600x600.png" },
-    { value: "rondo", label: "Rondo", imageUrl: "https://placehold.co/600x600.png" },
+    { value: "erangel", label: "Erangel", imageUrl: "https://placehold.co/200x200.png" },
+    { value: "miramar", label: "Miramar", imageUrl: "https://placehold.co/200x200.png" },
+    { value: "sanhok", label: "Sanhok", imageUrl: "https://placehold.co/200x200.png" },
+    { value: "vikendi", label: "Vikendi", imageUrl: "https://placehold.co/200x200.png" },
+    { value: "livik", label: "Livik", imageUrl: "https://placehold.co/200x200.png" },
+    { value: "rondo", label: "Rondo", imageUrl: "https://placehold.co/200x200.png" },
 ];
 
 export default function PlayMapPage() {
@@ -27,6 +27,7 @@ export default function PlayMapPage() {
     const [plan, setPlan] = useState<MapPlanner | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [lastUsedInput, setLastUsedInput] = useState<Partial<MapPlannerInput> | null>(null);
 
     const handleGeneratePlan = async () => {
         if (!input.map || !input.playStyle || !input.squadSize || !input.riskLevel || !input.focus) {
@@ -36,6 +37,7 @@ export default function PlayMapPage() {
         setIsLoading(true);
         setError(null);
         setPlan(null);
+        setLastUsedInput(input);
         try {
             const result = await getMapPlan(input as MapPlannerInput);
             setPlan(result);
@@ -47,7 +49,9 @@ export default function PlayMapPage() {
         }
     };
 
-    const selectedMapImage = mapOptions.find(m => m.value === input.map)?.imageUrl ?? "https://placehold.co/600x600.png";
+    const selectedMapImage = lastUsedInput?.map 
+        ? mapOptions.find(m => m.value === lastUsedInput.map)?.imageUrl ?? "https://placehold.co/200x200.png"
+        : "https://placehold.co/200x200.png";
 
     const ResultSkeleton = () => (
         <Card>
@@ -170,22 +174,22 @@ export default function PlayMapPage() {
                     </Card>
                 )}
                 
-                {plan && !isLoading && (
+                {plan && !isLoading && lastUsedInput && (
                     <div className="animate-in fade-in-50 space-y-6">
                         <Card>
                             <CardHeader>
                                 <CardTitle className="text-3xl text-primary">{plan.planTitle}</CardTitle>
-                                <CardDescription className="flex items-center gap-4 pt-2 capitalize">
-                                    <span className="flex items-center gap-1"><MapPin className="h-4 w-4"/> {input.map}</span>
-                                    <span className="flex items-center gap-1"><Gamepad2 className="h-4 w-4"/> {input.playStyle}</span>
-                                    <span className="flex items-center gap-1"><Users className="h-4 w-4"/> {input.squadSize} Jugador(es)</span>
+                                <CardDescription className="flex items-center gap-x-4 gap-y-1 pt-2 capitalize flex-wrap">
+                                    <span className="flex items-center gap-1"><MapPin className="h-4 w-4"/> {lastUsedInput.map}</span>
+                                    <span className="flex items-center gap-1"><Gamepad2 className="h-4 w-4"/> {lastUsedInput.playStyle}</span>
+                                    <span className="flex items-center gap-1"><Users className="h-4 w-4"/> {lastUsedInput.squadSize} Jugador(es)</span>
                                 </CardDescription>
                             </CardHeader>
-                            <CardContent>
-                                <h3 className="font-bold text-lg flex items-center gap-2 mb-2"><MapPin className="h-5 w-5 text-accent"/> Zona de Aterrizaje: {plan.dropZone.name}</h3>
-                                <p className="text-muted-foreground text-sm mb-4">{plan.dropZone.reason}</p>
-                                <div className="relative aspect-square w-full max-w-[400px] rounded-lg overflow-hidden border">
-                                    <Image src={selectedMapImage} alt={`Mapa de ${input.map}`} width={600} height={600} className="object-cover" data-ai-hint={`${input.map} map`}/>
+                            <CardContent className="flex flex-col sm:flex-row items-center gap-6">
+                                <Image src={selectedMapImage} alt={`Mapa de ${lastUsedInput.map}`} width={200} height={200} className="object-cover rounded-lg border-2" data-ai-hint={`${lastUsedInput.map} map`}/>
+                                <div>
+                                    <h3 className="font-bold text-lg flex items-center gap-2 mb-2"><MapPin className="h-5 w-5 text-accent"/> Zona de Aterrizaje: {plan.dropZone.name}</h3>
+                                    <p className="text-muted-foreground text-sm">{plan.dropZone.reason}</p>
                                 </div>
                             </CardContent>
                         </Card>
@@ -194,41 +198,43 @@ export default function PlayMapPage() {
                              <CardHeader>
                                 <CardTitle className="flex items-center gap-2"><Lightbulb className="h-5 w-5 text-primary"/> Fases de la Partida</CardTitle>
                              </CardHeader>
-                             <CardContent className="grid md:grid-cols-3 gap-4 text-center">
+                             <CardContent className="grid md:grid-cols-3 gap-4 text-left">
                                 <div className="p-4 bg-muted/50 rounded-lg">
-                                    <h4 className="font-semibold flex items-center justify-center gap-2 mb-2"><Shield className="h-5 w-5 text-accent"/> Juego Temprano</h4>
+                                    <h4 className="font-semibold flex items-center gap-2 mb-2"><Shield className="h-5 w-5 text-accent"/> Juego Temprano</h4>
                                     <p className="text-muted-foreground text-sm">{plan.earlyGame.plan}</p>
                                 </div>
                                  <div className="p-4 bg-muted/50 rounded-lg">
-                                    <h4 className="font-semibold flex items-center justify-center gap-2 mb-2"><Gamepad2 className="h-5 w-5 text-accent"/> Juego Medio</h4>
+                                    <h4 className="font-semibold flex items-center gap-2 mb-2"><Gamepad2 className="h-5 w-5 text-accent"/> Juego Medio</h4>
                                     <p className="text-muted-foreground text-sm">{plan.midGame.plan}</p>
                                 </div>
                                 <div className="p-4 bg-muted/50 rounded-lg">
-                                    <h4 className="font-semibold flex items-center justify-center gap-2 mb-2"><Trophy className="h-5 w-5 text-accent"/> Juego Tardío</h4>
+                                    <h4 className="font-semibold flex items-center gap-2 mb-2"><Trophy className="h-5 w-5 text-accent"/> Juego Tardío</h4>
                                     <p className="text-muted-foreground text-sm">{plan.lateGame.plan}</p>
                                 </div>
                             </CardContent>
                         </Card>
 
-                        <Card>
-                             <CardHeader>
-                                <CardTitle className="flex items-center gap-2"><Bomb className="h-5 w-5 text-primary"/> Equipamiento Recomendado</CardTitle>
-                             </CardHeader>
-                             <CardContent>
-                                <p><strong className="text-accent">Arma Principal:</strong> {plan.recommendedLoadout.primaryWeapon}</p>
-                                <p><strong className="text-accent">Arma Secundaria:</strong> {plan.recommendedLoadout.secondaryWeapon}</p>
-                                <p className="text-sm text-muted-foreground mt-2">{plan.recommendedLoadout.reason}</p>
-                             </CardContent>
-                        </Card>
-                        
-                        <Card>
-                             <CardHeader>
-                                <CardTitle className="flex items-center gap-2"><Route className="h-5 w-5 text-primary"/> Plan de Rotación</CardTitle>
-                             </CardHeader>
-                             <CardContent>
-                                <p className="text-muted-foreground">{plan.rotationPlan}</p>
-                             </CardContent>
-                        </Card>
+                        <div className="grid md:grid-cols-2 gap-6">
+                            <Card>
+                                 <CardHeader>
+                                    <CardTitle className="flex items-center gap-2"><Bomb className="h-5 w-5 text-primary"/> Equipamiento Ideal</CardTitle>
+                                 </CardHeader>
+                                 <CardContent>
+                                    <p><strong className="text-accent">Principal:</strong> {plan.recommendedLoadout.primaryWeapon}</p>
+                                    <p><strong className="text-accent">Secundaria:</strong> {plan.recommendedLoadout.secondaryWeapon}</p>
+                                    <p className="text-sm text-muted-foreground mt-2">{plan.recommendedLoadout.reason}</p>
+                                 </CardContent>
+                            </Card>
+                            
+                            <Card>
+                                 <CardHeader>
+                                    <CardTitle className="flex items-center gap-2"><Route className="h-5 w-5 text-primary"/> Plan de Rotación</CardTitle>
+                                 </CardHeader>
+                                 <CardContent>
+                                    <p className="text-muted-foreground text-sm">{plan.rotationPlan}</p>
+                                 </CardContent>
+                            </Card>
+                        </div>
 
                     </div>
                 )}
@@ -236,3 +242,4 @@ export default function PlayMapPage() {
         </div>
     );
 }
+
