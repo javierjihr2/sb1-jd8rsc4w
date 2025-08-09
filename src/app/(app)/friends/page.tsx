@@ -1,4 +1,6 @@
 
+"use client"
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
@@ -13,6 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { recentChats } from "@/lib/data"
 import { UserPlus, MessageSquare, UserX, Search } from "lucide-react"
+import { AddFriendDialog } from "@/components/add-friend-dialog"
 
 const friends = [
   ...recentChats.slice(1).map(c => ({...c, online: c.id.charCodeAt(1) % 2 === 0 })),
@@ -37,10 +40,12 @@ export default function FriendsPage() {
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input placeholder="Buscar amigos..." className="pl-8" />
           </div>
-          <Button>
-            <UserPlus className="mr-2 h-4 w-4" />
-            Añadir Amigo
-          </Button>
+          <AddFriendDialog>
+            <Button>
+              <UserPlus className="mr-2 h-4 w-4" />
+              Añadir Amigo
+            </Button>
+          </AddFriendDialog>
         </div>
       </div>
 
