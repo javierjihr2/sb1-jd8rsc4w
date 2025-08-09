@@ -3,3 +3,4 @@ import "./flows/playerAnalysisFlow";
 import "./flows/strategyFlow";
 import "./flows/sensitivityFlow";
 import "./flows/controlsFlow";
+import "./flows/playerComparisonFlow";

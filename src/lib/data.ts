@@ -1,4 +1,5 @@
 import type { PlayerProfile, Tournament, Chat, NewsArticle } from './types';
+import type { PlayerProfileInput } from '@/ai/schemas';
 
 export const playerProfile: PlayerProfile = {
   id: 'u1',
@@ -111,4 +112,45 @@ export const newsArticles: NewsArticle[] = [
     imageUrl: 'https://placehold.co/600x400.png',
     category: 'eSports',
   },
+];
+
+export const friendsForComparison: PlayerProfileInput[] = [
+    {
+      id: 'p1',
+      name: 'Player1_Pro',
+      avatarUrl: 'https://placehold.co/100x100.png',
+      rank: 'Conquistador',
+      stats: { wins: 124, kills: 2345, kdRatio: 4.8 },
+      favoriteWeapons: ['M416', 'Kar98k'],
+      playSchedule: 'Noches (20:00 - 00:00)'
+    },
+    {
+      id: 'c2',
+      name: 'Ninja_Dude',
+      avatarUrl: 'https://placehold.co/40x40/32CD32/FFFFFF.png',
+      rank: 'As Dominador',
+      stats: { wins: 98, kills: 1890, kdRatio: 4.2 },
+      favoriteWeapons: ['AKM', 'SKS'],
+      playSchedule: 'Fines de semana'
+    },
+    {
+      id: 'c3',
+      name: 'ShadowStriker',
+      avatarUrl: 'https://placehold.co/40x40/8A2BE2/FFFFFF.png',
+      rank: 'As',
+      stats: { wins: 75, kills: 1500, kdRatio: 3.5 },
+      favoriteWeapons: ['UMP45', 'M24'],
+      playSchedule: 'Tardes (16:00 - 19:00)'
+    },
+    {
+      id: 'c4',
+      name: 'Phoenix_Queen',
+      avatarUrl: 'https://placehold.co/40x40/FF4500/FFFFFF.png',
+      rank: 'Corona I',
+      stats: { wins: 60, kills: 1200, kdRatio: 3.1 },
+      favoriteWeapons: ['DP-28', 'Vector'],
+      playSchedule: 'Variable'
+    },
+     { id: 'f1', name: 'GamerX_Treme', avatarUrl: 'https://placehold.co/40x40/FF6347/FFFFFF.png', rank: 'Platino II', stats: { wins: 30, kills: 600, kdRatio: 2.5 }, favoriteWeapons: ['SCAR-L', 'UMP45'], playSchedule: 'Noches'},
+     { id: 'f2', name: 'ProSlayer_99', avatarUrl: 'https://placehold.co/40x40/4682B4/FFFFFF.png', rank: 'Diamante V', stats: { wins: 55, kills: 1100, kdRatio: 2.9 }, favoriteWeapons: ['M762', 'Mini14'], playSchedule: 'Fines de semana'},
 ];

@@ -19,7 +19,8 @@ import {
   Wrench,
   DollarSign,
   Smartphone,
-  Gamepad2
+  Gamepad2,
+  Users
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -54,6 +55,7 @@ export default function DashboardLayout({
     { href: "/tournaments", label: "Torneos", icon: Swords, badge: 0 },
     { href: "/chats", label: "Chats", icon: MessageSquare, badge: recentChats.filter(c => c.unread).length },
     { href: "/friends", label: "Amigos", icon: Users2, badge: 0 },
+    { href: "/compare", label: "Comparar", icon: Users, badge: 0 },
     { href: "/news", label: "Noticias", icon: Newspaper, badge: 0 },
     { href: "/player-analysis", label: "Análisis IA", icon: BrainCircuit, badge: 0 },
     { href: "/strategies", label: "Estrategias", icon: Map, badge: 0 },

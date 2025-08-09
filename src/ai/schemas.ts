@@ -120,4 +120,34 @@ export const ControlsSchema = z.object({
 });
 export type Controls = z.infer<typeof ControlsSchema>;
 
-    
+
+const PlayerStatsSchema = z.object({
+    wins: z.number(),
+    kills: z.number(),
+    kdRatio: z.number(),
+});
+
+export const PlayerProfileInputSchema = z.object({
+    id: z.string(),
+    name: z.string(),
+    avatarUrl: z.string(),
+    rank: z.string(),
+    stats: PlayerStatsSchema,
+    favoriteWeapons: z.array(z.string()).describe("Una lista de las armas preferidas del jugador."),
+    playSchedule: z.string().describe("El horario típico en que el jugador está activo."),
+});
+export type PlayerProfileInput = z.infer<typeof PlayerProfileInputSchema>;
+
+export const PlayerComparisonInputSchema = z.object({
+    player1: PlayerProfileInputSchema,
+    player2: PlayerProfileInputSchema,
+});
+export type PlayerComparisonInput = z.infer<typeof PlayerComparisonInputSchema>;
+
+export const PlayerComparisonSchema = z.object({
+  synergyAnalysis: z.string().describe("Un análisis detallado de la sinergia entre los estilos de juego de ambos jugadores."),
+  combinedStrengths: z.array(z.string()).describe("Una lista de las fortalezas clave que este dúo tendría."),
+  duoTips: z.array(z.string()).describe("Una lista de consejos prácticos para que el dúo maximice su potencial."),
+  verdict: z.string().describe("Un veredicto final sobre el potencial del dúo."),
+});
+export type PlayerComparison = z.infer<typeof PlayerComparisonSchema>;
