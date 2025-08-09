@@ -69,6 +69,7 @@ export default function DashboardLayout({
     { href: "/tournaments", label: "Torneos", icon: Swords, badge: 0 },
     { href: "/chats", label: "Chats", icon: MessageSquare, badge: recentChats.filter(c => c.unread).length },
     { href: "/friends", label: "Amigos", icon: Users2, badge: 0 },
+    { href: "/matchmaking", label: "Buscar Equipo", icon: Search, badge: 0 },
     { href: "/compare", label: "Comparar", icon: Users, badge: 0 },
     { href: "/news", label: "Noticias", icon: Newspaper, badge: 0 },
     { href: "/player-analysis", label: "Análisis IA", icon: BrainCircuit, badge: 0 },

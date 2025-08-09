@@ -2,12 +2,10 @@
 import Link from "next/link"
 import Image from "next/image"
 import {
-  MessageSquare,
   BrainCircuit,
   Swords,
   Users2,
   Newspaper,
-  ChevronRight,
   Send,
   ImageIcon,
   Sticker,
@@ -21,7 +19,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
@@ -156,18 +153,6 @@ export default function DashboardPage() {
                 </div>
               </Link>
             ))}
-          </CardContent>
-        </Card>
-         <Card>
-          <CardHeader>
-            <CardTitle>Matchmaking Inteligente</CardTitle>
-            <CardDescription>Encuentra a tu compañero de equipo ideal.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button className="w-full">
-              <Users2 className="mr-2"/>
-              Buscar Equipo
-            </Button>
           </CardContent>
         </Card>
       </div>
