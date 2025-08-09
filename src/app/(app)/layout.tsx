@@ -156,7 +156,7 @@ export default function DashboardLayout({
               <nav className="grid gap-6 text-lg font-medium">
                 <Link
                   href="/"
-                  className="flex items-center gap-2 text-lg font-semibold text-primary mb-4"
+                  className="flex items-center justify-center gap-2 text-lg font-semibold text-primary mb-4"
                 >
                   <Icons.logo className="h-6 w-6" />
                   <span className="text-2xl">SquadUp</span>
