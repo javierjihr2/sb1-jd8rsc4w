@@ -58,6 +58,7 @@ export const StrategySchema = z.object({
   lateGame: z.object({
       title: z.string().describe('Título para la estrategia de la fase final del juego.'),
       plan: z.string().describe('El plan conciso para el juego tardío, incluyendo la estrategia del círculo final e identificación de posiciones clave.'),
+      zonePrediction: z.string().describe("Una predicción experta de una ubicación probable para el círculo final y la razón táctica detrás de ella."),
   }),
   tips: z.array(z.object({
       title: z.string().describe('Un título para el consejo.'),

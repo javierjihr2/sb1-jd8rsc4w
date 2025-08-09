@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { getStrategy } from "@/ai/flows/strategyFlow";
 import type { Strategy, StrategyInput } from "@/ai/schemas";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Loader2, Sparkles, Map, MapPin, Gamepad2, Shield, Users, Trophy, Lightbulb, Terminal } from "lucide-react";
+import { Loader2, Sparkles, Map, MapPin, Gamepad2, Shield, Users, Trophy, Lightbulb, Terminal, ShieldAlert } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const mapOptions = [
@@ -27,7 +27,7 @@ export default function StrategiesPage() {
     const [strategy, setStrategy] = useState<Strategy | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [selectedMapUrl, setSelectedMapUrl] = useState<string | null>(null);
+    const [selectedMapInfo, setSelectedMapInfo] = useState<{ value: string; label: string; imageUrl: string } | null>(null);
 
     const handleGenerateStrategy = async () => {
         if (!input.map || !input.playStyle || !input.squadSize) {
@@ -37,11 +37,14 @@ export default function StrategiesPage() {
         setIsLoading(true);
         setError(null);
         setStrategy(null);
+        setSelectedMapInfo(null);
         try {
             const result = await getStrategy(input as StrategyInput);
             setStrategy(result);
             const selectedMap = mapOptions.find(m => m.value === input.map);
-            setSelectedMapUrl(selectedMap?.imageUrl || null);
+            if (selectedMap) {
+                setSelectedMapInfo(selectedMap);
+            }
         } catch (e: any) {
             setError("Hubo un error al contactar a la IA. Por favor, inténtalo de nuevo.");
             console.error(e);
@@ -160,12 +163,12 @@ export default function StrategiesPage() {
                     </Card>
                 )}
                 
-                {strategy && !isLoading && (
+                {strategy && !isLoading && selectedMapInfo && (
                     <Card className="animate-in fade-in-50">
                         <CardHeader>
                             <CardTitle className="text-3xl text-primary">{strategy.strategyTitle}</CardTitle>
                             <CardDescription className="flex items-center gap-4 pt-2 capitalize">
-                                <span className="flex items-center gap-1"><MapPin className="h-4 w-4"/> {input.map}</span>
+                                <span className="flex items-center gap-1"><MapPin className="h-4 w-4"/> {selectedMapInfo.label}</span>
                                 <span className="flex items-center gap-1"><Gamepad2 className="h-4 w-4"/> {input.playStyle}</span>
                                 <span className="flex items-center gap-1"><Users className="h-4 w-4"/> {input.squadSize} Jugador(es)</span>
                             </CardDescription>
@@ -175,28 +178,34 @@ export default function StrategiesPage() {
                                 <div>
                                     <h3 className="font-bold text-lg flex items-center gap-2 mb-2"><MapPin className="h-5 w-5 text-accent"/> Zona de Aterrizaje: {strategy.dropZone.name}</h3>
                                     <p className="text-muted-foreground text-sm mb-4">{strategy.dropZone.reason}</p>
-                                    {selectedMapUrl && (
-                                        <div className="relative aspect-square w-full max-w-[400px] rounded-lg overflow-hidden border">
-                                            <Image src={selectedMapUrl} alt={`Mapa de ${input.map}`} width={400} height={400} className="object-cover" data-ai-hint={`${input.map} map`}/>
-                                            <div className="absolute inset-0 bg-black/20" />
-                                            <div className="absolute top-2 left-2 bg-background/80 p-2 rounded-md">
-                                                <p className="font-bold text-foreground text-sm">Aterrizar en: {strategy.dropZone.name}</p>
-                                            </div>
+                                    <div className="relative aspect-square w-full max-w-[400px] rounded-lg overflow-hidden border">
+                                        <Image src={selectedMapInfo.imageUrl} alt={`Mapa de ${selectedMapInfo.label}`} width={400} height={400} className="object-cover" data-ai-hint={`${selectedMapInfo.value} map`}/>
+                                        <div className="absolute inset-0 bg-black/20" />
+                                        <div className="absolute top-2 left-2 bg-background/80 p-2 rounded-md">
+                                            <p className="font-bold text-foreground text-sm">Aterrizar en: {strategy.dropZone.name}</p>
                                         </div>
-                                    )}
+                                    </div>
                                 </div>
-                                <div>
-                                    <h3 className="font-bold text-lg mb-2">Consejos Clave</h3>
-                                    <div className="space-y-3">
-                                        {strategy.tips.map((tip, index) => (
-                                            <div key={index} className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
-                                                <Lightbulb className="h-5 w-5 text-accent mt-1 flex-shrink-0" />
-                                                <div>
-                                                    <h4 className="font-semibold">{tip.title}</h4>
-                                                    <p className="text-muted-foreground text-sm">{tip.description}</p>
+                                <div className="space-y-6">
+                                    <div>
+                                        <h3 className="font-bold text-lg mb-2">Consejos Clave</h3>
+                                        <div className="space-y-3">
+                                            {strategy.tips.map((tip, index) => (
+                                                <div key={index} className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
+                                                    <Lightbulb className="h-5 w-5 text-accent mt-1 flex-shrink-0" />
+                                                    <div>
+                                                        <h4 className="font-semibold">{tip.title}</h4>
+                                                        <p className="text-muted-foreground text-sm">{tip.description}</p>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        ))}
+                                            ))}
+                                        </div>
+                                    </div>
+                                     <div>
+                                        <h3 className="font-bold text-lg flex items-center gap-2 mb-2"><ShieldAlert className="h-5 w-5 text-accent"/> Cierre de Zona Esperado</h3>
+                                         <div className="p-3 bg-muted/50 rounded-lg text-sm text-muted-foreground">
+                                            <p>{strategy.lateGame.zonePrediction}</p>
+                                         </div>
                                     </div>
                                 </div>
                             </div>
