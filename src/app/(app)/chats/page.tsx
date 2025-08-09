@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { recentChats } from "@/lib/data"
-import { Search, Send, Mic, Phone, Video, Settings, Paperclip, File, Image, User } from "lucide-react"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Search, Send, Mic, Phone, Video, Settings, Paperclip, File, Image, User, Sticker } from "lucide-react"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 
 export default function ChatsPage() {
   const selectedChat = recentChats[0]; // Placeholder for selected chat logic
@@ -66,20 +66,20 @@ export default function ChatsPage() {
                 </Button>
               </div>
             </CardHeader>
-            <CardContent className="flex-1 p-4 space-y-4 overflow-y-auto bg-background">
+            <CardContent className="flex-1 p-4 space-y-4 overflow-y-auto bg-background text-sm">
               {/* Example messages */}
               <div className="flex justify-end">
-                <div className="bg-primary text-primary-foreground p-3 rounded-lg max-w-xs">
-                  Hola, ¿listos para el torneo?
+                <div className="bg-primary text-primary-foreground p-3 rounded-xl max-w-md">
+                  Hola, ¿listos para el torneo? 🏆
                 </div>
               </div>
               <div className="flex justify-start">
-                <div className="bg-muted text-muted-foreground p-3 rounded-lg max-w-xs">
-                  ¡Claro! Ya estoy calentando.
+                <div className="bg-muted p-3 rounded-xl max-w-md">
+                  ¡Claro! Ya estoy calentando. 🔥
                 </div>
               </div>
                <div className="flex justify-end">
-                <div className="bg-primary text-primary-foreground p-3 rounded-lg max-w-xs">
+                <div className="bg-primary text-primary-foreground p-3 rounded-xl max-w-md">
                   {selectedChat.message}
                 </div>
               </div>
@@ -91,7 +91,7 @@ export default function ChatsPage() {
                             <Paperclip className="h-5 w-5" />
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent>
+                    <DropdownMenuContent align="start">
                         <DropdownMenuItem>
                             <Image className="mr-2" />
                             <span>Foto o Video</span>
@@ -104,6 +104,21 @@ export default function ChatsPage() {
                             <User className="mr-2" />
                             <span>Contacto</span>
                         </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                       <Button size="icon" variant="outline">
+                            <Sticker className="h-5 w-5" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start">
+                        <DropdownMenuLabel>Stickers</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem>😂 Reacciones</DropdownMenuItem>
+                        <DropdownMenuItem>🏆 Gaming</DropdownMenuItem>
+                        <DropdownMenuItem>🎉 Celebración</DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
 
