@@ -50,7 +50,7 @@ export default function PlayerAnalysisPage() {
 
     const handleAvatarGeneration = async () => {
         if (!avatarPrompt) {
-            setAvatarError("Por favor, escribe una descripción para tu avatar.");
+            setAvatarError("Por favor, escribe una descripción para tu diseño.");
             return;
         }
         setIsAvatarLoading(true);
@@ -61,7 +61,7 @@ export default function PlayerAnalysisPage() {
             const result = await generateAvatar({ prompt: avatarPrompt });
             setGeneratedAvatar(result);
         } catch (e: any) {
-            setAvatarError("Hubo un error al generar el avatar. El servicio puede estar ocupado. Inténtalo de nuevo.");
+            setAvatarError("Hubo un error al generar el diseño. El servicio puede estar ocupado. Inténtalo de nuevo.");
             console.error(e);
         } finally {
             setIsAvatarLoading(false);
@@ -71,7 +71,7 @@ export default function PlayerAnalysisPage() {
     const handleDownload = (imageUrl: string) => {
         const link = document.createElement('a');
         link.href = imageUrl;
-        link.download = `squadup-avatar-${Date.now()}.png`;
+        link.download = `squadup-design-${Date.now()}.png`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -82,7 +82,7 @@ export default function PlayerAnalysisPage() {
         <div className="space-y-8">
             <div>
                 <h1 className="text-3xl font-bold flex items-center gap-2"><BrainCircuit className="w-8 h-8 text-primary"/> Análisis con IA</h1>
-                <p className="text-muted-foreground">Descubre tu perfil de jugador y crea un avatar único con la ayuda de la IA.</p>
+                <p className="text-muted-foreground">Descubre tu perfil de jugador y crea un avatar o logo único con la ayuda de la IA.</p>
             </div>
 
             <div className="grid lg:grid-cols-3 gap-8 items-start">
@@ -176,16 +176,16 @@ export default function PlayerAnalysisPage() {
                 <div id="avatar" className="lg:col-span-1">
                      <Card className="sticky top-20">
                         <CardHeader>
-                            <CardTitle className="flex items-center gap-2"><ImageIcon className="h-5 w-5 text-primary" />Generador de Avatar con IA</CardTitle>
-                            <CardDescription>Describe el avatar de tus sueños y la IA lo creará para ti.</CardDescription>
+                            <CardTitle className="flex items-center gap-2"><ImageIcon className="h-5 w-5 text-primary" />Generador de Diseños con IA</CardTitle>
+                            <CardDescription>Describe el avatar, logo o emblema de tus sueños y la IA lo creará para ti.</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="avatar-prompt">Describe tu avatar</Label>
+                                    <Label htmlFor="avatar-prompt">Describe tu diseño</Label>
                                     <Textarea 
                                         id="avatar-prompt"
-                                        placeholder="Ej: Un soldado cibernético con armadura de neón y un casco de tigre" 
+                                        placeholder="Ej: Un logo para el equipo 'LOBOS NOCTURNOS' con un lobo y una luna. O un avatar de un soldado cibernético con armadura de neón." 
                                         value={avatarPrompt}
                                         onChange={(e) => setAvatarPrompt(e.target.value)}
                                         disabled={isAvatarLoading}
@@ -193,7 +193,7 @@ export default function PlayerAnalysisPage() {
                                 </div>
                                 <Button onClick={handleAvatarGeneration} disabled={isAvatarLoading || !avatarPrompt} className="w-full">
                                     {isAvatarLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Sparkles className="mr-2 h-4 w-4" />}
-                                    {isAvatarLoading ? "Creando Magia..." : "Generar Avatar"}
+                                    {isAvatarLoading ? "Creando Magia..." : "Generar Diseño"}
                                 </Button>
                             </div>
                               {avatarError && !isAvatarLoading && (
@@ -229,7 +229,7 @@ export default function PlayerAnalysisPage() {
                                             <div className="grid grid-cols-2 gap-4">
                                                 {generatedAvatar.imageUrls.map((url, index) => (
                                                     <div key={index} className="space-y-2">
-                                                        <Image src={url} alt={`Avatar generado por IA ${index + 1}`} width={256} height={256} className="object-cover rounded-lg aspect-square border"/>
+                                                        <Image src={url} alt={`Diseño generado por IA ${index + 1}`} width={256} height={256} className="object-cover rounded-lg aspect-square border"/>
                                                         <Button variant="outline" size="sm" className="w-full" onClick={() => handleDownload(url)}>
                                                             <Download className="mr-2 h-4 w-4" />
                                                             Descargar

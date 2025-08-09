@@ -1,9 +1,9 @@
 
 'use server';
 /**
- * @fileOverview An AI agent for generating custom player avatars.
+ * @fileOverview An AI agent for generating custom player avatars, logos, and other designs.
  *
- * - generateAvatar - A function that handles the avatar generation process.
+ * - generateAvatar - A function that handles the design generation process.
  * - AvatarInput - The input type for the generateAvatar function.
  * - AvatarOutput - The return type for the generateAvatar function.
  */
@@ -24,17 +24,18 @@ const avatarFlow = ai.defineFlow(
   async ({prompt}) => {
     
     const llmResponse = await ai.generate({
-      prompt: `Crea un prompt detallado para un modelo de generación de imágenes de IA. El objetivo es crear un avatar de personaje para un videojuego de disparos estilo "battle royale" como PUBG Mobile. El avatar debe ser de alta calidad, dinámico y visualmente impactante.
-      
-      Descripción del usuario: "${prompt}"
+      prompt: `Eres un Asistente de Diseño Gráfico de IA especializado en la estética de videojuegos "battle royale" como PUBG Mobile. Tu tarea es tomar la descripción de un usuario y transformarla en un prompt de generación de imágenes detallado, potente y de alta calidad. El objetivo puede ser un avatar, un logo para un equipo, un emblema, etc.
 
-      Instrucciones para el prompt mejorado:
-      1.  **Estilo:** "Arte conceptual de personaje, detallado, cinemático, renderizado de alta calidad".
-      2.  **Tema:** Basado en la descripción del usuario.
-      3.  **Añade detalles:** Incorpora elementos como "armadura táctica", "iluminación de neón", "efectos de partículas", "mirada intensa", "fondo de campo de batalla".
-      4.  **Formato:** Asegúrate de que el resultado sea un único párrafo de texto conciso y potente.
-      
-      Ejemplo: si el usuario pide "un soldado con un casco de tigre", un buen prompt sería: "Arte conceptual de personaje de un soldado de élite con armadura táctica y un casco de tigre feroz, iluminación de neón cinemática, mirada intensa, fondo de campo de batalla post-apocalíptico, renderizado de alta calidad".
+      Descripción del Usuario: "${prompt}"
+
+      Instrucciones para el Prompt Mejorado:
+      1.  **Estilo Principal:** Siempre incluye términos como "arte conceptual de alta calidad", "cinemático", "renderizado épico", "detalles intrincados".
+      2.  **Analiza la Petición:** Determina si el usuario quiere un personaje, un logo, un emblema u otro diseño.
+      3.  **Añade Detalles Contextuales:** Basado en la petición, inyecta elementos visuales de PUBG Mobile: "armadura táctica", "iluminación de neón", "efectos de partículas de batalla", "mirada intensa", "fondo de campo de batalla", "estilo militar moderno", "tipografía audaz de e-sports" (para logos).
+      4.  **Formato de Salida:** El resultado debe ser un único párrafo de texto en inglés, conciso y lleno de palabras clave impactantes para el modelo de imagen.
+
+      Ejemplo 1 (Avatar): Si el usuario pide "un soldado con casco de tigre", un buen prompt sería: "Concept art of an elite soldier in tactical armor with a fierce tiger helmet, cinematic neon lighting, intense gaze, post-apocalyptic battlefield background, epic quality render, intricate details."
+      Ejemplo 2 (Logo): Si el usuario pide "un logo para mi equipo 'Águilas Mortales'", un buen prompt sería: "Epic e-sports team logo design for 'Mortal Eagles', featuring a fierce, stylized eagle head with glowing red eyes, sharp metallic wings, bold and aggressive typography, modern military aesthetic, cinematic quality, vector art style."
       `,
     });
 
