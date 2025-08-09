@@ -41,7 +41,7 @@ export default function RechargePage() {
                                <img src={provider.logoUrl} alt={`${provider.name} logo`} className="h-8 object-contain rounded-md" data-ai-hint="logo"/>
                             </CardTitle>
                             <CardDescription>{provider.description}</CardDescription>
-                        </Header>
+                        </CardHeader>
                         <CardContent>
                              <div className="flex items-start p-3 bg-muted/50 rounded-lg text-sm">
                                 <Info className="h-5 w-5 mr-3 text-primary flex-shrink-0" />
@@ -51,7 +51,7 @@ export default function RechargePage() {
                             </div>
                         </CardContent>
                         <CardFooter>
-                           <Button asChild className="w-full" disabled={provider.url.startsWith('YOUR_')}>
+                           <Button asChild className="w-full" disabled={provider.url.includes('YOUR_')}>
                                 <Link href={provider.url} target="_blank" rel="noopener noreferrer">
                                     <ExternalLink className="mr-2 h-4 w-4" />
                                     Ir a {provider.name}
