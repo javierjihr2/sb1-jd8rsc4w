@@ -12,7 +12,6 @@ import type { MapPlanner, MapPlannerInput } from "@/ai/schemas";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Loader2, Sparkles, Map, MapPin, Gamepad2, Shield, Users, Trophy, Lightbulb, Terminal, Route, Bomb } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Input } from "@/components/ui/input";
 
 const mapOptions = [
     { value: "erangel", label: "Erangel", imageUrl: "https://placehold.co/200x200.png" },
@@ -22,6 +21,49 @@ const mapOptions = [
     { value: "livik", label: "Livik", imageUrl: "https://placehold.co/200x200.png" },
     { value: "rondo", label: "Rondo", imageUrl: "https://placehold.co/200x200.png" },
 ];
+
+const mapDropZones: Record<string, { value: string; label: string }[]> = {
+  erangel: [
+    { value: "Pochinki", label: "Pochinki" },
+    { value: "School", label: "School" },
+    { value: "Sosnovka Military Base", label: "Sosnovka Military Base" },
+    { value: "Georgopol", label: "Georgopol" },
+    { value: "Yasnaya Polyana", label: "Yasnaya Polyana" },
+  ],
+  miramar: [
+    { value: "Pecado", label: "Pecado" },
+    { value: "Hacienda del Patron", label: "Hacienda del Patrón" },
+    { value: "San Martin", label: "San Martín" },
+    { value: "Los Leones", label: "Los Leones" },
+    { value: "El Pozo", label: "El Pozo" },
+  ],
+  sanhok: [
+    { value: "Bootcamp", label: "Bootcamp" },
+    { value: "Paradise Resort", label: "Paradise Resort" },
+    { value: "Ruins", label: "Ruins" },
+    { value: "Quarry", label: "Quarry" },
+    { value: "Docks", label: "Docks" },
+  ],
+  vikendi: [
+    { value: "Castle", label: "Castle" },
+    { value: "Dino Park", label: "Dino Park" },
+    { value: "Volnova", label: "Volnova" },
+    { value: "Goroka", label: "Goroka" },
+    { value: "Cosmodrome", label: "Cosmodrome" },
+  ],
+  livik: [
+    { value: "Midstein", label: "Midstein" },
+    { value: "Blomster", label: "Blomster" },
+    { value: "Power Plant", label: "Power Plant" },
+    { value: "Iceborg", label: "Iceborg" },
+  ],
+  rondo: [
+      { value: "Jadina City", label: "Jadina City" },
+      { value: "Rin Hua", label: "Rin Hua" },
+      { value: "NEO Stahl", label: "NEO Stahl" },
+      { value: "Stadium", label: "Stadium" },
+  ]
+};
 
 export default function PlayMapPage() {
     const [input, setInput] = useState<Partial<MapPlannerInput>>({ squadSize: 4 });
@@ -95,28 +137,34 @@ export default function PlayMapPage() {
                     <CardContent className="space-y-4">
                         <div className="space-y-2">
                             <Label>Mapa</Label>
-                            <Select onValueChange={(value) => setInput(p => ({ ...p, map: value }))} value={input.map}>
+                            <Select onValueChange={(value) => setInput(p => ({ ...p, map: value, dropZone: undefined }))} value={input.map}>
                                 <SelectTrigger><SelectValue placeholder="Selecciona un mapa" /></SelectTrigger>
                                 <SelectContent>{mapOptions.map(m => <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>)}</SelectContent>
                             </Select>
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="dropzone">Tu Zona de Aterrizaje</Label>
-                            <Input 
-                                id="dropzone" 
-                                placeholder="Ej: Pochinki, School, Mylta"
-                                value={input.dropZone || ''}
-                                onChange={(e) => setInput(p => ({ ...p, dropZone: e.target.value }))} 
-                            />
+                            <Select 
+                                onValueChange={(value) => setInput(p => ({ ...p, dropZone: value }))} 
+                                value={input.dropZone}
+                                disabled={!input.map}
+                            >
+                                <SelectTrigger id="dropzone"><SelectValue placeholder={!input.map ? "Primero selecciona un mapa" : "Selecciona una zona"} /></SelectTrigger>
+                                <SelectContent>
+                                    {input.map && mapDropZones[input.map]?.map(dz => (
+                                        <SelectItem key={dz.value} value={dz.value}>{dz.label}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                         </div>
                          <div className="space-y-2">
                             <Label>Estilo de Juego</Label>
                             <Select onValueChange={(value) => setInput(p => ({ ...p, playStyle: value }))} value={input.playStyle}>
                                 <SelectTrigger><SelectValue placeholder="Selecciona un estilo" /></SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="Agresivo">Agresivo</SelectItem>
-                                    <SelectItem value="Pasivo">Pasivo</SelectItem>
-                                    <SelectItem value="Equilibrado">Equilibrado</SelectItem>
+                                    <SelectItem value="A por todas (Rusher)">A por todas (Rusher)</SelectItem>
+                                    <SelectItem value="Con calma (Estrategico)">Con calma (Estratégico)</SelectItem>
+                                    <SelectItem value="Equilibrado (Adaptable)">Equilibrado (Adaptable)</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
@@ -136,8 +184,8 @@ export default function PlayMapPage() {
                             <Select onValueChange={(value) => setInput(p => ({ ...p, focus: value }))} value={input.focus}>
                                 <SelectTrigger><SelectValue placeholder="Prioridad de la partida" /></SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="Rotación y Posicionamiento">Rotación y Posicionamiento</SelectItem>
-                                    <SelectItem value="Búsqueda de Combate">Búsqueda de Combate</SelectItem>
+                                    <SelectItem value="Rotacion y Posicionamiento">Rotación y Posicionamiento</SelectItem>
+                                    <SelectItem value="Busqueda de Combate">Búsqueda de Combate</SelectItem>
                                     <SelectItem value="Loteo Extremo">Loteo Extremo</SelectItem>
                                 </SelectContent>
                             </Select>
@@ -252,6 +300,3 @@ export default function PlayMapPage() {
         </div>
     );
 }
-
-
-
