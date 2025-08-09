@@ -76,7 +76,7 @@ export default function DashboardLayout({
   ]
   
   const aiNavItems = [
-      { href: "/player-analysis", label: "Análisis de Jugador", icon: Users },
+      { href: "/player-analysis", label: "Análisis de Jugador", icon: BrainCircuit },
       { href: "/strategies", label: "Estrategias de Mapa", icon: Map },
       { href: "/compare", label: "Comparador de Dúos", icon: Users2 },
       { href: "/sensitivity", label: "Asistente de Sensibilidad", icon: Smartphone },
@@ -86,8 +86,6 @@ export default function DashboardLayout({
   if (playerProfile.isAdmin) {
     navItems.push({ href: "/admin", label: "Admin", icon: ShieldCheck, badge: 0 });
   }
-
-  const isAiRouteActive = aiNavItems.some(item => pathname === item.href);
 
   if (loading) {
     return (
@@ -127,32 +125,21 @@ export default function DashboardLayout({
                   )}
                 </Link>
               ))}
-               <Accordion type="single" collapsible defaultValue={isAiRouteActive ? "ai-tools" : undefined} className="w-full">
-                <AccordionItem value="ai-tools" className="border-b-0">
-                  <AccordionTrigger className={cn(
-                      "flex items-center gap-3 rounded-lg px-3 py-2 text-sidebar-foreground transition-all hover:text-white hover:bg-sidebar-accent/20 hover:no-underline",
-                      isAiRouteActive && "text-sidebar-primary font-bold"
-                    )}>
-                     <BrainCircuit className="h-4 w-4" />
-                      Copiloto IA
-                  </AccordionTrigger>
-                  <AccordionContent className="pl-4">
-                     {aiNavItems.map((item) => (
-                      <Link
-                        key={item.label}
-                        href={item.href}
-                        className={cn(
-                          "flex items-center gap-3 rounded-lg px-3 py-2 text-sidebar-foreground transition-all hover:text-white hover:bg-sidebar-accent/20",
-                          pathname === item.href ? "bg-sidebar-accent/10 text-sidebar-primary font-bold" : ""
-                        )}
-                      >
-                        <item.icon className="h-4 w-4" />
-                        {item.label}
-                      </Link>
-                    ))}
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
+              <div className="my-2 border-t border-sidebar-border/50" />
+              <h3 className="px-3 py-2 text-xs font-semibold uppercase text-sidebar-foreground/70 tracking-wider">Copiloto IA</h3>
+               {aiNavItems.map((item) => (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className={cn(
+                    "flex items-center gap-3 rounded-lg px-3 py-2 text-sidebar-foreground transition-all hover:text-white hover:bg-sidebar-accent/20",
+                    pathname === item.href ? "bg-sidebar-accent/10 text-sidebar-primary font-bold" : ""
+                  )}
+                >
+                  <item.icon className="h-4 w-4" />
+                  {item.label}
+                </Link>
+              ))}
             </nav>
           </div>
           <div className="mt-auto p-4">
