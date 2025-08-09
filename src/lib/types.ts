@@ -1,5 +1,6 @@
 
-import type { PlayerProfileInput } from "./schemas";
+
+import type { PlayerProfileInput as PlayerProfileInputSchema } from '@/ai/schemas';
 
 export type PlayerProfile = {
   id: string;
@@ -16,6 +17,10 @@ export type PlayerProfile = {
   };
   isAdmin?: boolean;
 };
+
+// Re-exporting this type for use in data.ts without circular dependency issues with AI schemas.
+export type PlayerProfileInput = PlayerProfileInputSchema;
+
 
 export type Tournament = {
   id: string;
@@ -74,3 +79,5 @@ export type FeedPost = {
     likes: number;
     comments: number;
 }
+
+    
