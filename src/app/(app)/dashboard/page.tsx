@@ -6,7 +6,8 @@ import {
   Users2,
   ChevronRight,
   MessageSquare,
-  BrainCircuit
+  BrainCircuit,
+  Trophy
 } from "lucide-react"
 
 import {
@@ -36,6 +37,7 @@ import {
 } from "@/components/ui/table"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { playerProfile, tournaments, recentChats } from "@/lib/data"
+import { Progress } from "@/components/ui/progress"
 
 
 export default function DashboardPage() {
@@ -75,7 +77,7 @@ export default function DashboardPage() {
             <CardTitle className="text-sm font-medium">
               Victorias
             </CardTitle>
-            <Users2 className="h-4 w-4 text-muted-foreground" />
+            <Trophy className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{playerProfile.stats.wins}</div>
@@ -100,14 +102,15 @@ export default function DashboardPage() {
         </Card>
           <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Nivel</CardTitle>
+            <CardTitle className="text-sm font-medium">Nivel y Rango</CardTitle>
             <Swords className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{playerProfile.level}</div>
-            <p className="text-xs text-muted-foreground">
-              Rango: {playerProfile.rank}
-            </p>
+            <div className="text-2xl font-bold">{playerProfile.rank}</div>
+            <div className="flex items-center gap-2 mt-1">
+                <span className="text-xs text-muted-foreground">Nivel {playerProfile.level}</span>
+                <Progress value={(playerProfile.level / 100) * 100} className="w-[60%] h-2"/>
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -258,3 +261,5 @@ export default function DashboardPage() {
     </>
   )
 }
+
+    

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { playerProfile } from "@/lib/data"
-import { Trophy, Shield, Swords, BarChart2, BrainCircuit, Image as ImageIcon, Send, Sticker, Settings } from "lucide-react"
+import { Trophy, Shield, Swords, BarChart2, BrainCircuit, Image as ImageIcon, Send, Sticker, Settings, Award } from "lucide-react"
 import Link from "next/link"
 import { Textarea } from "@/components/ui/textarea"
 import { EditProfileDialog } from "@/components/edit-profile-dialog"
@@ -32,10 +32,10 @@ export default function ProfilePage() {
             {/* Columna Izquierda: Perfil y Estadísticas */}
             <div className="lg:col-span-2 space-y-8">
                 <Card className="overflow-hidden">
-                    <div className="h-24 md:h-32 bg-gradient-to-r from-primary/10 via-primary/5 to-background" />
+                    <div className="h-24 md:h-32 bg-gradient-to-r from-primary/20 via-primary/5 to-background" />
                     <CardContent className="p-6">
                         <div className="flex flex-col sm:flex-row sm:items-end sm:gap-6 -mt-16 sm:-mt-20">
-                            <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 border-background">
+                            <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 border-background ring-2 ring-primary">
                                 <AvatarImage src={playerProfile.avatarUrl} data-ai-hint="gaming character" />
                                 <AvatarFallback>{playerProfile.name.substring(0, 2)}</AvatarFallback>
                             </Avatar>
@@ -54,26 +54,31 @@ export default function ProfilePage() {
                         <CardTitle className="flex items-center gap-2"><BarChart2 className="h-5 w-5 text-primary" /> Estadísticas y Logros</CardTitle>
                     </CardHeader>
                     <CardContent className="grid gap-8 md:grid-cols-2">
-                         <div className="space-y-4">
-                            <div className="flex justify-between items-center">
-                                <span>Victorias</span>
-                                <span className="font-bold">{playerProfile.stats.wins}</span>
+                         <div className="space-y-6">
+                            <div>
+                                <div className="flex justify-between items-center text-sm mb-1">
+                                    <span>Nivel {playerProfile.level}</span>
+                                    <span className="text-muted-foreground">Nivel {playerProfile.level+1}</span>
+                                </div>
+                                <Progress value={(playerProfile.level/100) * 100} />
                             </div>
-                            <Progress value={(playerProfile.stats.wins / 200) * 100} />
-
-                            <div className="flex justify-between items-center">
-                                <span>Bajas</span>
-                                <span className="font-bold">{playerProfile.stats.kills}</span>
+                            <div>
+                                <div className="flex justify-between items-center text-sm mb-1">
+                                    <span>Victorias</span>
+                                    <span className="font-bold">{playerProfile.stats.wins}</span>
+                                </div>
+                                <Progress value={(playerProfile.stats.wins / 200) * 100} />
                             </div>
-                            <Progress value={(playerProfile.stats.kills / 3000) * 100} />
-                            
-                            <div className="flex justify-between items-center">
-                                <span>Ratio K/D</span>
-                                <span className="font-bold">{playerProfile.stats.kdRatio}</span>
-                            </div>
-                            <Progress value={(playerProfile.stats.kdRatio / 10) * 100} />
+                            <div>
+                                <div className="flex justify-between items-center text-sm mb-1">
+                                    <span>Ratio K/D</span>
+                                    <span className="font-bold">{playerProfile.stats.kdRatio}</span>
+                                </div>
+                                <Progress value={(playerProfile.stats.kdRatio / 10) * 100} />
+                             </div>
                         </div>
                         <div className="space-y-3">
+                            <h4 className="font-semibold">Logros Destacados</h4>
                             <div className="flex items-center gap-4 p-3 bg-muted/50 rounded-lg">
                                 <div className="p-2 bg-primary/10 rounded-full"><Trophy className="h-5 w-5 text-primary" /></div>
                                 <div>
@@ -86,6 +91,13 @@ export default function ProfilePage() {
                                 <div>
                                     <p className="font-semibold">Experto en Asalto</p>
                                     <p className="text-sm text-muted-foreground">1000 bajas con rifles de asalto.</p>
+                                </div>
+                            </div>
+                             <div className="flex items-center gap-4 p-3 bg-muted/50 rounded-lg">
+                                <div className="p-2 bg-primary/10 rounded-full"><Award className="h-5 w-5 text-primary" /></div>
+                                <div>
+                                    <p className="font-semibold">Rango Conquistador</p>
+                                    <p className="text-sm text-muted-foreground">Alcanza el máximo rango.</p>
                                 </div>
                             </div>
                         </div>
@@ -156,3 +168,5 @@ export default function ProfilePage() {
         </div>
     )
 }
+
+    
