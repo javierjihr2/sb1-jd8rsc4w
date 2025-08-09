@@ -1,49 +1,23 @@
 
-import Image from "next/image"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { newsArticles } from "@/lib/data"
-import { Button } from "@/components/ui/button"
+"use client"
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Loader2 } from 'lucide-react';
 
 export default function NewsPage() {
-  return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold">Noticias y Actualizaciones</h1>
-        <p className="text-muted-foreground">Mantente al día con lo último del universo PUBG Mobile.</p>
-      </div>
+  const router = useRouter();
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {newsArticles.map((article) => (
-          <Card key={article.id} className="flex flex-col">
-            <CardHeader className="p-0">
-               <Image
-                src={article.imageUrl}
-                alt={article.title}
-                width={600}
-                height={400}
-                className="rounded-t-lg object-cover aspect-video"
-                data-ai-hint="gaming news"
-              />
-            </CardHeader>
-            <CardContent className="p-6 flex-1">
-                <Badge variant="secondary" className="mb-2">{article.category}</Badge>
-                <h2 className="text-xl font-semibold mb-2">{article.title}</h2>
-                <CardDescription>{article.summary}</CardDescription>
-            </CardContent>
-            <CardFooter className="p-6 pt-0">
-                 <Button variant="outline">Leer más</Button>
-            </CardFooter>
-          </Card>
-        ))}
+  useEffect(() => {
+    router.replace('/dashboard');
+  }, [router]);
+
+  return (
+    <div className="flex h-screen w-full items-center justify-center bg-background">
+      <div className="flex flex-col items-center gap-4">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        <p className="text-muted-foreground">Redirigiendo a Inicio...</p>
       </div>
     </div>
-  )
+  );
 }

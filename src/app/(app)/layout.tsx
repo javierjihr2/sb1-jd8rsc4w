@@ -64,14 +64,12 @@ export default function DashboardLayout({
 
   const navItems = [
     { href: "/dashboard", label: "Inicio", icon: Home, badge: 0 },
-    { href: "/feed", label: "Feed", icon: Rss, badge: 0 },
     { href: "/tournaments", label: "Torneos", icon: Swords, badge: 0 },
     { href: "/chats", label: "Chats", icon: MessageSquare, badge: recentChats.filter(c => c.unread).length },
     { href: "/friends", label: "Amigos", icon: Users2, badge: 0 },
     { href: "/matchmaking", label: "MATCH PUBGM", icon: Search, badge: 0 },
     { href: "/equipment", label: "Equipamiento", icon: Wrench, badge: 0 },
     { href: "/recharge", label: "Recargar UC", icon: DollarSign, badge: 0 },
-    { href: "/news", label: "Noticias", icon: Newspaper, badge: 0 },
     { href: "/player-analysis", label: "Análisis de Jugador", icon: BrainCircuit },
     { href: "/play-map", label: "Estrategias de Mapas", icon: Map },
     { href: "/compare", label: "Comparador de Dúos", icon: Users },
