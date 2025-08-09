@@ -91,10 +91,10 @@ export default function DashboardLayout({
 
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
-      <div className="hidden border-r bg-card text-card-foreground md:block">
-        <div className="flex h-full max-h-screen flex-col gap-8 pt-4">
-          <div className="flex h-14 items-center justify-center border-b px-4 lg:h-[60px] lg:px-6">
-            <Link href="/" className="flex items-center gap-2 font-semibold text-primary">
+      <div className="hidden border-r bg-sidebar text-sidebar-foreground md:block">
+        <div className="flex h-full max-h-screen flex-col gap-4 pt-4">
+          <div className="flex h-14 items-center justify-center border-b border-sidebar-border px-4 lg:h-[60px] lg:px-6">
+            <Link href="/" className="flex items-center gap-2 font-semibold text-sidebar-primary">
               <Icons.logo className="h-8 w-8" />
               <span className="text-2xl">SquadUp</span>
             </Link>
@@ -106,8 +106,8 @@ export default function DashboardLayout({
                   key={item.label}
                   href={item.href}
                   className={cn(
-                    "flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary",
-                    pathname === item.href ? "bg-muted text-primary" : "text-muted-foreground"
+                    "flex items-center gap-3 rounded-lg px-3 py-2 text-sidebar-foreground transition-all hover:text-white hover:bg-sidebar-accent/20",
+                    pathname === item.href ? "bg-sidebar-accent/10 text-sidebar-primary font-bold" : ""
                   )}
                 >
                   <item.icon className="h-4 w-4" />
@@ -122,9 +122,9 @@ export default function DashboardLayout({
             </nav>
           </div>
           <div className="mt-auto p-4">
-            <Card className="bg-background/50 border-border/50">
+            <Card className="bg-sidebar-background/50 border-sidebar-border/50">
               <CardHeader className="p-2 pt-0 md:p-4">
-                <CardTitle>Sistema de Soporte</CardTitle>
+                <CardTitle className="text-white">Sistema de Soporte</CardTitle>
                 <CardDescription>
                   ¿Necesitas ayuda? Contacta con nuestro equipo de soporte.
                 </CardDescription>
@@ -152,11 +152,11 @@ export default function DashboardLayout({
                 <span className="sr-only">Toggle navigation menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="flex flex-col bg-card text-card-foreground pt-4">
+            <SheetContent side="left" className="flex flex-col bg-sidebar text-sidebar-foreground pt-4 border-r-0">
               <nav className="grid gap-6 text-lg font-medium">
                 <Link
                   href="/"
-                  className="flex items-center justify-center gap-2 text-lg font-semibold text-primary mb-4"
+                  className="flex items-center justify-center gap-2 text-lg font-semibold text-sidebar-primary mb-4"
                 >
                   <Icons.logo className="h-6 w-6" />
                   <span className="text-2xl">SquadUp</span>
@@ -165,9 +165,9 @@ export default function DashboardLayout({
                   <Link
                     key={item.label}
                     href={item.href}
-                    className={cn(
-                      "mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 hover:text-foreground",
-                      pathname === item.href ? "bg-muted text-foreground" : "text-muted-foreground"
+                     className={cn(
+                      "flex items-center gap-4 rounded-xl px-3 py-2 text-sidebar-foreground hover:text-white hover:bg-sidebar-accent/20",
+                      pathname === item.href ? "bg-sidebar-accent/10 text-sidebar-primary font-bold" : ""
                     )}
                   >
                     <item.icon className="h-5 w-5" />
@@ -181,9 +181,9 @@ export default function DashboardLayout({
                 ))}
               </nav>
               <div className="mt-auto">
-                <Card className="bg-background/50 border-border/50">
+                <Card className="bg-sidebar-background/50 border-sidebar-border/50">
                   <CardHeader>
-                    <CardTitle>Sistema de Soporte</CardTitle>
+                    <CardTitle className="text-white">Sistema de Soporte</CardTitle>
                     <CardDescription>
                       ¿Necesitas ayuda? Contacta con nuestro equipo de soporte.
                     </CardDescription>
