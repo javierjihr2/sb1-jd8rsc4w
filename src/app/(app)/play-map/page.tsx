@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { getMapPlan } from "@/ai/flows/mapPlannerFlow";
 import type { MapPlanner, MapPlannerInput } from "@/ai/schemas";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Loader2, Sparkles, Map, MapPin, Gamepad2, Shield, Users, Trophy, Lightbulb, Terminal, Route, Bomb, ThumbsUp, ThumbsDown, Car, Target, CircleDot } from "lucide-react";
+import { Loader2, Sparkles, Map, MapPin, Gamepad2, Shield, Users, Trophy, Lightbulb, Terminal, Route, Bomb, ThumbsUp, ThumbsDown, Car, Target, CircleDot, UserCheck } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -166,28 +166,13 @@ export default function PlayMapPage() {
     );
 
     const renderWeaponCard = (title: string, weapon: any) => (
-        <Card className="bg-muted/30 flex-1">
-            <CardHeader>
-                <CardTitle className="text-lg">{title}</CardTitle>
-                <CardDescription>{weapon.name}</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-                <div>
-                    <h4 className="font-semibold">Mira Recomendada:</h4>
-                    <p className="text-muted-foreground">{weapon.sight}</p>
-                </div>
-                <div>
-                    <h4 className="font-semibold">Accesorios Clave:</h4>
-                    <ul className="list-disc list-inside text-muted-foreground">
-                       {weapon.attachments.map((att: string, i: number) => <li key={i}>{att}</li>)}
-                    </ul>
-                </div>
-                 <div>
-                    <h4 className="font-semibold">Justificación Táctica:</h4>
-                    <p className="text-muted-foreground italic">"{weapon.justification}"</p>
-                </div>
-            </CardContent>
-        </Card>
+        <div className="space-y-2">
+            <h4 className="font-semibold">{title}: {weapon.name}</h4>
+            <div className="text-xs text-muted-foreground space-y-2">
+                <p><strong>Mira:</strong> {weapon.sight}</p>
+                <p><strong>Accesorios:</strong> {weapon.attachments.join(', ')}</p>
+            </div>
+        </div>
     );
 
 
@@ -364,11 +349,26 @@ export default function PlayMapPage() {
 
                         <Card>
                              <CardHeader>
-                                <CardTitle className="flex items-center gap-2"><Bomb className="h-5 w-5 text-primary"/> Equipamiento Táctico Recomendado</CardTitle>
+                                <CardTitle className="flex items-center gap-2"><Bomb className="h-5 w-5 text-primary"/> Equipamiento Táctico por Rol</CardTitle>
                              </CardHeader>
-                             <CardContent className="space-y-4 md:space-y-0 md:flex md:gap-4">
-                                {renderWeaponCard("Arma Principal", plan.recommendedLoadout.primaryWeapon)}
-                                {renderWeaponCard("Arma Secundaria", plan.recommendedLoadout.secondaryWeapon)}
+                             <CardContent className="space-y-4">
+                                {plan.recommendedLoadout.map((loadout, index) => (
+                                    <Card key={index} className="bg-muted/30">
+                                        <CardHeader>
+                                            <CardTitle className="text-lg flex items-center gap-2"><UserCheck className="h-5 w-5 text-accent" /> {loadout.role}</CardTitle>
+                                        </CardHeader>
+                                        <CardContent className="space-y-4">
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                {renderWeaponCard("Arma Principal", loadout.primaryWeapon)}
+                                                {renderWeaponCard("Arma Secundaria", loadout.secondaryWeapon)}
+                                            </div>
+                                            <div>
+                                                <h4 className="font-semibold">Justificación Táctica:</h4>
+                                                <p className="text-sm text-muted-foreground italic">"{loadout.justification}"</p>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                ))}
                              </CardContent>
                         </Card>
                         

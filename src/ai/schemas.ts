@@ -50,7 +50,13 @@ const WeaponLoadoutSchema = z.object({
   name: z.string().describe("El nombre del arma recomendada."),
   sight: z.string().describe("La mira recomendada para el arma (ej. 'Mira 6x', 'Punto Rojo')."),
   attachments: z.array(z.string()).describe("Una lista de 2-3 accesorios clave recomendados para el arma (ej. 'Culata táctica', 'Cargador ampliado rápido')."),
-  justification: z.string().describe("Una justificación concisa de por qué esta configuración de arma es ideal para el plan."),
+});
+
+const RoleBasedLoadoutSchema = z.object({
+    role: z.string().describe("El rol del jugador en la escuadra (ej. IGL, Fragger, Support, Sniper). Para 'Solo', el rol puede ser 'Versátil'."),
+    primaryWeapon: WeaponLoadoutSchema,
+    secondaryWeapon: WeaponLoadoutSchema,
+    justification: z.string().describe("Una justificación concisa de por qué este equipamiento es ideal para este rol específico dentro del plan general."),
 });
 
 export const MapPlannerSchema = z.object({
@@ -65,10 +71,7 @@ export const MapPlannerSchema = z.object({
   lateGame: z.object({
       plan: z.string().describe('El plan conciso para el juego tardío, incluyendo la estrategia del círculo final e identificación de posiciones clave.'),
   }),
-  recommendedLoadout: z.object({
-      primaryWeapon: WeaponLoadoutSchema,
-      secondaryWeapon: WeaponLoadoutSchema,
-  }).describe("Equipamiento detallado y recomendado para ejecutar el plan con éxito."),
+  recommendedLoadout: z.array(RoleBasedLoadoutSchema).describe("Una lista de equipamientos recomendados basados en roles de jugador, adaptado al tamaño de la escuadra."),
   rotationPlan: z.object({
     route: z.string().describe("La descripción de la ruta de rotación principal."),
     considerations: z.array(z.string()).describe("Una lista de 2-3 puntos clave o hitos a considerar durante la rotación."),

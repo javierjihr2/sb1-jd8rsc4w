@@ -43,16 +43,17 @@ Instrucciones para generar el plan (sé muy detallado y explicativo):
 3.  **earlyGame.plan**: Define un plan muy claro para la fase inicial del juego (los primeros 5-7 minutos o círculos 1-2) comenzando desde la **zona de aterrizaje** seleccionada. Explica las prioridades: qué edificios lootear, cómo posicionarse y si buscar o evitar enfrentamientos inmediatos. Si se proporciona una **Ubicación Actual**, esta fase debe considerarse ya completada.
 4.  **midGame.plan**: Define un plan detallado para la fase media (aproximadamente círculos 3-5). Debe enfocarse en cómo rotar (desde la **Zona de Aterrizaje** o la **Ubicación Actual**) hacia la zona segura. **Si se proporcionaron los puntos de cierre de zona, la rotación debe planificarse para controlar una posición de poder entre el Punto A y el Punto B**. Explica qué áreas clave controlar (alturas, puentes, complejos) y cómo tomar decisiones de combate basadas en la información disponible (disparos, vehículos), siempre considerando el **Estilo de Juego** y la **Cantidad de zonas cerradas**.
 5.  **lateGame.plan**: Define un plan preciso para el final de la partida (últimos círculos). Céntrate en el posicionamiento para el círculo final, anticipando el cierre entre el Punto A y el Punto B si fueron proporcionados. Explica cómo usar las coberturas (naturales y edificios) y cómo iniciar el enfrentamiento final para asegurar la victoria. La urgencia del plan debe reflejar la **Cantidad de zonas cerradas**.
-6.  **recommendedLoadout**: Sugiere un equipamiento ideal y DETALLADO.
-    *   **Arma Principal y Secundaria:** Elige armas que se encuentren en el mapa especificado y que se alineen con la estrategia general.
-    *   **Miras y Accesorios:** Recomienda la mejor mira (ej. "Mira 6x", "Punto Rojo") y una lista de 2-3 accesorios clave (ej. "Culata táctica", "Cargador ampliado rápido", "Silenciador") para cada arma.
-    *   **Justificación:** Proporciona una justificación concisa para cada arma, explicando por qué esa configuración es ideal para el plan.
+6.  **recommendedLoadout**: Sugiere un equipamiento DETALLADO y basado en roles.
+    *   **Adaptación al Tamaño de Escuadra:** Adapta las recomendaciones de roles al tamaño de la escuadra. Para una escuadra completa (4 jugadores), sugiere equipamiento para roles clave como **IGL (In-Game Leader), Fragger, Support y Sniper**. Para un dúo (2 jugadores), sugiere roles complementarios (ej: Fragger y Support/Sniper). Para un jugador solo, sugiere un equipamiento versátil.
+    *   **Armas por Rol:** Para cada rol, elige una **Arma Principal y Secundaria**. Elige armas que se encuentren en el mapa especificado y que se alineen con la estrategia y el rol.
+    *   **Miras y Accesorios:** Para cada arma, recomienda la mejor **mira** (ej. "Mira 6x", "Punto Rojo") y una lista de 2-3 **accesorios clave** (ej. "Culata táctica", "Cargador ampliado rápido", "Silenciador").
+    *   **Justificación por Rol:** Proporciona una justificación concisa para cada equipamiento, explicando por qué esa configuración es ideal para ese rol específico dentro del plan general.
 7.  **rotationPlan**: Describe un plan de rotación completo y muy detallado.
     *   **route**: Describe la ruta general (desde la zona de aterrizaje o la ubicación actual), considerando el posible cierre de zona y el círculo actual.
     *   **considerations**: Enumera 2-3 puntos clave o hitos a considerar durante la rotación.
     *   **advantages**: Menciona 1-2 ventajas de esta ruta.
     *   **disadvantages**: Menciona 1-2 desventajas o riesgos.
-    *   **vehicleSuggestion**: Sugiere el mejor tipo de vehículo para el mapa y la ruta (ej. "Dacia para carreteras, UAZ para terreno abierto"), explica por qué, y añade un recordatorio sobre el combustible.
+    *   **vehicleSuggestion**: Sugiere el mejor tipo de vehículo para el mapa y la ruta (ej. "UAZ para terreno abierto en Erangel", "Motocicleta para velocidad en Sanhok"), explica por qué, y añade un recordatorio sobre el combustible.
 
 Proporciona la respuesta en el formato JSON solicitado. El tono debe ser el de un entrenador experto, seguro y muy didáctico.
 `,
