@@ -34,38 +34,38 @@ export const PlayerAnalysisSchema = z.object({
 export type PlayerAnalysis = z.infer<typeof PlayerAnalysisSchema>;
 
 
-export const StrategyInputSchema = z.object({
+export const MapPlannerInputSchema = z.object({
   map: z.string().describe('El mapa del juego (ej., Erangel, Miramar).'),
   playStyle: z.string().describe('El estilo de juego deseado para el equipo (ej., Agresivo, Pasivo, Equilibrado).'),
   squadSize: z.number().describe('El número de jugadores en la escuadra (1-4).'),
+  riskLevel: z.string().describe("El nivel de riesgo que el jugador está dispuesto a asumir (Bajo, Medio, Alto)."),
+  focus: z.string().describe("El enfoque principal de la partida (Rotación, Combate, Loteo).")
 });
-export type StrategyInput = z.infer<typeof StrategyInputSchema>;
+export type MapPlannerInput = z.infer<typeof MapPlannerInputSchema>;
 
-export const StrategySchema = z.object({
-  strategyTitle: z.string().describe('Un título creativo y descriptivo para la estrategia.'),
+export const MapPlannerSchema = z.object({
+  planTitle: z.string().describe('Un título creativo y descriptivo para el plan de partida.'),
   dropZone: z.object({
       name: z.string().describe('El nombre de la zona de aterrizaje recomendada.'),
       reason: z.string().describe('Una breve razón por la cual esta zona de aterrizaje se recomienda para la estrategia.'),
   }),
   earlyGame: z.object({
-      title: z.string().describe('Título para la estrategia de la fase inicial del juego.'),
       plan: z.string().describe('El plan conciso para el juego temprano, incluyendo prioridades de looteo y posicionamiento inicial.'),
   }),
   midGame: z.object({
-      title: z.string().describe('Título para la estrategia de la fase intermedia del juego.'),
       plan: z.string().describe('El plan conciso para el juego intermedio, centrándose en rotaciones, posicionamiento y cuándo enfrentarse.'),
   }),
   lateGame: z.object({
-      title: z.string().describe('Título para la estrategia de la fase final del juego.'),
       plan: z.string().describe('El plan conciso para el juego tardío, incluyendo la estrategia del círculo final e identificación de posiciones clave.'),
-      zonePrediction: z.string().describe("Una predicción experta de una ubicación probable para el círculo final y la razón táctica detrás de ella."),
   }),
-  tips: z.array(z.object({
-      title: z.string().describe('Un título para el consejo.'),
-      description: z.string().describe('Un consejo específico y accionable relacionado con la estrategia general.'),
-  })).describe('Un array de 2-3 consejos esenciales para ejecutar la estrategia con éxito.'),
+  recommendedLoadout: z.object({
+      primaryWeapon: z.string().describe("El arma principal recomendada para este plan."),
+      secondaryWeapon: z.string().describe("El arma secundaria recomendada para este plan."),
+      reason: z.string().describe("Una breve explicación de por qué este equipamiento es ideal."),
+  }).describe("Equipamiento recomendado para ejecutar el plan con éxito."),
+  rotationPlan: z.string().describe("Un plan de rotación sugerido, mencionando puntos de referencia o zonas a controlar."),
 });
-export type Strategy = z.infer<typeof StrategySchema>;
+export type MapPlanner = z.infer<typeof MapPlannerSchema>;
 
 export const SensitivityInputSchema = z.object({
     deviceType: z.string().describe("El tipo de dispositivo del jugador (ej. 'Teléfono' o 'Tablet')."),
