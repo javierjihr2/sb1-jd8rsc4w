@@ -173,7 +173,7 @@ export default function PlayerAnalysisPage() {
                         )}
                     </Card>
                 </div>
-                <div className="lg:col-span-1">
+                <div id="avatar" className="lg:col-span-1">
                      <Card className="sticky top-20">
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2"><ImageIcon className="h-5 w-5 text-primary" />Generador de Avatar con IA</CardTitle>

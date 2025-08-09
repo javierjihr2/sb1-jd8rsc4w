@@ -23,6 +23,7 @@ import {
   Users,
   Loader2,
   Rss,
+  ImageIcon,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -74,17 +75,14 @@ export default function DashboardLayout({
     { href: "/recharge", label: "Recargar UC", icon: DollarSign, badge: 0 },
     { href: "/news", label: "Noticias", icon: Newspaper, badge: 0 },
     { href: "/support", label: "Soporte", icon: HelpCircle, badge: 0 },
+    { href: "/player-analysis", label: "Análisis de Jugador", icon: BrainCircuit },
+    { href: "/strategies", label: "Estrategias de Mapa", icon: Map },
+    { href: "/compare", label: "Comparador de Dúos", icon: Users2 },
+    { href: "/sensitivity", label: "Asistente de Sensibilidad", icon: Smartphone },
+    { href: "/controls", label: "Generador de Controles", icon: Gamepad2 },
+    { href: "/player-analysis#avatar", label: "Generador de Avatar IA", icon: ImageIcon },
   ]
   
-  const aiNavItems = [
-      { href: "/player-analysis", label: "Análisis de Jugador", icon: BrainCircuit },
-      { href: "/strategies", label: "Estrategias de Mapa", icon: Map },
-      { href: "/compare", label: "Comparador de Dúos", icon: Users2 },
-      { href: "/sensitivity", label: "Asistente de Sensibilidad", icon: Smartphone },
-      { href: "/controls", label: "Generador de Controles", icon: Gamepad2 },
-  ]
-
-  const bottomNavItems = []
   // Mantén la lógica condicional para el enlace de Administrador
   if (playerProfile.isAdmin) {
     navItems.push({ href: "/admin", label: "Admin", icon: ShieldCheck, badge: 0 });
@@ -128,21 +126,6 @@ export default function DashboardLayout({
                   )}
                 </Link>
               ))}
-              <div className="my-2 border-t border-sidebar-border/50" />
-              <h3 className="px-3 py-2 text-xs font-semibold uppercase text-sidebar-foreground/70 tracking-wider">Copiloto IA</h3>
-               {aiNavItems.map((item) => (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  className={cn(
-                    "flex items-center gap-3 rounded-lg px-3 py-2 text-sidebar-foreground transition-all hover:text-white hover:bg-sidebar-accent/20",
-                    pathname === item.href ? "bg-sidebar-accent/10 text-sidebar-primary font-bold" : ""
-                  )}
-                >
-                  <item.icon className="h-4 w-4" />
-                  {item.label}
-                </Link>
-              ))}
             </nav>
           </ScrollArea>
            <div className="mt-auto p-4 space-y-2">
@@ -175,7 +158,7 @@ export default function DashboardLayout({
               </nav>
               <ScrollArea className="flex-1">
                 <nav className="grid gap-4 text-base font-medium px-4">
-                  {[...navItems, ...aiNavItems].map((item) => (
+                  {navItems.map((item) => (
                     <Link
                       key={item.label}
                       href={item.href}
