@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { comparePlayers } from "@/ai/flows/playerComparisonFlow";
 import type { PlayerComparison, PlayerComparisonInput, PlayerProfileInput } from "@/ai/schemas";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Loader2, Sparkles, Users, Terminal, BarChart2, ShieldCheck, Swords, Brain } from "lucide-react";
+import { Loader2, Sparkles, Users, Terminal, ShieldCheck, Swords, Brain } from "lucide-react";
 import { friendsForComparison } from "@/lib/data";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
@@ -38,10 +38,13 @@ export default function ComparePlayersPage() {
         try {
             const player1 = friendsForComparison.find(f => f.id === player1Id);
             const player2 = friendsForComparison.find(f => f.id === player2Id);
+
             if (!player1 || !player2) {
                  setError("No se pudieron encontrar los perfiles de los jugadores seleccionados.");
+                 setIsLoading(false);
                  return;
             }
+            
             const input: PlayerComparisonInput = { player1, player2 };
             const result = await comparePlayers(input);
             setComparison(result);
@@ -55,7 +58,7 @@ export default function ComparePlayersPage() {
 
     const renderPlayerCard = (player: PlayerProfileInput) => (
         <Card className="h-full">
-            <CardHeader className="items-center">
+            <CardHeader className="items-center text-center">
                 <Avatar className="w-20 h-20 mb-2">
                     <AvatarImage src={player.avatarUrl} data-ai-hint="gaming character"/>
                     <AvatarFallback>{player.name.substring(0, 2)}</AvatarFallback>
@@ -63,18 +66,22 @@ export default function ComparePlayersPage() {
                 <CardTitle>{player.name}</CardTitle>
                 <CardDescription>{player.rank}</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-                 <div className="text-sm">
-                    <div className="flex justify-between"><span>Victorias</span><span className="font-semibold">{player.stats.wins}</span></div>
+            <CardContent className="space-y-4 text-sm">
+                 <div>
+                    <div className="flex justify-between mb-1"><span>Victorias</span><span className="font-semibold">{player.stats.wins}</span></div>
                     <Progress value={(player.stats.wins / 200) * 100} className="h-2"/>
                 </div>
-                 <div className="text-sm">
-                    <div className="flex justify-between"><span>Kills</span><span className="font-semibold">{player.stats.kills}</span></div>
+                 <div>
+                    <div className="flex justify-between mb-1"><span>Bajas</span><span className="font-semibold">{player.stats.kills}</span></div>
                     <Progress value={(player.stats.kills / 3000) * 100} className="h-2"/>
                 </div>
-                 <div className="text-sm">
-                    <div className="flex justify-between"><span>K/D Ratio</span><span className="font-semibold">{player.stats.kdRatio}</span></div>
+                 <div>
+                    <div className="flex justify-between mb-1"><span>Ratio K/D</span><span className="font-semibold">{player.stats.kdRatio}</span></div>
                     <Progress value={(player.stats.kdRatio / 10) * 100} className="h-2"/>
+                </div>
+                <div className="text-xs text-muted-foreground pt-2">
+                    <p><strong>Armas preferidas:</strong> {player.favoriteWeapons.join(', ')}</p>
+                    <p><strong>Horario:</strong> {player.playSchedule}</p>
                 </div>
             </CardContent>
         </Card>
@@ -90,6 +97,7 @@ export default function ComparePlayersPage() {
             <Card>
                 <CardHeader>
                     <CardTitle>Selecciona a los Jugadores</CardTitle>
+                    <CardDescription>Elige dos jugadores para realizar un análisis comparativo con IA.</CardDescription>
                 </CardHeader>
                 <CardContent className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 items-end">
                     <div className="space-y-2">
@@ -118,7 +126,7 @@ export default function ComparePlayersPage() {
                             </SelectContent>
                         </Select>
                     </div>
-                    <Button onClick={handleCompare} disabled={isLoading} className="w-full">
+                    <Button onClick={handleCompare} disabled={isLoading} className="w-full sm:col-span-2 md:col-span-1">
                         {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
                         {isLoading ? "Comparando..." : "Comparar Perfiles"}
                     </Button>
@@ -185,6 +193,18 @@ export default function ComparePlayersPage() {
                 </div>
             )}
 
+             {isLoading && (
+                 <Card className="h-full flex flex-col items-center justify-center text-center p-8 border-dashed min-h-[400px]">
+                    <Loader2 className="h-12 w-12 text-primary animate-spin mb-4" />
+                    <h2 className="text-2xl font-bold">Analizando Dúo...</h2>
+                    <p className="text-muted-foreground max-w-md">
+                       La IA está comparando perfiles, estadísticas y estilos de juego para encontrar la sinergia perfecta.
+                    </p>
+                </Card>
+            )}
+
         </div>
     );
 }
+
+    
