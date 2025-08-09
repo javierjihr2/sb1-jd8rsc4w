@@ -172,13 +172,19 @@ export const PlayerComparisonSchema = z.object({
 });
 export type PlayerComparison = z.infer<typeof PlayerComparisonSchema>;
 
+const MessageSchema = z.object({
+  role: z.enum(['user', 'model']),
+  content: z.string(),
+});
+
 export const AvatarInputSchema = z.object({
-  prompt: z.string().describe('La descripción del usuario para el avatar que desea generar.'),
+  history: z.array(MessageSchema).describe('El historial de la conversación entre el usuario y la IA.'),
 });
 export type AvatarInput = z.infer<typeof AvatarInputSchema>;
 
 export const AvatarSchema = z.object({
   imageUrls: z.array(z.string()).describe('Una lista de URLs de las imágenes de avatar generadas, deben ser data URIs.'),
+  revisedPrompt: z.string().optional().describe('El prompt final que la IA usó para generar la imagen.'),
 });
 export type Avatar = z.infer<typeof AvatarSchema>;
 

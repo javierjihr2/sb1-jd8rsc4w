@@ -1,30 +1,45 @@
 
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { playerProfile } from "@/lib/data"
-import { BrainCircuit, Loader2, Sparkles, Terminal, Users2, Heart, Image as ImageIcon, Download } from "lucide-react"
+import { BrainCircuit, Loader2, Sparkles, Terminal, Users2, Heart, Image as ImageIcon, Download, Send } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import type { PlayerAnalysis, PlayerAnalysisInput, Avatar } from "@/ai/schemas"
 import { getPlayerAnalysis } from "@/ai/flows/playerAnalysisFlow"
 import { generateAvatar } from "@/ai/flows/avatarFlow"
 import { Avatar as AvatarComponent, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
+import { ScrollArea } from "@/components/ui/scroll-area"
+
+type DesignChatMessage = {
+    role: 'user' | 'model';
+    content: string | string[]; // string for text, string[] for image URLs
+};
+
 
 export default function PlayerAnalysisPage() {
     const [analysis, setAnalysis] = useState<PlayerAnalysis | null>(null);
     const [isAnalysisLoading, setIsAnalysisLoading] = useState(false);
     const [analysisError, setAnalysisError] = useState<string | null>(null);
 
-    const [avatarPrompt, setAvatarPrompt] = useState<string>("");
-    const [generatedAvatar, setGeneratedAvatar] = useState<Avatar | null>(null);
+    const [designHistory, setDesignHistory] = useState<DesignChatMessage[]>([]);
+    const [currentUserInput, setCurrentUserInput] = useState("");
     const [isAvatarLoading, setIsAvatarLoading] = useState(false);
     const [avatarError, setAvatarError] = useState<string | null>(null);
+    const designChatContainerRef = useRef<HTMLDivElement>(null);
+
+
+    useEffect(() => {
+        if (designChatContainerRef.current) {
+            designChatContainerRef.current.scrollTop = designChatContainerRef.current.scrollHeight;
+        }
+    }, [designHistory]);
+
 
     const handleAnalysis = async () => {
         setIsAnalysisLoading(true);
@@ -48,18 +63,32 @@ export default function PlayerAnalysisPage() {
         }
     }
 
-    const handleAvatarGeneration = async () => {
-        if (!avatarPrompt) {
-            setAvatarError("Por favor, escribe una descripción para tu diseño.");
-            return;
-        }
+    const handleAvatarGeneration = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        if (!currentUserInput.trim()) return;
+
+        const newUserMessage: DesignChatMessage = { role: 'user', content: currentUserInput };
+        const newHistory = [...designHistory, newUserMessage];
+        
+        setDesignHistory(newHistory);
+        setCurrentUserInput("");
         setIsAvatarLoading(true);
         setAvatarError(null);
-        setGeneratedAvatar(null);
 
         try {
-            const result = await generateAvatar({ prompt: avatarPrompt });
-            setGeneratedAvatar(result);
+            // We need to format the history for the AI flow (only text content)
+            const flowHistory = newHistory
+                .filter(msg => typeof msg.content === 'string')
+                .map(msg => ({
+                    role: msg.role as 'user' | 'model',
+                    content: msg.content as string,
+                }));
+
+            const result = await generateAvatar({ history: flowHistory });
+            
+            const newModelMessage: DesignChatMessage = { role: 'model', content: result.imageUrls };
+            setDesignHistory(prev => [...prev, newModelMessage]);
+
         } catch (e: any) {
             setAvatarError("Hubo un error al generar el diseño. El servicio puede estar ocupado. Inténtalo de nuevo.");
             console.error(e);
@@ -174,74 +203,83 @@ export default function PlayerAnalysisPage() {
                     </Card>
                 </div>
                 <div id="avatar" className="lg:col-span-1">
-                     <Card className="sticky top-20">
+                     <Card className="sticky top-20 flex flex-col h-[75vh] max-h-[800px]">
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2"><ImageIcon className="h-5 w-5 text-primary" />Estudio de Diseño IA</CardTitle>
-                            <CardDescription>Describe el avatar, logo o emblema de tus sueños y la IA lo creará para ti.</CardDescription>
+                            <CardDescription>Describe o refina tu diseño en el chat. La IA creará y modificará tus ideas.</CardDescription>
                         </CardHeader>
-                        <CardContent>
-                            <div className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="avatar-prompt">Describe tu diseño</Label>
-                                    <Textarea 
-                                        id="avatar-prompt"
-                                        placeholder="Ej: Un logo para el equipo 'LOBOS NOCTURNOS' con un lobo y una luna. O un avatar de un soldado cibernético con armadura de neón." 
-                                        value={avatarPrompt}
-                                        onChange={(e) => setAvatarPrompt(e.target.value)}
-                                        disabled={isAvatarLoading}
-                                    />
-                                </div>
-                                <Button onClick={handleAvatarGeneration} disabled={isAvatarLoading || !avatarPrompt} className="w-full">
-                                    {isAvatarLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Sparkles className="mr-2 h-4 w-4" />}
-                                    {isAvatarLoading ? "Creando Magia..." : "Generar Diseño"}
-                                </Button>
-                            </div>
-                              {avatarError && !isAvatarLoading && (
-                                <Alert variant="destructive" className="mt-4">
-                                    <Terminal className="h-4 w-4" />
-                                    <AlertTitle>Error de Generación</AlertTitle>
-                                    <AlertDescription>{avatarError}</AlertDescription>
-                                </Alert>
-                            )}
-                        </CardContent>
-                        {(isAvatarLoading || generatedAvatar) && (
-                             <CardFooter>
-                                <div className="w-full text-center">
-                                    <h4 className="text-sm font-semibold mb-2 text-muted-foreground">Resultados</h4>
-                                    
-                                    {isAvatarLoading ? (
-                                         <div className="grid grid-cols-2 gap-4">
-                                            <div className="aspect-square w-full rounded-lg bg-muted flex items-center justify-center border">
-                                                <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                                                    <Loader2 className="h-8 w-8 animate-spin" />
-                                                    <span>Generando...</span>
+                        <CardContent className="flex-1 overflow-hidden p-0 flex flex-col">
+                           <ScrollArea className="flex-1 p-4" ref={designChatContainerRef}>
+                                <div className="space-y-4">
+                                {designHistory.length === 0 && !isAvatarLoading && (
+                                    <div className="text-center text-sm text-muted-foreground p-8">
+                                        <p>Empieza escribiendo lo que quieres crear. Por ejemplo:</p>
+                                        <p className="italic mt-2">"Un logo para el equipo 'LOBOS NOCTURNOS' con un lobo y una luna"</p>
+                                        <p className="italic mt-1">"Un avatar de un soldado cibernético"</p>
+                                    </div>
+                                )}
+
+                                {designHistory.map((message, index) => (
+                                    <div key={index} className={`flex items-start gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                        {message.role === 'model' && <AvatarComponent className="w-8 h-8"><AvatarFallback>IA</AvatarFallback></AvatarComponent>}
+                                        
+                                        <div className={`p-3 rounded-lg max-w-xs ${message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
+                                            {typeof message.content === 'string' ? (
+                                                <p>{message.content}</p>
+                                            ) : (
+                                                <div className="grid grid-cols-2 gap-2">
+                                                    {message.content.map((url, i) => (
+                                                        <div key={i} className="space-y-1">
+                                                            <Image src={url} alt={`Diseño generado ${i + 1}`} width={128} height={128} className="object-cover rounded-md aspect-square border" />
+                                                             <Button variant="ghost" size="sm" className="w-full h-auto py-1" onClick={() => handleDownload(url)}>
+                                                                <Download className="mr-1 h-3 w-3" />
+                                                                <span className="text-xs">Descargar</span>
+                                                            </Button>
+                                                        </div>
+                                                    ))}
                                                 </div>
-                                            </div>
-                                             <div className="aspect-square w-full rounded-lg bg-muted flex items-center justify-center border">
-                                                <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                                                    <Loader2 className="h-8 w-8 animate-spin" />
-                                                    <span>Generando...</span>
-                                                </div>
+                                            )}
+                                        </div>
+
+                                        {message.role === 'user' && <AvatarComponent className="w-8 h-8"><AvatarImage src={playerProfile.avatarUrl} /></AvatarComponent>}
+                                    </div>
+                                ))}
+
+                                {isAvatarLoading && (
+                                     <div className="flex items-start gap-3 justify-start">
+                                        <AvatarComponent className="w-8 h-8"><AvatarFallback>IA</AvatarFallback></AvatarComponent>
+                                        <div className="p-3 rounded-lg bg-muted">
+                                            <div className="flex items-center gap-2 text-muted-foreground">
+                                                <Loader2 className="h-4 w-4 animate-spin"/>
+                                                <span>Generando diseños...</span>
                                             </div>
                                         </div>
-                                    ) : (
-                                        generatedAvatar?.imageUrls && (
-                                            <div className="grid grid-cols-2 gap-4">
-                                                {generatedAvatar.imageUrls.map((url, index) => (
-                                                    <div key={index} className="space-y-2">
-                                                        <Image src={url} alt={`Diseño generado por IA ${index + 1}`} width={256} height={256} className="object-cover rounded-lg aspect-square border"/>
-                                                        <Button variant="outline" size="sm" className="w-full" onClick={() => handleDownload(url)}>
-                                                            <Download className="mr-2 h-4 w-4" />
-                                                            Descargar
-                                                        </Button>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        )
-                                    )}
+                                     </div>
+                                )}
+                                {avatarError && (
+                                    <Alert variant="destructive" className="mt-4">
+                                        <Terminal className="h-4 w-4" />
+                                        <AlertTitle>Error</AlertTitle>
+                                        <AlertDescription>{avatarError}</AlertDescription>
+                                    </Alert>
+                                )}
+
                                 </div>
-                            </CardFooter>
-                        )}
+                           </ScrollArea>
+                        </CardContent>
+                        <CardFooter className="p-2 border-t">
+                            <form onSubmit={handleAvatarGeneration} className="w-full flex items-center gap-2">
+                                <Input 
+                                    placeholder="Describe tu diseño o pide un cambio..."
+                                    value={currentUserInput}
+                                    onChange={(e) => setCurrentUserInput(e.target.value)}
+                                    disabled={isAvatarLoading}
+                                />
+                                <Button type="submit" size="icon" disabled={isAvatarLoading || !currentUserInput.trim()}>
+                                    <Send className="h-4 w-4" />
+                                </Button>
+                            </form>
+                        </CardFooter>
                     </Card>
                 </div>
             </div>
