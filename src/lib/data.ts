@@ -1,4 +1,4 @@
-import type { PlayerProfile, Tournament, Chat, NewsArticle } from './types';
+import type { PlayerProfile, Tournament, Chat, NewsArticle, Team } from './types';
 import type { PlayerProfileInput } from '@/ai/schemas';
 
 export const playerProfile: PlayerProfile = {
@@ -154,3 +154,24 @@ export const friendsForComparison: PlayerProfileInput[] = [
      { id: 'f1', name: 'GamerX_Treme', avatarUrl: 'https://placehold.co/40x40/FF6347/FFFFFF.png', rank: 'Platino II', stats: { wins: 30, kills: 600, kdRatio: 2.5 }, favoriteWeapons: ['SCAR-L', 'UMP45'], playSchedule: 'Noches'},
      { id: 'f2', name: 'ProSlayer_99', avatarUrl: 'https://placehold.co/40x40/4682B4/FFFFFF.png', rank: 'Diamante V', stats: { wins: 55, kills: 1100, kdRatio: 2.9 }, favoriteWeapons: ['M762', 'Mini14'], playSchedule: 'Fines de semana'},
 ];
+
+export const registeredTeams: Team[] = [
+  {
+    id: 'team1',
+    name: 'Los Invencibles',
+    players: [
+      { id: 'f1', name: 'GamerX_Treme', avatarUrl: 'https://placehold.co/40x40/FF6347/FFFFFF.png' },
+      { id: 'f2', name: 'ProSlayer_99', avatarUrl: 'https://placehold.co/40x40/4682B4/FFFFFF.png' },
+    ]
+  },
+  {
+    id: 'team2',
+    name: 'Escuadrón Fénix',
+    players: [
+      { id: 'c4', name: 'Phoenix_Queen', avatarUrl: 'https://placehold.co/40x40/FF4500/FFFFFF.png' },
+      { id: 'c3', name: 'ShadowStriker', avatarUrl: 'https://placehold.co/40x40/8A2BE2/FFFFFF.png' },
+    ]
+  }
+];
+
+export const teamMates = friendsForComparison.filter(f => f.id !== 'p1');

@@ -39,3 +39,15 @@ export type NewsArticle = {
   imageUrl: string;
   category: string;
 };
+
+export type Player = {
+    id: string;
+    name: string;
+    avatarUrl: string;
+};
+
+export type Team = {
+    id: string;
+    name: string;
+    players: Player[];
+};
