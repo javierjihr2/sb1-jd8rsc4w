@@ -22,14 +22,15 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
-import { Code, UserPlus, Newspaper, Check, X, Users } from "lucide-react"
-import { initialRegistrationRequests } from "@/lib/data"
-import type { RegistrationRequest } from "@/lib/types"
+import { Code, UserPlus, Newspaper, Check, X, Users, Swords, PlusCircle, Pencil, Trash2 } from "lucide-react"
+import { initialRegistrationRequests, tournaments as initialTournaments } from "@/lib/data"
+import type { RegistrationRequest, Tournament } from "@/lib/types"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 export default function AdminPage() {
   const { toast } = useToast()
   const [requests, setRequests] = useState<RegistrationRequest[]>(initialRegistrationRequests)
+  const [tournaments, setTournaments] = useState<Tournament[]>(initialTournaments)
 
   const handleCreateProfile = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -46,6 +47,15 @@ export default function AdminPage() {
       description: "El nuevo artículo de noticias ha sido publicado.",
     })
   }
+  
+  const handleCreateTournament = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    toast({
+      title: "Torneo Creado",
+      description: "El nuevo torneo ha sido añadido a la lista.",
+    })
+  }
+
 
   const handleRequest = (requestId: string, status: "Aprobado" | "Rechazado") => {
     setRequests(prev => prev.map(req => req.id === requestId ? { ...req, status } : req))
@@ -63,7 +73,7 @@ export default function AdminPage() {
           <p className="text-muted-foreground">Gestiona los perfiles, solicitudes y configuraciones de la aplicación.</p>
         </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 space-y-8">
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -113,91 +123,158 @@ export default function AdminPage() {
                     )}
                 </CardContent>
             </Card>
+
+            <Card>
+                 <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <Swords className="h-5 w-5 text-primary" />
+                        Gestionar Torneos
+                    </CardTitle>
+                    <CardDescription>
+                        Crea, edita o elimina torneos existentes.
+                    </CardDescription>
+                </CardHeader>
+                 <CardContent className="space-y-4">
+                    {tournaments.map(tournament => (
+                        <div key={tournament.id} className="p-4 bg-muted/50 rounded-lg flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                            <div>
+                                <p className="font-bold">{tournament.name}</p>
+                                <p className="text-sm text-muted-foreground">{tournament.date} - {tournament.mode} - {tournament.region}</p>
+                            </div>
+                            <div className="flex gap-2">
+                                <Button size="sm" variant="outline"><Pencil className="h-4 w-4 mr-1"/>Editar</Button>
+                                <Button size="sm" variant="destructive"><Trash2 className="h-4 w-4 mr-1"/>Cancelar</Button>
+                            </div>
+                        </div>
+                    ))}
+                 </CardContent>
+            </Card>
         </div>
         <div className="lg:col-span-1 space-y-8">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <UserPlus className="h-5 w-5 text-primary" />
-                Crear Perfil
-              </CardTitle>
-              <CardDescription>
-                Añade un nuevo perfil con un rol específico al sistema.
-              </CardDescription>
-            </CardHeader>
-            <form onSubmit={handleCreateProfile}>
-              <CardContent className="grid gap-4">
-                <div className="space-y-2">
-                    <Label htmlFor="name">Nombre de Usuario</Label>
-                    <Input id="name" placeholder="Ej: SuperDev" required />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="email">Correo Electrónico</Label>
-                    <Input id="email" type="email" placeholder="dev@example.com" required />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="role">Rol</Label>
+            <Card>
+                 <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><PlusCircle className="h-5 w-5 text-primary"/> Crear Torneo</CardTitle>
+                </CardHeader>
+                <form onSubmit={handleCreateTournament}>
+                    <CardContent className="grid gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="t-name">Nombre del Torneo</Label>
+                            <Input id="t-name" required />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="t-prize">Premio</Label>
+                            <Input id="t-prize" required />
+                        </div>
+                         <div className="space-y-2">
+                            <Label htmlFor="t-mode">Modo</Label>
+                            <Select required>
+                                <SelectTrigger id="t-mode"><SelectValue placeholder="Selecciona un modo" /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="Solo">Solo</SelectItem>
+                                    <SelectItem value="Dúo">Dúo</SelectItem>
+                                    <SelectItem value="Escuadra">Escuadra</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="t-region">Región</Label>
+                             <Select required>
+                                <SelectTrigger id="t-region"><SelectValue placeholder="Selecciona una región" /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="N.A.">Norteamérica</SelectItem>
+                                    <SelectItem value="S.A.">Sudamérica</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </CardContent>
+                    <CardFooter>
+                        <Button type="submit" className="w-full">Crear Torneo</Button>
+                    </CardFooter>
+                </form>
+            </Card>
+            <Card>
+                <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                    <UserPlus className="h-5 w-5 text-primary" />
+                    Crear Perfil
+                </CardTitle>
+                <CardDescription>
+                    Añade un nuevo perfil con un rol específico al sistema.
+                </CardDescription>
+                </CardHeader>
+                <form onSubmit={handleCreateProfile}>
+                <CardContent className="grid gap-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="name">Nombre de Usuario</Label>
+                        <Input id="name" placeholder="Ej: SuperDev" required />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="email">Correo Electrónico</Label>
+                        <Input id="email" type="email" placeholder="dev@example.com" required />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="role">Rol</Label>
+                        <Select required>
+                            <SelectTrigger id="role">
+                                <SelectValue placeholder="Selecciona un rol" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem key="developer" value="developer">Desarrollador</SelectItem>
+                                <SelectItem key="creator" value="creator">Creador de Contenido</SelectItem>
+                                <SelectItem key="admin" value="admin">Administrador</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </CardContent>
+                <CardFooter>
+                    <Button type="submit" className="w-full">
+                    Crear Perfil
+                    </Button>
+                </CardFooter>
+                </form>
+            </Card>
+            <Card>
+                <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                    <Newspaper className="h-5 w-5 text-primary" />
+                    Crear Artículo
+                </CardTitle>
+                <CardDescription>
+                    Publica un nuevo artículo en la sección de noticias.
+                </CardDescription>
+                </CardHeader>
+                <form onSubmit={handleCreateArticle}>
+                <CardContent className="grid gap-4">
+                    <div className="space-y-2">
+                    <Label htmlFor="article-title">Título</Label>
+                    <Input id="article-title" placeholder="Ej: Nueva Actualización 3.4" required />
+                    </div>
+                    <div className="space-y-2">
+                    <Label htmlFor="article-summary">Resumen</Label>
+                    <Textarea id="article-summary" placeholder="Un breve resumen del artículo..." required />
+                    </div>
+                    <div className="space-y-2">
+                    <Label htmlFor="article-category">Categoría</Label>
                     <Select required>
-                        <SelectTrigger id="role">
-                            <SelectValue placeholder="Selecciona un rol" />
+                        <SelectTrigger id="article-category">
+                            <SelectValue placeholder="Selecciona una categoría" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem key="developer" value="developer">Desarrollador</SelectItem>
-                            <SelectItem key="creator" value="creator">Creador de Contenido</SelectItem>
-                            <SelectItem key="admin" value="admin">Administrador</SelectItem>
+                            <SelectItem key="updates" value="updates">Actualizaciones</SelectItem>
+                            <SelectItem key="events" value="events">Eventos</SelectItem>
+                            <SelectItem key="esports" value="esports">eSports</SelectItem>
+                            <SelectItem key="guides" value="guides">Guías</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
-              </CardContent>
-              <CardFooter>
-                <Button type="submit" className="w-full">
-                  Crear Perfil
-                </Button>
-              </CardFooter>
-            </form>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Newspaper className="h-5 w-5 text-primary" />
-                Crear Artículo
-              </CardTitle>
-              <CardDescription>
-                Publica un nuevo artículo en la sección de noticias.
-              </CardDescription>
-            </CardHeader>
-            <form onSubmit={handleCreateArticle}>
-              <CardContent className="grid gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="article-title">Título</Label>
-                  <Input id="article-title" placeholder="Ej: Nueva Actualización 3.4" required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="article-summary">Resumen</Label>
-                  <Textarea id="article-summary" placeholder="Un breve resumen del artículo..." required />
-                </div>
-                 <div className="space-y-2">
-                  <Label htmlFor="article-category">Categoría</Label>
-                  <Select required>
-                      <SelectTrigger id="article-category">
-                          <SelectValue placeholder="Selecciona una categoría" />
-                      </SelectTrigger>
-                      <SelectContent>
-                          <SelectItem key="updates" value="updates">Actualizaciones</SelectItem>
-                          <SelectItem key="events" value="events">Eventos</SelectItem>
-                          <SelectItem key="esports" value="esports">eSports</SelectItem>
-                          <SelectItem key="guides" value="guides">Guías</SelectItem>
-                      </SelectContent>
-                  </Select>
-              </div>
-              </CardContent>
-              <CardFooter>
-                <Button type="submit" className="w-full">
-                  Publicar Artículo
-                </Button>
-              </CardFooter>
-            </form>
-          </Card>
+                </CardContent>
+                <CardFooter>
+                    <Button type="submit" className="w-full">
+                    Publicar Artículo
+                    </Button>
+                </CardFooter>
+                </form>
+            </Card>
         </div>
       </div>
     </div>
