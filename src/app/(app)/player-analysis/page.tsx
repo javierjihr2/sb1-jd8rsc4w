@@ -176,7 +176,7 @@ export default function PlayerAnalysisPage() {
                 <div id="avatar" className="lg:col-span-1">
                      <Card className="sticky top-20">
                         <CardHeader>
-                            <CardTitle className="flex items-center gap-2"><ImageIcon className="h-5 w-5 text-primary" />Generador de Diseños con IA</CardTitle>
+                            <CardTitle className="flex items-center gap-2"><ImageIcon className="h-5 w-5 text-primary" />Estudio de Diseño IA</CardTitle>
                             <CardDescription>Describe el avatar, logo o emblema de tus sueños y la IA lo creará para ti.</CardDescription>
                         </CardHeader>
                         <CardContent>
