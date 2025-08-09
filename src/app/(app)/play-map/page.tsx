@@ -195,7 +195,7 @@ export default function PlayMapPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
             <div className="lg:col-span-1 space-y-8 lg:sticky top-20">
                 <div>
-                    <h1 className="text-3xl font-bold flex items-center gap-2"><Map className="w-8 h-8 text-primary"/> Juega Mapa</h1>
+                    <h1 className="text-3xl font-bold flex items-center gap-2"><Map className="w-8 h-8 text-primary"/> Estrategias de Mapas</h1>
                     <p className="text-muted-foreground">Crea un plan de partida completo con la ayuda de la IA.</p>
                 </div>
 
@@ -249,7 +249,7 @@ export default function PlayMapPage() {
                             </div>
                         </div>
                          <div className="space-y-2">
-                            <Label>Número de Círculo (Opcional)</Label>
+                            <Label>Cantidad de zonas cerradas (Opcional)</Label>
                             <Input 
                                 type="number" 
                                 min="1" 

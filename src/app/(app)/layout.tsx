@@ -75,7 +75,7 @@ export default function DashboardLayout({
     { href: "/recharge", label: "Recargar UC", icon: DollarSign, badge: 0 },
     { href: "/news", label: "Noticias", icon: Newspaper, badge: 0 },
     { href: "/player-analysis", label: "Análisis de Jugador", icon: BrainCircuit },
-    { href: "/play-map", label: "Juega Mapa", icon: Map },
+    { href: "/play-map", label: "Estrategias de Mapas", icon: Map },
     { href: "/compare", label: "Comparador de Dúos", icon: Users },
     { href: "/sensitivity", label: "Asistente de Sensibilidad", icon: Smartphone },
     { href: "/controls", label: "Generador de Controles", icon: Gamepad2 },

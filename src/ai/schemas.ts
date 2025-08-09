@@ -42,7 +42,7 @@ export const MapPlannerInputSchema = z.object({
   currentLocation: z.string().optional().describe("La ubicación actual del jugador en el mapa desde donde se necesita el plan de rotación."),
   zonePointA: z.string().optional().describe("El primer punto de un posible corredor de cierre de zona para el final de la partida."),
   zonePointB: z.string().optional().describe("El segundo punto de un posible corredor de cierre de zona para el final de la partida."),
-  zoneCircleNumber: z.number().optional().describe("El número del círculo de la zona segura actual."),
+  zoneCircleNumber: z.number().optional().describe("La cantidad de zonas seguras que ya se han cerrado."),
 });
 export type MapPlannerInput = z.infer<typeof MapPlannerInputSchema>;
 
