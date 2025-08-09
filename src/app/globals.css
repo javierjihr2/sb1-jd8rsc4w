@@ -4,19 +4,19 @@
 
 @layer base {
   :root {
-    --background: 0 0% 96%;
+    --background: 0 0% 96%; /* #F5F5F5 - Grisáceo claro */
     --foreground: 224 71.4% 4.1%;
     --card: 0 0% 100%;
     --card-foreground: 224 71.4% 4.1%;
     --popover: 0 0% 100%;
     --popover-foreground: 224 71.4% 4.1%;
-    --primary: 16 100% 60%;
+    --primary: 16 100% 60%; /* #FF6B35 - Naranja elegante */
     --primary-foreground: 0 0% 98%;
     --secondary: 0 0% 96.1%;
     --secondary-foreground: 224 71.4% 4.1%;
     --muted: 0 0% 96.1%;
     --muted-foreground: 225 8.9% 46.1%;
-    --accent: 51 100% 50%;
+    --accent: 51 100% 50%; /* #FFD700 - Dorado sutil */
     --accent-foreground: 224 71.4% 4.1%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
@@ -26,19 +26,19 @@
     --radius: 0.5rem;
   }
   .dark {
-    --background: 222 47% 11%;
+    --background: 0 0% 13%; /* #212121 - Gris oscuro para tema dark */
     --foreground: 0 0% 98%;
-    --card: 222 47% 11%;
+    --card: 0 0% 15%;
     --card-foreground: 0 0% 98%;
     --popover: 222 47% 11%;
     --popover-foreground: 0 0% 98%;
-    --primary: 16 100% 60%;
+    --primary: 16 100% 60%; /* #FF6B35 - Naranja elegante */
     --primary-foreground: 0 0% 98%;
     --secondary: 217 33% 17%;
     --secondary-foreground: 0 0% 98%;
     --muted: 217 33% 17%;
     --muted-foreground: 218 10% 65%;
-    --accent: 51 100% 50%;
+    --accent: 51 100% 50%; /* #FFD700 - Dorado sutil */
     --accent-foreground: 224 71.4% 4.1%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
@@ -54,5 +54,6 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-inter), sans-serif;
   }
 }

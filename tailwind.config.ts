@@ -1,4 +1,5 @@
 import type {Config} from 'tailwindcss';
+import { fontFamily } from "tailwindcss/defaultTheme"
 
 const config = {
   darkMode: ['class'],
@@ -10,9 +11,7 @@ const config = {
   theme: {
     extend: {
       fontFamily: {
-        body: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
-        headline: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
-        code: ['monospace'],
+        sans: ["var(--font-inter)", ...fontFamily.sans],
       },
       colors: {
         background: 'hsl(var(--background))',
