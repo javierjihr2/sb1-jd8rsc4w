@@ -24,7 +24,7 @@ const prompt = ai.definePrompt({
   name: 'playerComparisonPrompt',
   input: {schema: PlayerComparisonInputSchema},
   output: {schema: PlayerComparisonSchema},
-  prompt: `Eres un analista táctico experto de eSports para PUBG Mobile. Tu tarea es comparar los perfiles de dos jugadores y proporcionar un análisis detallado de su sinergia, fortalezas combinadas y cómo podrían funcionar como un dúo.
+  prompt: `Eres un analista táctico experto de eSports para PUBG Mobile. Tu tarea es comparar los perfiles de dos jugadores y proporcionar un análisis conciso y directo de su sinergia.
 
 Perfiles de los Jugadores:
 - Jugador 1:
@@ -46,12 +46,12 @@ Perfiles de los Jugadores:
   - Horario de Juego: {{{player2.playSchedule}}}
 
 Instrucciones:
-1.  **Análisis de Sinergia:** Basado en sus estadísticas y armas favoritas, describe cómo sus estilos de juego podrían complementarse. ¿Son ambos agresivos? ¿Uno podría ser el apoyo del otro? Analiza su compatibilidad.
-2.  **Fortalezas Combinadas:** Identifica 2-3 fortalezas clave que este dúo tendría si jugaran juntos. Por ejemplo, "Gran potencia de fuego a corta distancia" o "Excelente control de mapa".
-3.  **Consejos para el Dúo:** Ofrece 2 consejos prácticos para que maximicen su potencial como equipo. Por ejemplo, "Jugador 1 debería iniciar los enfrentamientos mientras Jugador 2 proporciona fuego de cobertura".
-4.  **Veredicto:** Ofrece un veredicto final y conciso sobre su potencial como dúo. Sé honesto pero alentador.
+1.  **Análisis de Sinergia:** En 2-3 frases, describe cómo sus estilos de juego se complementan. Sé directo y evita el texto de relleno.
+2.  **Fortalezas Combinadas:** Enumera 2-3 fortalezas clave que este dúo tendría. Sé breve y usa viñetas.
+3.  **Consejos para el Dúo:** Ofrece 2 consejos prácticos y accionables para que maximicen su potencial. Cada consejo debe ser una sola frase.
+4.  **Veredicto:** Ofrece un veredicto final en una sola frase concisa sobre su potencial como dúo.
 
-Asegúrate de que la salida esté en el formato JSON solicitado. Sé claro, profesional y perspicaz en tu análisis.`,
+Sé claro, profesional y muy breve en tu análisis. Prioriza la información accionable sobre las descripciones largas. Asegúrate de que la salida esté en el formato JSON solicitado.`,
 });
 
 const playerComparisonFlow = ai.defineFlow(
