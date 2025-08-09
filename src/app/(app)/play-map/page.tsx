@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { getMapPlan } from "@/ai/flows/mapPlannerFlow";
 import type { MapPlanner, MapPlannerInput } from "@/ai/schemas";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Loader2, Sparkles, Map, MapPin, Gamepad2, Shield, Users, Trophy, Lightbulb, Terminal, Route, Bomb } from "lucide-react";
+import { Loader2, Sparkles, Map, MapPin, Gamepad2, Shield, Users, Trophy, Lightbulb, Terminal, Route, Bomb, ThumbsUp, ThumbsDown, Car } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const mapOptions = [
@@ -330,25 +330,55 @@ export default function PlayMapPage() {
                                  <CardContent>
                                     <p><strong className="text-accent">Principal:</strong> {plan.recommendedLoadout.primaryWeapon}</p>
                                     <p><strong className="text-accent">Secundaria:</strong> {plan.recommendedLoadout.secondaryWeapon}</p>
-                                    <p className="text-sm text-muted-foreground mt-2">{plan.recommendedLoadout.reason}</p>
+                                    <p className="text-sm text-muted-foreground mt-2 italic">{plan.recommendedLoadout.reason}</p>
                                  </CardContent>
                             </Card>
                             
                             <Card>
-                                 <CardHeader>
-                                    <CardTitle className="flex items-center gap-2"><Route className="h-5 w-5 text-primary"/> Plan de Rotación</CardTitle>
-                                 </CardHeader>
-                                 <CardContent>
-                                    <p className="text-muted-foreground text-sm">{plan.rotationPlan}</p>
-                                 </CardContent>
+                                <CardHeader>
+                                <CardTitle className="flex items-center gap-2"><Route className="h-5 w-5 text-primary"/> Plan de Rotación Detallado</CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                <div>
+                                    <h4 className="font-semibold mb-1">Ruta Sugerida:</h4>
+                                    <p className="text-sm text-muted-foreground">{plan.rotationPlan.route}</p>
+                                </div>
+                                <div>
+                                    <h4 className="font-semibold mb-1">Consideraciones:</h4>
+                                    <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                                    {plan.rotationPlan.considerations.map((item, i) => <li key={i}>{item}</li>)}
+                                    </ul>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                    <h4 className="font-semibold mb-1 flex items-center gap-1"><ThumbsUp className="h-4 w-4 text-green-500" /> Ventajas</h4>
+                                    <ul className="list-disc list-inside text-muted-foreground space-y-1">
+                                        {plan.rotationPlan.advantages.map((item, i) => <li key={i}>{item}</li>)}
+                                    </ul>
+                                    </div>
+                                    <div>
+                                    <h4 className="font-semibold mb-1 flex items-center gap-1"><ThumbsDown className="h-4 w-4 text-red-500"/> Desventajas</h4>
+                                    <ul className="list-disc list-inside text-muted-foreground space-y-1">
+                                        {plan.rotationPlan.disadvantages.map((item, i) => <li key={i}>{item}</li>)}
+                                    </ul>
+                                    </div>
+                                </div>
+                                </CardContent>
                             </Card>
                         </div>
-
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2"><Car className="h-5 w-5 text-primary"/> Sugerencia de Vehículo</CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-2">
+                                <p><strong className="text-accent">Tipo de Vehículo:</strong> {plan.rotationPlan.vehicleSuggestion.vehicleType}</p>
+                                <p><strong className="text-accent">Razón:</strong> {plan.rotationPlan.vehicleSuggestion.reason}</p>
+                                <p className="text-sm text-muted-foreground pt-2 italic">{plan.rotationPlan.vehicleSuggestion.fuelCheck}</p>
+                            </CardContent>
+                        </Card>
                     </div>
                 )}
             </div>
         </div>
     );
 }
-
-    

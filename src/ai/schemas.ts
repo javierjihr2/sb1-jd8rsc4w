@@ -59,9 +59,19 @@ export const MapPlannerSchema = z.object({
   recommendedLoadout: z.object({
       primaryWeapon: z.string().describe("El arma principal recomendada para este plan."),
       secondaryWeapon: z.string().describe("El arma secundaria recomendada para este plan."),
-      reason: z.string().describe("Una breve explicación de por qué este equipamiento es ideal."),
+      reason: z.string().describe("Una justificación muy breve y concisa de por qué este equipamiento es ideal."),
   }).describe("Equipamiento recomendado para ejecutar el plan con éxito."),
-  rotationPlan: z.string().describe("Un plan de rotación sugerido, mencionando puntos de referencia o zonas a controlar."),
+  rotationPlan: z.object({
+    route: z.string().describe("La descripción de la ruta de rotación principal."),
+    considerations: z.array(z.string()).describe("Una lista de 2-3 puntos clave o hitos a considerar durante la rotación."),
+    advantages: z.array(z.string()).describe("Una lista de las ventajas clave de esta ruta."),
+    disadvantages: z.array(z.string()).describe("Una lista de los riesgos o desventajas de esta ruta."),
+    vehicleSuggestion: z.object({
+      vehicleType: z.string().describe("El tipo de vehículo recomendado (ej: Dacia, UAZ)."),
+      reason: z.string().describe("La razón por la que este vehículo es ideal para el mapa."),
+      fuelCheck: z.string().describe("Un recordatorio sobre la importancia de verificar el combustible."),
+    }).describe("Sugerencia de vehículo para la rotación."),
+  }).describe("Un plan de rotación detallado con puntos a considerar, ventajas, desventajas y sugerencias de vehículos."),
 });
 export type MapPlanner = z.infer<typeof MapPlannerSchema>;
 
