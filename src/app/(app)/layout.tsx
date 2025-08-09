@@ -46,6 +46,7 @@ import { cn } from "@/lib/utils"
 import { recentChats, playerProfile } from "@/lib/data"
 import { useAuth } from "../auth-provider"
 import { useEffect } from "react"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 
 export default function DashboardLayout({
   children,
@@ -62,7 +63,6 @@ export default function DashboardLayout({
     // }
   }, [user, loading, router]);
 
-
   const navItems = [
     { href: "/dashboard", label: "Inicio", icon: Home, badge: 0 },
     { href: "/feed", label: "Feed", icon: Rss, badge: 0 },
@@ -70,19 +70,24 @@ export default function DashboardLayout({
     { href: "/chats", label: "Chats", icon: MessageSquare, badge: recentChats.filter(c => c.unread).length },
     { href: "/friends", label: "Amigos", icon: Users2, badge: 0 },
     { href: "/matchmaking", label: "Buscar Equipo", icon: Search, badge: 0 },
-    { href: "/compare", label: "Comparar", icon: Users, badge: 0 },
-    { href: "/news", label: "Noticias", icon: Newspaper, badge: 0 },
-    { href: "/player-analysis", label: "Análisis IA", icon: BrainCircuit, badge: 0 },
-    { href: "/strategies", label: "Estrategias", icon: Map, badge: 0 },
     { href: "/loadouts", label: "Equipamiento", icon: Wrench, badge: 0 },
-    { href: "/sensitivity", label: "Sensibilidad IA", icon: Smartphone, badge: 0 },
-    { href: "/controls", label: "Controles IA", icon: Gamepad2, badge: 0 },
     { href: "/recharge", label: "Recargar UC", icon: DollarSign, badge: 0 },
+    { href: "/news", label: "Noticias", icon: Newspaper, badge: 0 },
   ]
   
+  const aiNavItems = [
+      { href: "/player-analysis", label: "Análisis de Jugador", icon: Users },
+      { href: "/strategies", label: "Estrategias de Mapa", icon: Map },
+      { href: "/compare", label: "Comparador de Dúos", icon: Users2 },
+      { href: "/sensitivity", label: "Asistente de Sensibilidad", icon: Smartphone },
+      { href: "/controls", label: "Generador de Controles", icon: Gamepad2 },
+  ]
+
   if (playerProfile.isAdmin) {
     navItems.push({ href: "/admin", label: "Admin", icon: ShieldCheck, badge: 0 });
   }
+
+  const isAiRouteActive = aiNavItems.some(item => pathname === item.href);
 
   if (loading) {
     return (
@@ -102,7 +107,7 @@ export default function DashboardLayout({
               <span className="text-2xl">SquadUp</span>
             </Link>
           </div>
-          <div className="flex-1">
+          <div className="flex-1 overflow-y-auto">
             <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
               {navItems.map((item) => (
                 <Link
@@ -122,6 +127,32 @@ export default function DashboardLayout({
                   )}
                 </Link>
               ))}
+               <Accordion type="single" collapsible defaultValue={isAiRouteActive ? "ai-tools" : undefined} className="w-full">
+                <AccordionItem value="ai-tools" className="border-b-0">
+                  <AccordionTrigger className={cn(
+                      "flex items-center gap-3 rounded-lg px-3 py-2 text-sidebar-foreground transition-all hover:text-white hover:bg-sidebar-accent/20 hover:no-underline",
+                      isAiRouteActive && "text-sidebar-primary font-bold"
+                    )}>
+                     <BrainCircuit className="h-4 w-4" />
+                      Copiloto IA
+                  </AccordionTrigger>
+                  <AccordionContent className="pl-4">
+                     {aiNavItems.map((item) => (
+                      <Link
+                        key={item.label}
+                        href={item.href}
+                        className={cn(
+                          "flex items-center gap-3 rounded-lg px-3 py-2 text-sidebar-foreground transition-all hover:text-white hover:bg-sidebar-accent/20",
+                          pathname === item.href ? "bg-sidebar-accent/10 text-sidebar-primary font-bold" : ""
+                        )}
+                      >
+                        <item.icon className="h-4 w-4" />
+                        {item.label}
+                      </Link>
+                    ))}
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
             </nav>
           </div>
           <div className="mt-auto p-4">
@@ -164,7 +195,7 @@ export default function DashboardLayout({
                   <Icons.logo className="h-6 w-6" />
                   <span className="text-2xl">SquadUp</span>
                 </Link>
-                {navItems.map((item) => (
+                {[...navItems, ...aiNavItems].map((item) => (
                   <Link
                     key={item.label}
                     href={item.href}
@@ -175,7 +206,7 @@ export default function DashboardLayout({
                   >
                     <item.icon className="h-5 w-5" />
                     {item.label}
-                    {item.badge > 0 && (
+                    {item.badge && item.badge > 0 && (
                       <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
                         {item.badge}
                       </Badge>
