@@ -40,20 +40,27 @@ const avatarFlow = ai.defineFlow(
 
     const imageGenerationPrompt = llmResponse.text;
 
-    const {media} = await ai.generate({
-      model: 'googleai/gemini-2.0-flash-preview-image-generation',
-      prompt: imageGenerationPrompt,
-      config: {
-        responseModalities: ['TEXT', 'IMAGE'],
-      },
-    });
-
-    if (!media?.url) {
+    const generateImage = async () => {
+      const {media} = await ai.generate({
+        model: 'googleai/gemini-2.0-flash-preview-image-generation',
+        prompt: imageGenerationPrompt,
+        config: {
+          responseModalities: ['TEXT', 'IMAGE'],
+        },
+      });
+       if (!media?.url) {
         throw new Error("El modelo de IA no pudo generar una imagen de avatar.");
+      }
+      return media.url;
     }
 
+    const [imageUrl1, imageUrl2] = await Promise.all([
+        generateImage(),
+        generateImage()
+    ]);
+
     return {
-      imageUrl: media.url,
+      imageUrls: [imageUrl1, imageUrl2],
     };
   }
 );

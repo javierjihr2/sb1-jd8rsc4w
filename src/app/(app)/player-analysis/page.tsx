@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { playerProfile } from "@/lib/data"
-import { BrainCircuit, Loader2, Sparkles, Terminal, Users2, Heart, Image as ImageIcon } from "lucide-react"
+import { BrainCircuit, Loader2, Sparkles, Terminal, Users2, Heart, Image as ImageIcon, Download } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import type { PlayerAnalysis, PlayerAnalysisInput, Avatar } from "@/ai/schemas"
 import { getPlayerAnalysis } from "@/ai/flows/playerAnalysisFlow"
@@ -66,6 +66,15 @@ export default function PlayerAnalysisPage() {
         } finally {
             setIsAvatarLoading(false);
         }
+    }
+
+    const handleDownload = (imageUrl: string) => {
+        const link = document.createElement('a');
+        link.href = imageUrl;
+        link.download = `avatar-${Date.now()}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 
 
@@ -198,17 +207,38 @@ export default function PlayerAnalysisPage() {
                         {(isAvatarLoading || generatedAvatar) && (
                              <CardFooter>
                                 <div className="w-full text-center">
-                                    <h4 className="text-sm font-semibold mb-2 text-muted-foreground">Resultado</h4>
-                                    <div className="aspect-square w-full rounded-lg bg-muted flex items-center justify-center border">
+                                    <h4 className="text-sm font-semibold mb-2 text-muted-foreground">Resultados</h4>
+                                    
                                     {isAvatarLoading ? (
-                                        <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                                            <Loader2 className="h-8 w-8 animate-spin" />
-                                            <span>Generando...</span>
+                                         <div className="grid grid-cols-2 gap-4">
+                                            <div className="aspect-square w-full rounded-lg bg-muted flex items-center justify-center border">
+                                                <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                                                    <Loader2 className="h-8 w-8 animate-spin" />
+                                                    <span>Generando...</span>
+                                                </div>
+                                            </div>
+                                             <div className="aspect-square w-full rounded-lg bg-muted flex items-center justify-center border">
+                                                <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                                                    <Loader2 className="h-8 w-8 animate-spin" />
+                                                    <span>Generando...</span>
+                                                </div>
+                                            </div>
                                         </div>
-                                    ) : generatedAvatar?.imageUrl ? (
-                                        <Image src={generatedAvatar.imageUrl} alt="Avatar generado por IA" width={512} height={512} className="object-cover rounded-lg aspect-square"/>
-                                    ) : null }
-                                    </div>
+                                    ) : (
+                                        generatedAvatar?.imageUrls && (
+                                            <div className="grid grid-cols-2 gap-4">
+                                                {generatedAvatar.imageUrls.map((url, index) => (
+                                                    <div key={index} className="space-y-2">
+                                                        <Image src={url} alt={`Avatar generado por IA ${index + 1}`} width={256} height={256} className="object-cover rounded-lg aspect-square border"/>
+                                                        <Button variant="outline" size="sm" className="w-full" onClick={() => handleDownload(url)}>
+                                                            <Download className="mr-2 h-4 w-4" />
+                                                            Descargar
+                                                        </Button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )
+                                    )}
                                 </div>
                             </CardFooter>
                         )}

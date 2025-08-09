@@ -158,6 +158,6 @@ export const AvatarInputSchema = z.object({
 export type AvatarInput = z.infer<typeof AvatarInputSchema>;
 
 export const AvatarSchema = z.object({
-  imageUrl: z.string().describe('La URL de la imagen del avatar generado, debe ser un data URI.'),
+  imageUrls: z.array(z.string()).describe('Una lista de URLs de las imágenes de avatar generadas, deben ser data URIs.'),
 });
 export type Avatar = z.infer<typeof AvatarSchema>;
