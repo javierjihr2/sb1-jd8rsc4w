@@ -19,6 +19,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
@@ -28,8 +29,6 @@ import { playerProfile, newsArticles, feedPosts } from "@/lib/data"
 
 
 export default function DashboardPage() {
-  const latestPost = feedPosts[0];
-
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
       <div className="lg:col-span-2 space-y-8">
@@ -69,7 +68,7 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
                 <div className="grid w-full gap-2">
-                    <Textarea placeholder="¿Qué estás pensando, Pro_Player1?" />
+                    <Textarea placeholder={`¿Qué estás pensando, ${playerProfile.name}?`} />
                       <div className="flex justify-between items-center">
                         <div className="flex gap-1">
                             <Button variant="ghost" size="icon">
@@ -89,41 +88,49 @@ export default function DashboardPage() {
         </Card>
 
         {/* Friend Activity Feed */}
-        <Card>
-            <CardHeader>
-                <CardTitle>Actividad de Amigos</CardTitle>
-                <Button asChild variant="link" className="p-0 h-auto text-primary">
-                  <Link href="/feed">Ver todo</Link>
-                </Button>
-            </CardHeader>
-            <CardContent className="space-y-6">
-                <div className="flex items-start gap-4">
-                  <Avatar className="h-10 w-10 border">
-                        <AvatarImage src={latestPost.author.avatarUrl} data-ai-hint="gaming character"/>
-                        <AvatarFallback>{latestPost.author.name.substring(0, 2)}</AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 bg-muted/30 p-4 rounded-lg">
-                      <div className="flex items-center justify-between">
-                          <div>
-                            <p className="font-semibold">{latestPost.author.name}</p>
-                            <p className="text-xs text-muted-foreground">{latestPost.timestamp}</p>
-                          </div>
-                          <Badge variant="outline">{latestPost.author.rank}</Badge>
-                      </div>
-                      <p className="text-sm text-muted-foreground mt-2">{latestPost.content}</p>
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground mt-3">
-                          <Button variant="ghost" size="sm" className="flex items-center gap-1 -ml-2">
-                            <Heart className="h-4 w-4"/> {latestPost.likes}
-                          </Button>
-                           <Button variant="ghost" size="sm" className="flex items-center gap-1">
-                            <MessageCircle className="h-4 w-4"/> {latestPost.comments}
-                          </Button>
-                      </div>
-                  </div>
-              </div>
-            </CardContent>
-        </Card>
-
+        <div className="space-y-6">
+            <CardTitle>Actividad Reciente</CardTitle>
+            {feedPosts.map(post => (
+                <Card key={post.id}>
+                    <CardHeader>
+                        <div className="flex items-start gap-4">
+                            <Avatar className="h-12 w-12 border">
+                                    <AvatarImage src={post.author.avatarUrl} data-ai-hint="gaming character"/>
+                                    <AvatarFallback>{post.author.name.substring(0, 2)}</AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <p className="font-semibold text-lg">{post.author.name}</p>
+                                        <p className="text-xs text-muted-foreground">{post.timestamp}</p>
+                                    </div>
+                                    <Badge variant="outline">{post.author.rank}</Badge>
+                                </div>
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-muted-foreground mb-4">{post.content}</p>
+                        {post.imageUrl && (
+                            <div className="rounded-lg overflow-hidden border mb-4">
+                                <Image src={post.imageUrl} alt="Imagen de la publicación" width={800} height={400} className="w-full h-auto object-cover" data-ai-hint="gaming screenshot"/>
+                            </div>
+                        )}
+                    </CardContent>
+                    <CardFooter className="flex items-center gap-4">
+                        <Button variant="ghost" className="flex items-center gap-2 text-muted-foreground">
+                            <Heart className="h-5 w-5"/> <span>{post.likes}</span>
+                        </Button>
+                        <Button variant="ghost" className="flex items-center gap-2 text-muted-foreground">
+                            <MessageCircle className="h-5 w-5"/> <span>{post.comments}</span>
+                        </Button>
+                         <Button variant="ghost" className="flex items-center gap-2 text-muted-foreground ml-auto">
+                            <Send className="h-5 w-5"/> <span>Compartir</span>
+                        </Button>
+                    </CardFooter>
+                </Card>
+            ))}
+        </div>
       </div>
 
       <div className="lg:col-span-1 space-y-8">
