@@ -82,12 +82,9 @@ export default function DashboardLayout({
     { href: "/play-map", label: "Estrategias de Mapas", icon: Map },
     { href: "/compare", label: "Comparador de Dúos", icon: Users },
     { href: "/support", label: "Soporte", icon: HelpCircle, badge: 0 },
+    { href: "/admin", label: "Admin", icon: ShieldCheck, badge: 0 },
   ]
   
-  if (playerProfile.isAdmin) {
-    navItems.push({ href: "/admin", label: "Admin", icon: ShieldCheck, badge: 0 });
-  }
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
