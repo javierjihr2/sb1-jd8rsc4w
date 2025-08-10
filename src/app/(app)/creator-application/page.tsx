@@ -183,5 +183,6 @@ export default function CreatorApplicationPage() {
             </Card>
         </div>
     )
+}
 
     
