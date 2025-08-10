@@ -8,10 +8,11 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { friendsForComparison } from "@/lib/data"
-import { FileCode, Bot, Gamepad2, Brain, Crosshair, ClipboardCopy, QrCode } from "lucide-react"
+import { FileCode, Bot, Gamepad2, Brain, Crosshair, ClipboardCopy, QrCode, Medal } from "lucide-react"
 import { useToast } from "@/hooks/use-toast";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import Image from "next/image"
+import { cn } from '@/lib/utils';
 
 // Datos de ejemplo para sensibilidades públicas. En una app real, esto vendría de una base de datos.
 const publicSensitivities: any = {
@@ -46,6 +47,8 @@ export default function PublicProfilePage({ params }: { params: { id: string } }
         toast({ title: 'Copiado', description: 'Código de sensibilidad copiado a tu portapapeles.' });
     };
 
+    const isCreator = player.role === 'Creador' || player.role === 'Admin';
+
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
@@ -61,7 +64,13 @@ export default function PublicProfilePage({ params }: { params: { id: string } }
                             </Avatar>
                             <div className="mt-4 sm:mb-2 flex-1">
                                 <div className="flex items-center gap-2">
-                                  <h1 className="text-3xl font-bold">{player.name}</h1>
+                                   <h1 className={cn(
+                                        "text-3xl font-bold flex items-center gap-2",
+                                        isCreator && "text-amber-500"
+                                    )}>
+                                        {isCreator && <Medal className="h-6 w-6"/>}
+                                        {player.name}
+                                    </h1>
                                   {player.countryCode && (
                                     <Image 
                                       src={`https://flagsapi.com/${player.countryCode}/shiny/64.png`}

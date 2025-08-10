@@ -7,11 +7,12 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { playerProfile } from "@/lib/data"
-import { Trophy, Shield, Swords, BarChart2, BrainCircuit, Image as ImageIcon, Send, Sticker, Settings, Award } from "lucide-react"
+import { Trophy, Shield, Swords, BarChart2, BrainCircuit, Image as ImageIcon, Send, Sticker, Settings, Award, Medal } from "lucide-react"
 import Link from "next/link"
 import { Textarea } from "@/components/ui/textarea"
 import { EditProfileDialog } from "@/components/edit-profile-dialog"
 import Image from "next/image"
+import { cn } from "@/lib/utils"
 
 const posts = [
   {
@@ -28,6 +29,8 @@ const posts = [
 
 
 export default function ProfilePage() {
+    const isCreator = playerProfile.role === 'Creador' || playerProfile.role === 'Admin';
+    
     return (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
             {/* Columna Izquierda: Perfil y Estadísticas */}
@@ -42,7 +45,13 @@ export default function ProfilePage() {
                             </Avatar>
                             <div className="mt-4 sm:mb-2 flex-1">
                                 <div className="flex items-center gap-2">
-                                  <h1 className="text-3xl font-bold">{playerProfile.name}</h1>
+                                    <h1 className={cn(
+                                        "text-3xl font-bold flex items-center gap-2",
+                                        isCreator && "text-amber-500"
+                                    )}>
+                                        {isCreator && <Medal className="h-6 w-6"/>}
+                                        {playerProfile.name}
+                                    </h1>
                                   {playerProfile.countryCode && (
                                     <Image 
                                       src={`https://flagsapi.com/${playerProfile.countryCode}/shiny/64.png`}
