@@ -108,7 +108,7 @@ export default function CreatorApplicationPage() {
                                     <Label htmlFor="game-name">Nombre de Usuario en el Juego</Label>
                                     <Input id="game-name" placeholder="Ej: TuNombreDePro" required />
                                 </div>
-                                <div className="space-y-2">
+                                <div className="space-y-2 md:col-span-2">
                                     <Label htmlFor="highest-rank">Rango más alto alcanzado</Label>
                                     <Select required>
                                         <SelectTrigger id="highest-rank">
