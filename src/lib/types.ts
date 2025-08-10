@@ -104,7 +104,7 @@ export type RegistrationRequest = {
 export type ApprovedRegistration = {
   userId: string;
   tournamentId: string;
-  status: 'approved';
+  status: 'approved' | 'reserve';
 }
 
 export type Comment = {

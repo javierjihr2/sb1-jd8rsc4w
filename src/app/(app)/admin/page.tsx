@@ -263,6 +263,7 @@ export default function AdminPage() {
         } else if (reserveSlotsAvailable) {
             reserveTeams.push(newTeam);
             updateRegistrationStatus(tournament.id, 'reserve', registeringUserId);
+            addApprovedRegistration({ userId: registeringUserId, tournamentId: tournament.id, status: 'reserve' });
             setRequests(prev => prev.map(req => req.id === requestId ? { ...req, status: 'Reserva' } : req));
             toast({ title: `Inscrito como Reserva`, description: `El equipo ${request.teamName} ha sido añadido a la lista de reserva.` });
         } else {
