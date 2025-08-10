@@ -90,7 +90,11 @@ export default function SensitivitiesPage() {
     const handleValueChange = (category: 'camera' | 'ads' | 'gyroscope', scope: string, value: string) => {
         const numValue = parseInt(value, 10);
         setCurrentSettings(prev => {
-            const newCategoryState = { ...(prev[category] || emptyScope), [scope]: isNaN(numValue) ? 0 : numValue };
+            const categoryData = hasGyro && category === 'gyroscope' ? (prev.gyroscope || emptyScope) : prev[category];
+            const newCategoryState = { ...categoryData, [scope]: isNaN(numValue) ? 0 : numValue };
+            
+            if (category === 'gyroscope' && !hasGyro) return prev; // Do not update gyro if disabled
+
             return {
                 ...prev,
                 [category]: newCategoryState,
@@ -108,13 +112,17 @@ export default function SensitivitiesPage() {
         setAnalysisResult(null);
 
         try {
-            const input: DecodeSensitivityInput = { settings: currentSettings };
+            const settingsToAnalyze: Sensitivity = {
+                ...currentSettings,
+                gyroscope: hasGyro ? currentSettings.gyroscope : undefined,
+            };
+
+            const input: DecodeSensitivityInput = { settings: settingsToAnalyze };
             const result = await decodeSensitivity(input);
             const savedData: SavedSensitivity = {
                 ...result,
                 id: `sens-${Date.now()}`,
                 userGivenName: configName || `Mi Configuración #${savedSensitivities.length + 1}`,
-                settings: currentSettings, // Ensure we save the user's manual input
             };
             setSavedSensitivities(prev => [savedData, ...prev]);
             toast({ title: 'Análisis Completo', description: `"${savedData.userGivenName}" ha sido guardado en tu arsenal.` });
@@ -197,6 +205,7 @@ export default function SensitivitiesPage() {
                         <div className="space-y-2">
                             <Label htmlFor="config-code">Tu Código de Importación (Opcional)</Label>
                             <Input id="config-code" placeholder="Pega tu código aquí (ej: 7293-4161-...)" value={currentSettings.code} onChange={e => handleCodeChange(e.target.value)} />
+                             <p className="text-xs text-muted-foreground">Este es el código que compartirías o usarías en el juego. Debe corresponder a los valores que has introducido manualmente.</p>
                         </div>
                         {error && <Alert variant="destructive"><Terminal className="h-4 w-4" /><AlertDescription>{error}</AlertDescription></Alert>}
                         <div className="flex gap-2">
