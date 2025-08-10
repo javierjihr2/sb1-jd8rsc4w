@@ -101,47 +101,65 @@
         @apply bg-background;
     }
     .bg-chat-dark {
-        background-color: hsl(var(--sidebar-background));
+       background-color: hsl(var(--sidebar-background));
     }
     /* data-ai-hint: forest grass */
     .bg-chat-erangel {
-        background-image: url('https://images.unsplash.com/photo-1500534623283-312aade485b7?w=1920&h=1080&fit=crop');
+        background-image: url('https://images.unsplash.com/photo-1500534623283-312aade485b7?w=1920&h=1080&fit=crop&q=80');
         background-size: cover;
         background-position: center;
     }
     /* data-ai-hint: desert dune */
     .bg-chat-miramar {
-        background-image: url('https://images.unsplash.com/photo-1473580044384-7ba9967e16a0?w=1920&h=1080&fit=crop');
+        background-image: url('https://images.unsplash.com/photo-1473580044384-7ba9967e16a0?w=1920&h=1080&fit=crop&q=80');
         background-size: cover;
         background-position: center;
     }
     /* data-ai-hint: jungle canopy */
     .bg-chat-sanhok {
-        background-image: url('https://images.unsplash.com/photo-1542396342-822453443427?w=1920&h=1080&fit=crop');
+        background-image: url('https://images.unsplash.com/photo-1542396342-822453443427?w=1920&h=1080&fit=crop&q=80');
         background-size: cover;
         background-position: center;
     }
     /* data-ai-hint: snow mountain */
     .bg-chat-vikendi {
-        background-image: url('https://images.unsplash.com/photo-1483561834359-523176558831?w=1920&h=1080&fit=crop');
+        background-image: url('https://images.unsplash.com/photo-1483561834359-523176558831?w=1920&h=1080&fit=crop&q=80');
         background-size: cover;
         background-position: center;
     }
     /* data-ai-hint: green valley */
     .bg-chat-livik {
-        background-image: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1920&h=1080&fit=crop');
+        background-image: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1920&h=1080&fit=crop&q=80');
+        background-size: cover;
+        background-position: center;
+    }
+     /* data-ai-hint: bamboo forest */
+    .bg-chat-rondo {
+        background-image: url('https://images.unsplash.com/photo-1588680650932-72238a4d4a8e?w=1920&h=1080&fit=crop&q=80');
         background-size: cover;
         background-position: center;
     }
     /* data-ai-hint: abstract pattern */
     .bg-chat-skin-mosaic {
-        background-image: url('https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=1920&h=1080&fit=crop');
+        background-image: url('https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=1920&h=1080&fit=crop&q=80');
         background-size: cover;
         background-position: center;
     }
     /* data-ai-hint: camouflage pattern */
     .bg-chat-camo {
-        background-image: url('https://images.unsplash.com/photo-1582731705415-88c9b3941466?w=1920&h=1080&fit=crop');
+        background-image: url('https://images.unsplash.com/photo-1582731705415-88c9b3941466?w=1920&h=1080&fit=crop&q=80');
+        background-size: cover;
+        background-position: center;
+    }
+     /* data-ai-hint: neon city */
+    .bg-chat-neon {
+        background-image: url('https://images.unsplash.com/photo-1531306728370-e2ebd6a74659?w=1920&h=1080&fit=crop&q=80');
+        background-size: cover;
+        background-position: center;
+    }
+    /* data-ai-hint: dark feathers */
+    .bg-chat-raven {
+        background-image: url('https://images.unsplash.com/photo-1590382361669-82f53416b24d?w=1920&h=1080&fit=crop&q=80');
         background-size: cover;
         background-position: center;
     }

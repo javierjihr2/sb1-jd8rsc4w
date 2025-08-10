@@ -19,7 +19,10 @@ export default function ChatsPage() {
   const [selectedChat, setSelectedChat] = useState<Chat | null>(chats[0] || null);
   const [message, setMessage] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
   const [chatTheme, setChatTheme] = useState('bg-chat-default');
+  const [customBg, setCustomBg] = useState<string | null>(null);
+  const customBgInputRef = useRef<HTMLInputElement>(null);
 
   const handleSelectChat = (chat: Chat) => {
     setSelectedChat(chat);
@@ -60,6 +63,25 @@ export default function ChatsPage() {
       lastMessageRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [selectedChat?.messages]);
+  
+  const handleCustomBgUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (loadEvent) => {
+        const result = loadEvent.target?.result as string;
+        setCustomBg(result);
+        setChatTheme(''); // Desactivar tema predefinido
+      };
+      reader.readAsDataURL(file);
+    }
+     e.target.value = ''; // Reset para poder subir la misma imagen de nuevo
+  };
+  
+  const handleThemeSelection = (themeValue: string) => {
+      setCustomBg(null); // Desactivar fondo personalizado
+      setChatTheme(themeValue);
+  }
 
 
   return (
@@ -121,14 +143,15 @@ export default function ChatsPage() {
                  <Button variant="ghost" size="icon">
                   <Phone className="h-5 w-5"/>
                 </Button>
-                 <ChatThemeSettings setTheme={setChatTheme}>
+                <input type="file" accept="image/*" ref={customBgInputRef} className="hidden" onChange={handleCustomBgUpload} />
+                 <ChatThemeSettings setTheme={handleThemeSelection} onUploadClick={() => customBgInputRef.current?.click()}>
                     <Button variant="ghost" size="icon">
                         <Settings2 className="h-5 w-5"/>
                     </Button>
                  </ChatThemeSettings>
               </div>
             </CardHeader>
-            <div className={cn("flex-1 relative", chatTheme)}>
+            <div className={cn("flex-1 relative", chatTheme)} style={{ backgroundImage: customBg ? `url(${customBg})` : undefined, backgroundSize: 'cover', backgroundPosition: 'center' }}>
                 <div className="absolute inset-0 bg-black/30 backdrop-blur-sm"></div>
                 <ScrollArea className="h-full absolute inset-0">
                     <CardContent className="p-4 space-y-4 text-sm ">
