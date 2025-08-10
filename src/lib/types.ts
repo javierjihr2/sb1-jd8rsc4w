@@ -40,6 +40,11 @@ export type Tournament = {
   mode: 'Solo' | 'Dúo' | 'Escuadra';
   status: 'Abierto' | 'Cerrado' | 'Próximamente';
   region: 'N.A.' | 'S.A.';
+  type: 'Competitivo' | 'Por Puntos' | 'Evento WOW' | 'Amistoso' | 'Scrim';
+  description?: string;
+  startTime?: string;
+  timeZone?: string;
+  maxTeams?: number;
 };
 
 export type Message = {
@@ -156,3 +161,5 @@ export type Transaction = {
     amount: number;
     type: 'Ingreso' | 'Retiro';
 }
+
+    

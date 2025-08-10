@@ -28,6 +28,11 @@ export const tournaments: Tournament[] = [
     mode: 'Escuadra',
     status: 'Abierto',
     region: 'N.A.',
+    type: 'Competitivo',
+    startTime: '18:00',
+    timeZone: 'CST',
+    description: 'El torneo más grande del verano en Norteamérica. Formato de puntos estándar. Solo los mejores sobrevivirán.',
+    maxTeams: 64,
   },
   {
     id: 't2',
@@ -37,15 +42,22 @@ export const tournaments: Tournament[] = [
     mode: 'Dúo',
     status: 'Abierto',
     region: 'S.A.',
+    type: 'Competitivo',
+    startTime: '20:00',
+    timeZone: 'ART',
+    description: 'Enfréntate en dúo contra los mejores de Sudamérica. Batalla campal hasta el final.',
+    maxTeams: 100,
   },
   {
     id: 't3',
-    name: 'PUBG Mobile Global Championship',
+    name: 'PMGC Warm-up Scrims',
     date: '2024-09-01',
     prize: '$1,000,000',
     mode: 'Escuadra',
     status: 'Próximamente',
     region: 'N.A.',
+    type: 'Scrim',
+    description: 'Scrims de práctica para el PMGC. Solo equipos invitados.',
   },
     {
     id: 't4',
@@ -55,6 +67,7 @@ export const tournaments: Tournament[] = [
     mode: 'Solo',
     status: 'Cerrado',
     region: 'S.A.',
+    type: 'Por Puntos',
   },
 ];
 
@@ -390,3 +403,5 @@ export const initialTransactions: Transaction[] = [
     { id: 'txn2', date: '2024-07-27', description: 'Suscripción Creador Pro - ShadowStriker', amount: 4.99, type: 'Ingreso' },
     { id: 'txn3', date: '2024-07-25', description: 'Suscripción Creador Básico - Phoenix_Queen', amount: 2.99, type: 'Ingreso' },
 ];
+
+    

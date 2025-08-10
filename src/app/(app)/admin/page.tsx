@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
-import { Code, UserPlus, Newspaper, Check, X, Users, Swords, PlusCircle, Pencil, Trash2, LayoutDashboard, Settings, DollarSign, BarChart, BellRing, Wrench, Link as LinkIcon, KeyRound, RefreshCw, Briefcase, Star, CheckCircle, Banknote, Flag } from "lucide-react"
+import { Code, UserPlus, Newspaper, Check, X, Users, Swords, PlusCircle, Pencil, Trash2, LayoutDashboard, Settings, DollarSign, BarChart, BellRing, Wrench, Link as LinkIcon, KeyRound, RefreshCw, Briefcase, Star, CheckCircle, Banknote, Flag, Calendar as CalendarIcon, Clock } from "lucide-react"
 import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles, friendsForComparison as initialUsers, rechargeProviders, developers, services as initialServices, creators, bankAccounts, initialTransactions } from "@/lib/data"
 import type { RegistrationRequest, Tournament, NewsArticle, Service, UserWithRole, BankAccount, Transaction } from "@/lib/types"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -32,6 +32,10 @@ import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import Image from "next/image"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { format } from "date-fns"
+import { Calendar } from "@/components/ui/calendar"
+import { cn } from "@/lib/utils"
 
 
 export default function AdminPage() {
@@ -52,6 +56,10 @@ export default function AdminPage() {
   const [withdrawalAmount, setWithdrawalAmount] = useState<number | string>('');
   const [selectedAccount, setSelectedAccount] = useState<string>('');
   const currentBalance = transactions.reduce((acc, t) => acc + t.amount, 0);
+
+  // State for tournament creation
+  const [tournamentDate, setTournamentDate] = useState<Date>();
+  const [tournamentType, setTournamentType] = useState<string>('');
 
 
   const handleCreateProfile = (event: React.FormEvent<HTMLFormElement>) => {
@@ -447,16 +455,75 @@ export default function AdminPage() {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2"><PlusCircle className="h-5 w-5 text-primary"/> Crear Torneo</CardTitle>
+                            <CardDescription>Rellena los detalles para configurar un nuevo evento.</CardDescription>
                         </CardHeader>
                         <form onSubmit={handleCreateTournament}>
                             <CardContent className="grid gap-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="t-name">Nombre del Torneo</Label>
-                                    <Input id="t-name" required />
+                                    <Input id="t-name" placeholder="Ej: Copa de Verano" required />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="t-type">Tipo de Torneo</Label>
+                                    <Select onValueChange={setTournamentType} required>
+                                        <SelectTrigger id="t-type"><SelectValue placeholder="Selecciona un tipo" /></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="competitivo">Competitivo</SelectItem>
+                                            <SelectItem value="scrim">Scrim (Práctica)</SelectItem>
+                                            <SelectItem value="puntos">Por Puntos</SelectItem>
+                                            <SelectItem value="wow">Evento WOW</SelectItem>
+                                            <SelectItem value="amistoso">Amistoso</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                {(tournamentType === 'competitivo' || tournamentType === 'scrim') && (
+                                    <div className="grid grid-cols-2 gap-4 animate-in fade-in-50">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="t-time">Hora de Inicio</Label>
+                                            <Input id="t-time" type="time" required />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="t-timezone">Zona Horaria</Label>
+                                            <Select required>
+                                                <SelectTrigger id="t-timezone"><SelectValue placeholder="País" /></SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="MX">México (CST)</SelectItem>
+                                                    <SelectItem value="CO">Colombia (COT)</SelectItem>
+                                                    <SelectItem value="US-ET">EE.UU. (ET)</SelectItem>
+                                                    <SelectItem value="AR">Argentina (ART)</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    </div>
+                                )}
+                                <div className="space-y-2">
+                                    <Label htmlFor="t-date">Fecha del Torneo</Label>
+                                     <Popover>
+                                        <PopoverTrigger asChild>
+                                        <Button
+                                            variant={"outline"}
+                                            className={cn(
+                                            "w-full justify-start text-left font-normal",
+                                            !tournamentDate && "text-muted-foreground"
+                                            )}
+                                        >
+                                            <CalendarIcon className="mr-2 h-4 w-4" />
+                                            {tournamentDate ? format(tournamentDate, "PPP") : <span>Elige una fecha</span>}
+                                        </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0">
+                                        <Calendar
+                                            mode="single"
+                                            selected={tournamentDate}
+                                            onSelect={setTournamentDate}
+                                            initialFocus
+                                        />
+                                        </PopoverContent>
+                                    </Popover>
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="t-prize">Premio</Label>
-                                    <Input id="t-prize" required />
+                                    <Input id="t-prize" placeholder="Ej: $1,000 USD o 'Premios en UC'" required />
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="t-mode">Modo</Label>
@@ -478,6 +545,10 @@ export default function AdminPage() {
                                             <SelectItem value="S.A.">Sudamérica</SelectItem>
                                         </SelectContent>
                                     </Select>
+                                </div>
+                                 <div className="space-y-2">
+                                    <Label htmlFor="t-description">Reglas y Descripción</Label>
+                                    <Textarea id="t-description" placeholder="Describe el formato del torneo, sistema de puntos, reglas de conducta, etc." />
                                 </div>
                             </CardContent>
                             <CardFooter>
@@ -917,3 +988,5 @@ export default function AdminPage() {
     </div>
   )
 }
+
+    
