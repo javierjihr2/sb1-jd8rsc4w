@@ -238,5 +238,6 @@ export const DecodedSensitivitySchema = z.object({
     recommendedWeapons: z.array(z.string()).describe("Una lista de 2-3 armas que funcionarían bien con esta configuración."),
   }),
   code: z.string().describe("El código de sensibilidad original proporcionado por el usuario, si lo hubo."),
+  isPublic: z.boolean().optional().describe("Si la sensibilidad debe ser visible para otros jugadores."),
 });
 export type DecodedSensitivity = z.infer<typeof DecodedSensitivitySchema>;

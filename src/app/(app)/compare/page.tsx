@@ -9,10 +9,11 @@ import { Label } from "@/components/ui/label";
 import { comparePlayers } from "@/ai/flows/playerComparisonFlow";
 import type { PlayerComparison, PlayerComparisonInput, PlayerProfileInput } from "@/ai/schemas";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Loader2, Sparkles, Users, Terminal, ShieldCheck, Swords, Brain } from "lucide-react";
+import { Loader2, Sparkles, Users, Terminal, ShieldCheck, Swords, Brain, Eye } from "lucide-react";
 import { friendsForComparison } from "@/lib/data";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
+import Link from "next/link";
 
 export default function ComparePlayersPage() {
     const [player1Id, setPlayer1Id] = useState<string | null>(null);
@@ -57,7 +58,7 @@ export default function ComparePlayersPage() {
     };
 
     const renderPlayerCard = (player: PlayerProfileInput) => (
-        <Card className="h-full">
+        <Card className="h-full flex flex-col">
             <CardHeader className="items-center text-center">
                 <Avatar className="w-20 h-20 mb-2">
                     <AvatarImage src={player.avatarUrl} data-ai-hint="gaming character"/>
@@ -66,7 +67,7 @@ export default function ComparePlayersPage() {
                 <CardTitle>{player.name}</CardTitle>
                 <CardDescription>{player.rank}</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4 text-sm">
+            <CardContent className="space-y-4 text-sm flex-1">
                  <div>
                     <div className="flex justify-between mb-1"><span>Victorias</span><span className="font-semibold">{player.stats.wins}</span></div>
                     <Progress value={(player.stats.wins / 200) * 100} className="h-2"/>
@@ -84,6 +85,14 @@ export default function ComparePlayersPage() {
                     <p><strong>Horario:</strong> {player.playSchedule}</p>
                 </div>
             </CardContent>
+            <div className="p-4 pt-0">
+                <Button asChild variant="secondary" className="w-full">
+                    <Link href={`/profile/${player.id}`}>
+                        <Eye className="mr-2 h-4 w-4"/>
+                        Ver Perfil Público
+                    </Link>
+                </Button>
+            </div>
         </Card>
     );
 

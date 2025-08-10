@@ -7,12 +7,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { FileCode, Sparkles, Loader2, Terminal, ClipboardCopy, QrCode, Trash2, Save, X, Bot, Gamepad2, Crosshair, Brain, AlertTriangle } from 'lucide-react';
+import { FileCode, Sparkles, Loader2, Terminal, ClipboardCopy, QrCode, Trash2, X, Bot, Gamepad2, Crosshair, Brain, Globe, Lock } from 'lucide-react';
 import { decodeSensitivity } from '@/ai/flows/decodeSensitivityFlow';
 import type { DecodedSensitivity, Sensitivity, DecodeSensitivityInput } from '@/ai/schemas';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Switch } from '@/components/ui/switch';
 
@@ -20,6 +19,7 @@ import { Switch } from '@/components/ui/switch';
 interface SavedSensitivity extends DecodedSensitivity {
   id: string;
   userGivenName: string;
+  isPublic: boolean;
 }
 
 const emptyScope = { tpp: 0, fpp: 0, redDot: 0, scope2x: 0, scope3x: 0, scope4x: 0, scope6x: 0, scope8x: 0 };
@@ -81,10 +81,10 @@ export default function SensitivitiesPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [currentSettings, setCurrentSettings] = useState<Sensitivity>(initialSettings);
-    const [analysisResult, setAnalysisResult] = useState<DecodedSensitivity | null>(null);
     const [hasGyro, setHasGyro] = useState(false);
     const [isFormVisible, setIsFormVisible] = useState(false);
     const [configName, setConfigName] = useState("");
+    const [isPublic, setIsPublic] = useState(false);
 
 
     const handleValueChange = (category: 'camera' | 'ads' | 'gyroscope', scope: string, value: string) => {
@@ -93,7 +93,7 @@ export default function SensitivitiesPage() {
             const categoryData = hasGyro && category === 'gyroscope' ? (prev.gyroscope || emptyScope) : prev[category];
             const newCategoryState = { ...categoryData, [scope]: isNaN(numValue) ? 0 : numValue };
             
-            if (category === 'gyroscope' && !hasGyro) return prev; // Do not update gyro if disabled
+            if (category === 'gyroscope' && !hasGyro) return prev;
 
             return {
                 ...prev,
@@ -106,10 +106,9 @@ export default function SensitivitiesPage() {
         setCurrentSettings(prev => ({ ...prev, code: value }));
     };
 
-    const handleAnalyze = async () => {
+    const handleAnalyzeAndSave = async () => {
         setIsLoading(true);
         setError(null);
-        setAnalysisResult(null);
 
         try {
             const settingsToAnalyze: Sensitivity = {
@@ -123,9 +122,10 @@ export default function SensitivitiesPage() {
                 ...result,
                 id: `sens-${Date.now()}`,
                 userGivenName: configName || `Mi Configuración #${savedSensitivities.length + 1}`,
+                isPublic: isPublic,
             };
             setSavedSensitivities(prev => [savedData, ...prev]);
-            toast({ title: 'Análisis Completo', description: `"${savedData.userGivenName}" ha sido guardado en tu arsenal.` });
+            toast({ title: 'Análisis Completo', description: `"${savedData.userGivenName}" ha sido guardada en tu arsenal.` });
             resetForm();
         } catch (e) {
             console.error(e);
@@ -141,6 +141,7 @@ export default function SensitivitiesPage() {
         setHasGyro(false);
         setConfigName("");
         setError(null);
+        setIsPublic(false);
     }
 
     const handleCopyCode = (code: string) => {
@@ -161,14 +162,14 @@ export default function SensitivitiesPage() {
     return (
         <div className="space-y-8">
             <div>
-                <h1 className="text-3xl font-bold flex items-center gap-2"><FileCode className="w-8 h-8 text-primary"/> Arsenal de Sensibilidad</h1>
-                <p className="text-muted-foreground">Añade tus configuraciones, analízalas con IA y guárdalas en tu colección personal.</p>
+                <h1 className="text-3xl font-bold flex items-center gap-2"><FileCode className="w-8 h-8 text-primary"/> Mis Sensibilidades</h1>
+                <p className="text-muted-foreground">Añade tus configuraciones, analízalas con IA, guárdalas y compártelas con la comunidad.</p>
             </div>
             
             <Card>
                 <CardHeader>
-                    <CardTitle>{isFormVisible ? "Añadir Nueva Sensibilidad al Arsenal" : "Gestiona tus Configuraciones"}</CardTitle>
-                    <CardDescription>{isFormVisible ? "Introduce tus valores de sensibilidad y la IA los analizará." : "Visualiza tus configuraciones guardadas o añade una nueva."}</CardDescription>
+                    <CardTitle>{isFormVisible ? "Añadir Nueva Sensibilidad" : "Gestiona tus Configuraciones"}</CardTitle>
+                    <CardDescription>{isFormVisible ? "Introduce tus valores de sensibilidad y la IA los analizará para ti." : "Visualiza tus configuraciones guardadas o añade una nueva."}</CardDescription>
                 </CardHeader>
                 {!isFormVisible && (
                     <CardContent>
@@ -205,11 +206,15 @@ export default function SensitivitiesPage() {
                         <div className="space-y-2">
                             <Label htmlFor="config-code">Tu Código de Importación (Opcional)</Label>
                             <Input id="config-code" placeholder="Pega tu código aquí (ej: 7293-4161-...)" value={currentSettings.code} onChange={e => handleCodeChange(e.target.value)} />
-                             <p className="text-xs text-muted-foreground">Este es el código que compartirías o usarías en el juego. Debe corresponder a los valores que has introducido manualmente.</p>
+                             <p className="text-xs text-muted-foreground mt-2">Este es el código que compartirías o usarías en el juego. Debe corresponder a los valores que has introducido manualmente.</p>
+                        </div>
+                         <div className="flex items-center space-x-2">
+                            <Switch id="public-switch" checked={isPublic} onCheckedChange={setIsPublic} />
+                            <Label htmlFor="public-switch">Hacer esta configuración pública para otros jugadores</Label>
                         </div>
                         {error && <Alert variant="destructive"><Terminal className="h-4 w-4" /><AlertDescription>{error}</AlertDescription></Alert>}
                         <div className="flex gap-2">
-                            <Button onClick={handleAnalyze} disabled={isLoading}>
+                            <Button onClick={handleAnalyzeAndSave} disabled={isLoading}>
                                 {isLoading ? <Loader2 className="mr-2 animate-spin" /> : <Bot className="mr-2" />}
                                 {isLoading ? 'Analizando...' : 'Analizar y Guardar'}
                             </Button>
@@ -224,16 +229,22 @@ export default function SensitivitiesPage() {
 
             {savedSensitivities.length > 0 && (
                  <div className="space-y-4 pt-8">
-                    <h2 className="text-2xl font-bold">Mi Arsenal</h2>
+                    <h2 className="text-2xl font-bold">Mi Arsenal de Sensibilidades</h2>
                     <div className="grid md:grid-cols-2 gap-6">
                         {savedSensitivities.map(s => (
                             <Card key={s.id} className="flex flex-col">
                                 <CardHeader>
-                                    <CardTitle className="flex justify-between items-center">
+                                    <CardTitle className="flex justify-between items-start">
                                         <span className="text-primary">{s.userGivenName}</span>
-                                        <Button variant="ghost" size="icon" onClick={() => handleDelete(s.id)}><Trash2 className="h-4 w-4 text-destructive"/></Button>
+                                        <div className="flex items-center gap-2">
+                                            {s.isPublic ? 
+                                                <div className="flex items-center gap-1 text-xs text-muted-foreground"><Globe className="h-3 w-3"/> Pública</div> :
+                                                <div className="flex items-center gap-1 text-xs text-muted-foreground"><Lock className="h-3 w-3"/> Privada</div>
+                                            }
+                                            <Button variant="ghost" size="icon" onClick={() => handleDelete(s.id)}><Trash2 className="h-4 w-4 text-destructive"/></Button>
+                                        </div>
                                     </CardTitle>
-                                    <CardDescription className="flex items-center gap-2 text-xs"><Gamepad2 className="h-3 w-3"/>{s.analysis.playStyle}</CardDescription>
+                                    <CardDescription className="flex items-center gap-2 text-xs pt-1"><Gamepad2 className="h-3 w-3"/>{s.analysis.playStyle}</CardDescription>
                                 </CardHeader>
                                 <CardContent className="flex-1 space-y-4">
                                      <Collapsible>
