@@ -1,6 +1,7 @@
 
 "use client"
 
+import * as React from "react"
 import { useState, useEffect, useRef } from "react"
 import { notFound } from "next/navigation"
 import { tournaments, playerProfile, registeredTeams } from "@/lib/data"
