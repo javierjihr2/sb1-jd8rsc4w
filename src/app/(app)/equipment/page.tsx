@@ -208,7 +208,190 @@ export default function EquipmentPage() {
                     <TabsTrigger value="controls"><Gamepad2 className="mr-2" />Controles</TabsTrigger>
                     <TabsTrigger value="loadouts"><Wrench className="mr-2" />Equipamientos</TabsTrigger>
                 </TabsList>
-
+                
+                {/* Sensitivity Tab */}
+                <TabsContent value="sensitivity" className="mt-6">
+                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+                        <div className="lg:col-span-1">
+                            <Card className="sticky top-20">
+                                <CardHeader>
+                                    <CardTitle>Perfil de Sensibilidad</CardTitle>
+                                    <CardDescription>Proporciona los detalles para una recomendación a medida.</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-6">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="device-type-sens">Tipo de Dispositivo</Label>
+                                        <Select onValueChange={(value) => setSensitivityInput(prev => ({ ...prev, deviceType: value }))} value={sensitivityInput.deviceType}>
+                                            <SelectTrigger id="device-type-sens"><SelectValue placeholder="Selecciona tu dispositivo" /></SelectTrigger>
+                                            <SelectContent><SelectItem value="Telefono">Teléfono</SelectItem><SelectItem value="Tablet">Tablet</SelectItem></SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="device-brand">Marca del Dispositivo (Opcional)</Label>
+                                        <Input id="device-brand" placeholder="Ej: Samsung, Apple" value={sensitivityInput.deviceBrand || ''} onChange={(e) => setSensitivityInput(prev => ({ ...prev, deviceBrand: e.target.value }))} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="device-model">Modelo del Dispositivo (Opcional)</Label>
+                                        <Input id="device-model" placeholder="Ej: Galaxy S23, iPhone 14 Pro" value={sensitivityInput.deviceModel || ''} onChange={(e) => setSensitivityInput(prev => ({ ...prev, deviceModel: e.target.value }))} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="screen-size">Tamaño de Pantalla (Pulgadas)</Label>
+                                        <Input id="screen-size" type="number" placeholder="Ej: 6.7" value={sensitivityInput.screenSize || ''} onChange={(e) => setSensitivityInput(prev => ({ ...prev, screenSize: parseFloat(e.target.value) || undefined }))} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="playstyle">Estilo de Juego Preferido</Label>
+                                        <Select onValueChange={(value) => setSensitivityInput(prev => ({ ...prev, playStyle: value }))} value={sensitivityInput.playStyle}>
+                                            <SelectTrigger id="playstyle"><SelectValue placeholder="Selecciona tu estilo" /></SelectTrigger>
+                                            <SelectContent><SelectItem value="cercano">Combate Cercano</SelectItem><SelectItem value="media">Media Distancia</SelectItem><SelectItem value="larga">Larga Distancia (Francotirador)</SelectItem><SelectItem value="versatil">Versátil (Mixto)</SelectItem></SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="gyroscope">¿Usas Giroscopio?</Label>
+                                        <Select onValueChange={(value) => setSensitivityInput(prev => ({ ...prev, gyroscope: value }))} value={sensitivityInput.gyroscope}>
+                                            <SelectTrigger id="gyroscope"><SelectValue placeholder="Selecciona una opción" /></SelectTrigger>
+                                            <SelectContent><SelectItem value="si">Sí</SelectItem><SelectItem value="no">No</SelectItem></SelectContent>
+                                        </Select>
+                                    </div>
+                                    <Button onClick={handleGenerateSensitivity} disabled={isSensitivityLoading} className="w-full">
+                                        {isSensitivityLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                                        {isSensitivityLoading ? "Generando..." : "Generar Sensibilidad"}
+                                    </Button>
+                                </CardContent>
+                            </Card>
+                        </div>
+                        <div className="lg:col-span-2">
+                            {isSensitivityLoading && <SensitivityPageSkeleton />}
+                            {sensitivityError && !isSensitivityLoading && (
+                                <Alert variant="destructive"><Terminal className="h-4 w-4" /><AlertTitle>Error de Generación</AlertTitle><AlertDescription>{sensitivityError}</AlertDescription></Alert>
+                            )}
+                            {!isSensitivityLoading && !sensitivity && !sensitivityError && (
+                                <Card className="h-full flex flex-col items-center justify-center text-center p-8 border-dashed min-h-[400px]">
+                                    <div className="p-4 bg-primary/10 rounded-full mb-4"><Smartphone className="h-12 w-12 text-primary" /></div>
+                                    <h2 className="text-2xl font-bold">Tu Configuración Perfecta te Espera</h2>
+                                    <p className="text-muted-foreground max-w-md">Usa el panel para configurar tu perfil y la IA creará una configuración de sensibilidad optimizada.</p>
+                                </Card>
+                            )}
+                            {sensitivity && !isSensitivityLoading && lastUsedSensitivityInput &&(
+                                <Card className="animate-in fade-in-50">
+                                    <CardHeader>
+                                        <CardTitle>Tu Configuración de Sensibilidad Personalizada</CardTitle>
+                                        <CardDescription className="capitalize pt-1">Valores optimizados para un {lastUsedSensitivityInput.deviceType} {lastUsedSensitivityInput.deviceBrand && ` ${lastUsedSensitivityInput.deviceBrand}`} {lastUsedSensitivityInput.deviceModel && ` ${lastUsedSensitivityInput.deviceModel}`} {` de ${lastUsedSensitivityInput.screenSize}", un estilo de juego ${lastUsedSensitivityInput.playStyle},`} {lastUsedSensitivityInput.gyroscope === 'si' ? ' con' : ' sin'} giroscopio.</CardDescription>
+                                    </CardHeader>
+                                    <CardContent className="space-y-8">
+                                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                            <SensitivityTable title="Sensibilidad de Cámara" data={sensitivity.camera} />
+                                            <SensitivityTable title="Sensibilidad de ADS" data={sensitivity.ads} />
+                                            {sensitivity.gyroscope && <SensitivityTable title="Sensibilidad de Giroscopio" data={sensitivity.gyroscope} />}
+                                        </div>
+                                        <div>
+                                            <h3 className="text-lg font-semibold text-primary mb-2">Código de Sensibilidad</h3>
+                                            <div className="flex items-center gap-2"><Input value={sensitivity.code} readOnly className="bg-muted"/><Button variant="outline" size="icon" onClick={handleCopyCode}><ClipboardCopy className="h-4 w-4"/></Button></div>
+                                            <p className="text-xs text-muted-foreground mt-2">Puedes usar este código para importar la configuración directamente en el juego.</p>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            )}
+                        </div>
+                    </div>
+                </TabsContent>
+                
+                {/* Controls Tab */}
+                <TabsContent value="controls" className="mt-6">
+                    <div className="space-y-8">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Define tu Estilo de Controles</CardTitle>
+                                <CardDescription>Dinos cómo juegas y la IA creará una recomendación de layout (HUD) para ti.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 items-start">
+                                <div className="space-y-2">
+                                    <Label htmlFor="device-type-controls">Tipo de Dispositivo</Label>
+                                    <Select onValueChange={(value) => setControlsInput(prev => ({...prev, deviceType: value}))} value={controlsInput.deviceType}>
+                                        <SelectTrigger id="device-type-controls"><SelectValue placeholder="Selecciona un dispositivo" /></SelectTrigger>
+                                        <SelectContent><SelectItem value="Telefono">Teléfono</SelectItem><SelectItem value="Tablet">Tablet</SelectItem></SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="finger-count">Número de Dedos</Label>
+                                    <Select onValueChange={(value) => setControlsInput(prev => ({...prev, fingerCount: parseInt(value)}))} value={controlsInput.fingerCount?.toString()}>
+                                        <SelectTrigger id="finger-count"><SelectValue placeholder="Selecciona el número de dedos" /></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="2">2 Dedos (Pulgares)</SelectItem>
+                                            <SelectItem value="3">3 Dedos (Garra)</SelectItem>
+                                            <SelectItem value="4">4 Dedos (Garra)</SelectItem>
+                                            <SelectItem value="5">5+ Dedos (Garra Avanzada)</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="space-y-2 pt-6">
+                                    <Button onClick={handleGenerateControls} disabled={isControlsLoading} className="w-full">
+                                        {isControlsLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                                        {isControlsLoading ? "Analizando..." : "Generar Controles"}
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
+                        {isControlsLoading && <ControlsResultSkeleton />}
+                        {controlsError && !isControlsLoading && (
+                            <Alert variant="destructive"><Terminal className="h-4 w-4" /><AlertTitle>Error de Generación</AlertTitle><AlertDescription>{controlsError}</AlertDescription></Alert>
+                        )}
+                        {!isControlsLoading && !controls && !controlsError && (
+                            <Card className="h-full flex flex-col items-center justify-center text-center p-8 border-dashed min-h-[400px]">
+                                <div className="p-4 bg-primary/10 rounded-full mb-4"><Gamepad2 className="h-12 w-12 text-primary" /></div>
+                                <h2 className="text-2xl font-bold">Tu Layout de Controles Ideal te Espera</h2>
+                                <p className="text-muted-foreground max-w-md">Selecciona tu tipo de dispositivo y con cuántos dedos juegas. La IA diseñará un esquema de botones optimizado.</p>
+                            </Card>
+                        )}
+                        {controls && !isControlsLoading && lastUsedControlsInput && (
+                            <Card className="animate-in fade-in-50">
+                                <CardHeader>
+                                    <CardTitle className="text-2xl text-primary">{controls.layoutName}</CardTitle>
+                                    <CardDescription>Una configuración para {lastUsedControlsInput.fingerCount} dedos en un {lastUsedControlsInput.deviceType}, optimizada para el máximo rendimiento.</CardDescription>
+                                </CardHeader>
+                                <CardContent className="grid lg:grid-cols-2 gap-8">
+                                    <div className="space-y-6">
+                                        <Image src={controls.imageUrl} alt={controls.layoutName} width={400} height={300} className="rounded-lg border bg-muted object-cover w-full" data-ai-hint="game controls"/>
+                                        <div>
+                                            <h3 className="font-semibold text-lg flex items-center gap-2 mb-2"><Brain className="h-5 w-5 text-accent"/> Acciones Clave</h3>
+                                            <div className="text-sm text-muted-foreground space-y-2 p-4 bg-muted/50 rounded-lg">
+                                                <p><strong>Movimiento:</strong> {controls.keyActions.movement}</p>
+                                                <p><strong>Apuntar:</strong> {controls.keyActions.aim}</p>
+                                                <p><strong>Disparar:</strong> {controls.keyActions.shoot}</p>
+                                                <p><strong>Acciones Principales:</strong> {controls.keyActions.mainActions}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-6">
+                                        <div>
+                                            <h3 className="font-semibold text-lg flex items-center gap-2 mb-2"><ThumbsUp className="h-5 w-5 text-green-500"/> Ventajas</h3>
+                                            <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                                                {controls.advantages.map((adv, i) => <li key={i}>{adv}</li>)}
+                                            </ul>
+                                        </div>
+                                        <div>
+                                            <h3 className="font-semibold text-lg flex items-center gap-2 mb-2"><ThumbsDown className="h-5 w-5 text-red-500"/> Desventajas</h3>
+                                            <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                                                {controls.disadvantages.map((dis, i) => <li key={i}>{dis}</li>)}
+                                            </ul>
+                                        </div>
+                                        <div>
+                                            <h3 className="font-semibold text-lg flex items-center gap-2 mb-2"><CheckCircle className="h-5 w-5 text-primary"/> Consejos para Dominarlo</h3>
+                                            <div className="space-y-3">
+                                            {controls.tips.map((tip, i) => (
+                                                <div key={i} className="p-3 bg-muted/50 rounded-lg">
+                                                    <p className="font-semibold text-card-foreground">{tip.title}</p>
+                                                    <p className="text-sm text-muted-foreground">{tip.description}</p>
+                                                </div>
+                                            ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        )}
+                    </div>
+                </TabsContent>
+                
                 {/* Loadouts Tab */}
                 <TabsContent value="loadouts" className="mt-6">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
@@ -310,193 +493,7 @@ export default function EquipmentPage() {
                     </div>
                 </TabsContent>
 
-                {/* Sensitivity Tab */}
-                <TabsContent value="sensitivity" className="mt-6">
-                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-                        <div className="lg:col-span-1">
-                            <Card className="sticky top-20">
-                                <CardHeader>
-                                    <CardTitle>Perfil de Sensibilidad</CardTitle>
-                                    <CardDescription>Proporciona los detalles para una recomendación a medida.</CardDescription>
-                                </CardHeader>
-                                <CardContent className="space-y-6">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="device-type-sens">Tipo de Dispositivo</Label>
-                                        <Select onValueChange={(value) => setSensitivityInput(prev => ({ ...prev, deviceType: value }))} value={sensitivityInput.deviceType}>
-                                            <SelectTrigger id="device-type-sens"><SelectValue placeholder="Selecciona tu dispositivo" /></SelectTrigger>
-                                            <SelectContent><SelectItem value="Telefono">Teléfono</SelectItem><SelectItem value="Tablet">Tablet</SelectItem></SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="device-brand">Marca del Dispositivo (Opcional)</Label>
-                                        <Input id="device-brand" placeholder="Ej: Samsung, Apple" value={sensitivityInput.deviceBrand || ''} onChange={(e) => setSensitivityInput(prev => ({ ...prev, deviceBrand: e.target.value }))} />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="device-model">Modelo del Dispositivo (Opcional)</Label>
-                                        <Input id="device-model" placeholder="Ej: Galaxy S23, iPhone 14 Pro" value={sensitivityInput.deviceModel || ''} onChange={(e) => setSensitivityInput(prev => ({ ...prev, deviceModel: e.target.value }))} />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="screen-size">Tamaño de Pantalla (Pulgadas)</Label>
-                                        <Input id="screen-size" type="number" placeholder="Ej: 6.7" value={sensitivityInput.screenSize || ''} onChange={(e) => setSensitivityInput(prev => ({ ...prev, screenSize: parseFloat(e.target.value) || undefined }))} />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="playstyle">Estilo de Juego Preferido</Label>
-                                        <Select onValueChange={(value) => setSensitivityInput(prev => ({ ...prev, playStyle: value }))} value={sensitivityInput.playStyle}>
-                                            <SelectTrigger id="playstyle"><SelectValue placeholder="Selecciona tu estilo" /></SelectTrigger>
-                                            <SelectContent><SelectItem value="cercano">Combate Cercano</SelectItem><SelectItem value="media">Media Distancia</SelectItem><SelectItem value="larga">Larga Distancia (Francotirador)</SelectItem><SelectItem value="versatil">Versátil (Mixto)</SelectItem></SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="gyroscope">¿Usas Giroscopio?</Label>
-                                        <Select onValueChange={(value) => setSensitivityInput(prev => ({ ...prev, gyroscope: value }))} value={sensitivityInput.gyroscope}>
-                                            <SelectTrigger id="gyroscope"><SelectValue placeholder="Selecciona una opción" /></SelectTrigger>
-                                            <SelectContent><SelectItem value="si">Sí</SelectItem><SelectItem value="no">No</SelectItem></SelectContent>
-                                        </Select>
-                                    </div>
-                                    <Button onClick={handleGenerateSensitivity} disabled={isSensitivityLoading} className="w-full">
-                                        {isSensitivityLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
-                                        {isSensitivityLoading ? "Generando..." : "Generar Sensibilidad"}
-                                    </Button>
-                                </CardContent>
-                            </Card>
-                        </div>
-                        <div className="lg:col-span-2">
-                            {isSensitivityLoading && <SensitivityPageSkeleton />}
-                            {sensitivityError && !isSensitivityLoading && (
-                                <Alert variant="destructive"><Terminal className="h-4 w-4" /><AlertTitle>Error de Generación</AlertTitle><AlertDescription>{sensitivityError}</AlertDescription></Alert>
-                            )}
-                            {!isSensitivityLoading && !sensitivity && !sensitivityError && (
-                                <Card className="h-full flex flex-col items-center justify-center text-center p-8 border-dashed min-h-[400px]">
-                                    <div className="p-4 bg-primary/10 rounded-full mb-4"><Smartphone className="h-12 w-12 text-primary" /></div>
-                                    <h2 className="text-2xl font-bold">Tu Configuración Perfecta te Espera</h2>
-                                    <p className="text-muted-foreground max-w-md">Usa el panel para configurar tu perfil y la IA creará una configuración de sensibilidad optimizada.</p>
-                                </Card>
-                            )}
-                            {sensitivity && !isSensitivityLoading && lastUsedSensitivityInput &&(
-                                <Card className="animate-in fade-in-50">
-                                    <CardHeader>
-                                        <CardTitle>Tu Configuración de Sensibilidad Personalizada</CardTitle>
-                                        <CardDescription className="capitalize pt-1">Valores optimizados para un {lastUsedSensitivityInput.deviceType} {lastUsedSensitivityInput.deviceBrand && ` ${lastUsedSensitivityInput.deviceBrand}`} {lastUsedSensitivityInput.deviceModel && ` ${lastUsedSensitivityInput.deviceModel}`} {` de ${lastUsedSensitivityInput.screenSize}", un estilo de juego ${lastUsedSensitivityInput.playStyle},`} {lastUsedSensitivityInput.gyroscope === 'si' ? ' con' : ' sin'} giroscopio.</CardDescription>
-                                    </CardHeader>
-                                    <CardContent className="space-y-8">
-                                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                            <SensitivityTable title="Sensibilidad de Cámara" data={sensitivity.camera} />
-                                            <SensitivityTable title="Sensibilidad de ADS" data={sensitivity.ads} />
-                                            {sensitivity.gyroscope && <SensitivityTable title="Sensibilidad de Giroscopio" data={sensitivity.gyroscope} />}
-                                        </div>
-                                        <div>
-                                            <h3 className="text-lg font-semibold text-primary mb-2">Código de Sensibilidad</h3>
-                                            <div className="flex items-center gap-2"><Input value={sensitivity.code} readOnly className="bg-muted"/><Button variant="outline" size="icon" onClick={handleCopyCode}><ClipboardCopy className="h-4 w-4"/></Button></div>
-                                            <p className="text-xs text-muted-foreground mt-2">Puedes usar este código para importar la configuración directamente en el juego.</p>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            )}
-                        </div>
-                    </div>
-                </TabsContent>
-
-                {/* Controls Tab */}
-                <TabsContent value="controls" className="mt-6">
-                    <div className="space-y-8">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Define tu Estilo de Controles</CardTitle>
-                                <CardDescription>Dinos cómo juegas y la IA creará una recomendación de layout (HUD) para ti.</CardDescription>
-                            </CardHeader>
-                            <CardContent className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 items-start">
-                                <div className="space-y-2">
-                                    <Label htmlFor="device-type-controls">Tipo de Dispositivo</Label>
-                                    <Select onValueChange={(value) => setControlsInput(prev => ({...prev, deviceType: value}))} value={controlsInput.deviceType}>
-                                        <SelectTrigger id="device-type-controls"><SelectValue placeholder="Selecciona un dispositivo" /></SelectTrigger>
-                                        <SelectContent><SelectItem value="Telefono">Teléfono</SelectItem><SelectItem value="Tablet">Tablet</SelectItem></SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="finger-count">Número de Dedos</Label>
-                                    <Select onValueChange={(value) => setControlsInput(prev => ({...prev, fingerCount: parseInt(value)}))} value={controlsInput.fingerCount?.toString()}>
-                                        <SelectTrigger id="finger-count"><SelectValue placeholder="Selecciona el número de dedos" /></SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="2">2 Dedos (Pulgares)</SelectItem>
-                                            <SelectItem value="3">3 Dedos (Garra)</SelectItem>
-                                            <SelectItem value="4">4 Dedos (Garra)</SelectItem>
-                                            <SelectItem value="5">5+ Dedos (Garra Avanzada)</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="space-y-2 pt-6">
-                                    <Button onClick={handleGenerateControls} disabled={isControlsLoading} className="w-full">
-                                        {isControlsLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
-                                        {isControlsLoading ? "Analizando..." : "Generar Controles"}
-                                    </Button>
-                                </div>
-                            </CardContent>
-                        </Card>
-                        {isControlsLoading && <ControlsResultSkeleton />}
-                        {controlsError && !isControlsLoading && (
-                            <Alert variant="destructive"><Terminal className="h-4 w-4" /><AlertTitle>Error de Generación</AlertTitle><AlertDescription>{controlsError}</AlertDescription></Alert>
-                        )}
-                        {!isControlsLoading && !controls && !controlsError && (
-                            <Card className="h-full flex flex-col items-center justify-center text-center p-8 border-dashed min-h-[400px]">
-                                <div className="p-4 bg-primary/10 rounded-full mb-4"><Gamepad2 className="h-12 w-12 text-primary" /></div>
-                                <h2 className="text-2xl font-bold">Tu Layout de Controles Ideal te Espera</h2>
-                                <p className="text-muted-foreground max-w-md">Selecciona tu tipo de dispositivo y con cuántos dedos juegas. La IA diseñará un esquema de botones optimizado.</p>
-                            </Card>
-                        )}
-                        {controls && !isControlsLoading && lastUsedControlsInput && (
-                            <Card className="animate-in fade-in-50">
-                                <CardHeader>
-                                    <CardTitle className="text-2xl text-primary">{controls.layoutName}</CardTitle>
-                                    <CardDescription>Una configuración para {lastUsedControlsInput.fingerCount} dedos en un {lastUsedControlsInput.deviceType}, optimizada para el máximo rendimiento.</CardDescription>
-                                </CardHeader>
-                                <CardContent className="grid lg:grid-cols-2 gap-8">
-                                    <div className="space-y-6">
-                                        <Image src={controls.imageUrl} alt={controls.layoutName} width={400} height={300} className="rounded-lg border bg-muted object-cover w-full" data-ai-hint="game controls"/>
-                                        <div>
-                                            <h3 className="font-semibold text-lg flex items-center gap-2 mb-2"><Brain className="h-5 w-5 text-accent"/> Acciones Clave</h3>
-                                            <div className="text-sm text-muted-foreground space-y-2 p-4 bg-muted/50 rounded-lg">
-                                                <p><strong>Movimiento:</strong> {controls.keyActions.movement}</p>
-                                                <p><strong>Apuntar:</strong> {controls.keyActions.aim}</p>
-                                                <p><strong>Disparar:</strong> {controls.keyActions.shoot}</p>
-                                                <p><strong>Acciones Principales:</strong> {controls.keyActions.mainActions}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="space-y-6">
-                                        <div>
-                                            <h3 className="font-semibold text-lg flex items-center gap-2 mb-2"><ThumbsUp className="h-5 w-5 text-green-500"/> Ventajas</h3>
-                                            <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                                                {controls.advantages.map((adv, i) => <li key={i}>{adv}</li>)}
-                                            </ul>
-                                        </div>
-                                        <div>
-                                            <h3 className="font-semibold text-lg flex items-center gap-2 mb-2"><ThumbsDown className="h-5 w-5 text-red-500"/> Desventajas</h3>
-                                            <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                                                {controls.disadvantages.map((dis, i) => <li key={i}>{dis}</li>)}
-                                            </ul>
-                                        </div>
-                                        <div>
-                                            <h3 className="font-semibold text-lg flex items-center gap-2 mb-2"><CheckCircle className="h-5 w-5 text-primary"/> Consejos para Dominarlo</h3>
-                                            <div className="space-y-3">
-                                            {controls.tips.map((tip, i) => (
-                                                <div key={i} className="p-3 bg-muted/50 rounded-lg">
-                                                    <p className="font-semibold text-card-foreground">{tip.title}</p>
-                                                    <p className="text-sm text-muted-foreground">{tip.description}</p>
-                                                </div>
-                                            ))}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        )}
-                    </div>
-                </TabsContent>
             </Tabs>
         </div>
     );
 }
-
-    
-
-    
