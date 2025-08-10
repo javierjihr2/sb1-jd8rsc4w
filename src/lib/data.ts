@@ -483,3 +483,5 @@ export const initialTransactions: Transaction[] = [
     { id: 'txn2', date: '2024-07-27', description: 'Suscripción Creador Pro - ShadowStriker', amount: 4.99, type: 'Ingreso' },
     { id: 'txn3', date: '2024-07-25', description: 'Suscripción Creador Básico - Phoenix_Queen', amount: 2.99, type: 'Ingreso' },
 ];
+
+    

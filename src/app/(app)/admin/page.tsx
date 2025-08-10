@@ -537,9 +537,9 @@ export default function AdminPage() {
                 )}
             </div>
             <Collapsible>
-              <CollapsibleTrigger className="flex items-center gap-2 text-sm font-semibold text-primary">
-                <ChevronDown className="h-4 w-4"/>
-                Personalizar Plantilla de Mensaje (Opcional)
+              <CollapsibleTrigger className="flex w-full items-center justify-between rounded-lg border p-3 text-sm font-semibold text-primary data-[state=open]:bg-muted/50">
+                <span>Personalizar Plantilla de Mensaje (Opcional)</span>
+                <ChevronDown className="h-4 w-4 transition-transform data-[state=open]:rotate-180"/>
               </CollapsibleTrigger>
               <CollapsibleContent className="pt-4 animate-in fade-in-50">
                   <div className="space-y-2 p-4 border rounded-lg">
@@ -1336,3 +1336,5 @@ export default function AdminPage() {
     </div>
   )
 }
+
+    

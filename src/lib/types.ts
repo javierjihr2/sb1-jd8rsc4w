@@ -167,3 +167,5 @@ export type Transaction = {
     amount: number;
     type: 'Ingreso' | 'Retiro';
 }
+
+    
