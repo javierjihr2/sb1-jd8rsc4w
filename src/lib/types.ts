@@ -48,6 +48,8 @@ export type Tournament = {
   maxTeams?: number;
   maps?: string[];
   streamLink?: string;
+  maxWithdrawalTime?: string;
+  maxReserves?: number;
 };
 
 export type Message = {
@@ -95,7 +97,7 @@ export type RegistrationRequest = {
     tournamentId: string;
     tournamentName: string;
     players: Player[];
-    status: 'Pendiente' | 'Aprobado' | 'Rechazado';
+    status: 'Pendiente' | 'Aprobado' | 'Rechazado' | 'Reserva';
 };
 
 export type ApprovedRegistration = {

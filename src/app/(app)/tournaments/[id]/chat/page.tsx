@@ -4,7 +4,7 @@
 import * as React from "react"
 import { useState, useEffect, useRef } from "react"
 import { useParams } from "next/navigation"
-import { tournaments, playerProfile, registeredTeams, getRegistrationStatus, updateRegistrationStatus, countryFlags } from "@/lib/data"
+import { tournaments, playerProfile, registeredTeams, getRegistrationStatus, updateRegistrationStatus, countryFlags, reserveTeams } from "@/lib/data"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -77,10 +77,15 @@ export default function TournamentChatPage() {
     
     const timeZoneFlag = tournament.timeZone ? countryFlags[tournament.timeZone] || '' : '';
     const infoSendText = tournament.infoSendTime ? `⏰ ID: ${tournament.infoSendTime} minutos antes` : '';
+    const maxWithdrawalText = tournament.maxWithdrawalTime ? `🚫 Bajas hasta: ${tournament.maxWithdrawalTime} hrs ${timeZoneFlag}` : '';
 
     const messageHeader = isUpdate 
         ? `════ **LISTA DE EQUIPOS ACTUALIZADA** ════`
         : `══════════════════\n**${tournament.name.toUpperCase()}**\n══════════════════`;
+        
+    const reserveText = tournament.maxReserves && tournament.maxReserves > 0 
+        ? `\n📋 **Reservas Disponibles:** ${tournament.maxReserves - reserveTeams.length}/${tournament.maxReserves}`
+        : '';
         
     return `
 ${messageHeader}
@@ -89,12 +94,14 @@ _Organizado por: ${playerProfile.name} 🥷_
 🗓️ **Fecha:** ${tournament.date}
 ⏰ **Comienza:** ${tournament.startTime || 'Hora no definida'} hrs ${timeZoneFlag}
 ${infoSendText}
+${maxWithdrawalText}
 
 🗺️ **Mapas:**
 ${mapsList}
 
 👥 **Equipos Inscritos (${registeredCount}/${maxSlots - 2}):**
 ${slotsList.trim()}
+${reserveText}
 
 ${tournament.streamLink ? `\n📺 **Transmisión:**\n${tournament.streamLink}` : ''}
 

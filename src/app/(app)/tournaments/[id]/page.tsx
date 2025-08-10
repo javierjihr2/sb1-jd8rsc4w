@@ -3,17 +3,17 @@
 
 import { useState, useEffect, useRef } from "react"
 import { notFound, useRouter, useParams } from "next/navigation"
-import { tournaments, playerProfile, teamMates, registeredTeams, getRegistrationStatus, updateRegistrationStatus } from "@/lib/data"
+import { tournaments, playerProfile, teamMates, registeredTeams, getRegistrationStatus, updateRegistrationStatus, reserveTeams } from "@/lib/data"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
-import { Calendar, Users, Trophy, MessageSquare, PlusCircle, AlertCircle, Send, Flag, UserPlus, FileText, Info, ArrowRight } from "lucide-react"
+import { Calendar, Users, Trophy, MessageSquare, PlusCircle, AlertCircle, Send, Flag, UserPlus, FileText, Info, ArrowRight, LogOut, Loader } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import type { Message, RegistrationRequest } from "@/lib/types"
+import type { Message, RegistrationRequest, Team } from "@/lib/types"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import Link from "next/link"
 
@@ -26,8 +26,12 @@ export default function TournamentDetailPage() {
   const [teamName, setTeamName] = useState("");
   const [teamTag, setTeamTag] = useState("");
   const [countryCode, setCountryCode] = useState(playerProfile.countryCode || "");
-  const [registrationStatus, setRegistrationStatus] = useState<'not_registered' | 'pending' | 'approved' | 'rejected'>('not_registered');
+  const [registrationStatus, setRegistrationStatus] = useState<'not_registered' | 'pending' | 'approved' | 'rejected' | 'reserve'>('not_registered');
   const [isMounted, setIsMounted] = useState(false);
+  
+  const [_registeredTeams, setRegisteredTeams] = useState(registeredTeams);
+  const [_reserveTeams, setReserveTeams] = useState(reserveTeams);
+
 
   useEffect(() => {
     const currentStatus = getRegistrationStatus(params.id);
@@ -48,7 +52,7 @@ export default function TournamentDetailPage() {
     notFound()
   }
   
-  const handleRegisterTeam = () => {
+  const handleRegisterTeam = (isReserve = false) => {
     if (!teamName || !teamTag) {
         toast({ variant: "destructive", title: "Campos Incompletos", description: "Por favor, completa el nombre y el tag del equipo." });
         return;
@@ -61,7 +65,7 @@ export default function TournamentDetailPage() {
         countryCode,
         tournamentId: tournament.id,
         tournamentName: tournament.name,
-        status: 'Pendiente',
+        status: isReserve ? 'Reserva' : 'Pendiente',
         players: [
             { id: playerProfile.id, name: playerProfile.name, avatarUrl: playerProfile.avatarUrl }
         ]
@@ -70,33 +74,72 @@ export default function TournamentDetailPage() {
     const existingRequests = JSON.parse(localStorage.getItem('tournament_requests') || '[]');
     localStorage.setItem('tournament_requests', JSON.stringify([...existingRequests, newRequest]));
 
-    updateRegistrationStatus(tournament.id, 'pending');
-    setRegistrationStatus('pending');
+    updateRegistrationStatus(tournament.id, isReserve ? 'reserve' : 'pending');
+    setRegistrationStatus(isReserve ? 'reserve' : 'pending');
 
     toast({
-      title: "Solicitud Enviada",
-      description: `La solicitud del equipo "${teamName}" está pendiente de aprobación.`,
+      title: isReserve ? "Inscrito en Reserva" : "Solicitud Enviada",
+      description: `El equipo "${teamName}" está en la lista de ${isReserve ? 'reserva' : 'espera'}.`,
     })
   }
-  
-  const getButtonState = () => {
-    switch (registrationStatus) {
-      case 'pending':
-        return { text: 'Solicitud Pendiente', disabled: true };
-      case 'approved':
-        return { text: 'Inscripción Aprobada', disabled: true };
-      case 'rejected':
-        return { text: 'Solicitud Rechazada', disabled: true };
-      case 'not_registered':
-      default:
-        return { text: `Inscribir Equipo`, disabled: tournament.status !== 'Abierto' };
+
+  const handleWithdraw = () => {
+    // Simular la baja del equipo
+    const myTeam = _registeredTeams.find(t => t.players.some(p => p.id === playerProfile.id));
+    if (myTeam) {
+        // Eliminar al equipo de la lista de registrados
+        const updatedRegisteredTeams = _registeredTeams.filter(t => t.id !== myTeam.id);
+        
+        // Promover a un equipo de reserva si hay
+        let promotedTeam: Team | undefined;
+        const updatedReserveTeams = [..._reserveTeams];
+        if (updatedReserveTeams.length > 0) {
+            promotedTeam = updatedReserveTeams.shift();
+            if (promotedTeam) {
+                updatedRegisteredTeams.push(promotedTeam);
+            }
+        }
+        
+        setRegisteredTeams(updatedRegisteredTeams);
+        setReserveTeams(updatedReserveTeams);
+        
+        updateRegistrationStatus(tournament.id, 'not_registered');
+        setRegistrationStatus('not_registered');
+
+        // Notificar al chat
+        window.dispatchEvent(new Event('tournamentUpdated'));
+
+        toast({
+            title: "Te has dado de baja",
+            description: `${myTeam.name} ha sido retirado del torneo.` + (promotedTeam ? ` El equipo ${promotedTeam.name} ha sido promovido de la reserva.` : '')
+        });
     }
+  }
+  
+  const mainSlotsFull = _registeredTeams.length >= (tournament.maxTeams || 25);
+  const reserveSlotsAvailable = _reserveTeams.length < (tournament.maxReserves || 0);
+
+  const getButtonState = () => {
+    if (registrationStatus === 'pending') return { text: 'Solicitud Pendiente', disabled: true };
+    if (registrationStatus === 'approved') return { text: 'Inscripción Aprobada', disabled: false, isWithdraw: true };
+    if (registrationStatus === 'rejected') return { text: 'Solicitud Rechazada', disabled: true };
+    if (registrationStatus === 'reserve') return { text: 'Inscrito en Reserva', disabled: true };
+    
+    if (mainSlotsFull) {
+        if (reserveSlotsAvailable) {
+            return { text: `Inscribirse como Reserva`, disabled: tournament.status !== 'Abierto', isReserve: true };
+        } else {
+            return { text: 'Inscripciones Llenas', disabled: true };
+        }
+    }
+    
+    return { text: `Inscribir Equipo`, disabled: tournament.status !== 'Abierto' };
   }
 
   const buttonState = getButtonState();
 
   if (!isMounted) {
-    return null; 
+    return <div className="flex h-screen w-full items-center justify-center"><Loader className="h-12 w-12 animate-spin text-primary" /></div>; 
   }
 
   return (
@@ -133,7 +176,7 @@ export default function TournamentDetailPage() {
               <CardDescription>Los equipos que ya están listos para competir.</CardDescription>
             </CardHeader>
             <CardContent className="grid gap-4 md:grid-cols-2">
-              {registeredTeams.map(team => (
+              {_registeredTeams.map(team => (
                 <div key={team.id} className="p-4 bg-muted/50 rounded-lg">
                   <h3 className="font-bold">{team.name}</h3>
                   <div className="flex -space-x-2 overflow-hidden mt-2">
@@ -161,15 +204,15 @@ export default function TournamentDetailPage() {
             <CardContent className="space-y-6">
                 <div className="space-y-2">
                     <Label htmlFor="team-name">Nombre del Equipo</Label>
-                    <Input id="team-name" placeholder="Ej: Furia Nocturna" value={teamName} onChange={e => setTeamName(e.target.value)} disabled={registrationStatus !== 'not_registered'}/>
+                    <Input id="team-name" placeholder="Ej: Furia Nocturna" value={teamName} onChange={e => setTeamName(e.target.value)} disabled={registrationStatus === 'approved'}/>
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="team-tag">Tag del Equipo</Label>
-                    <Input id="team-tag" placeholder="Ej: FN" value={teamTag} onChange={e => setTeamTag(e.target.value)} disabled={registrationStatus !== 'not_registered'}/>
+                    <Input id="team-tag" placeholder="Ej: FN" value={teamTag} onChange={e => setTeamTag(e.target.value)} disabled={registrationStatus === 'approved'}/>
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="team-country">País del Equipo</Label>
-                    <Select onValueChange={setCountryCode} value={countryCode} disabled={registrationStatus !== 'not_registered'}>
+                    <Select onValueChange={setCountryCode} value={countryCode} disabled={registrationStatus === 'approved'}>
                         <SelectTrigger id="team-country">
                             <SelectValue placeholder="Selecciona el país de tu equipo" />
                         </SelectTrigger>
@@ -205,11 +248,18 @@ export default function TournamentDetailPage() {
                   </div>
                 )}
               
-                <Button onClick={handleRegisterTeam} className="w-full" disabled={buttonState.disabled}>
-                    {buttonState.text}
-                </Button>
+                {buttonState.isWithdraw ? (
+                     <Button onClick={handleWithdraw} className="w-full" variant="destructive">
+                        <LogOut className="mr-2 h-4 w-4"/>
+                        Darse de Baja
+                    </Button>
+                ) : (
+                    <Button onClick={() => handleRegisterTeam(buttonState.isReserve)} className="w-full" disabled={buttonState.disabled}>
+                        {buttonState.text}
+                    </Button>
+                )}
 
-                 {registrationStatus === 'approved' && <p className="text-sm text-center text-green-600">¡Inscripción aprobada! Ya puedes acceder al chat del torneo.</p>}
+
                  {registrationStatus === 'rejected' && <p className="text-sm text-center text-red-600 flex items-center justify-center gap-1"><AlertCircle className="h-4 w-4"/> Tu solicitud ha sido rechazada.</p>}
                  {registrationStatus === 'pending' && <p className="text-sm text-center text-amber-600">Tu solicitud está pendiente de aprobación por un administrador.</p>}
 

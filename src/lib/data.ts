@@ -50,9 +50,11 @@ export let tournaments: Tournament[] = [
     timeZone: 'MX',
     infoSendTime: '10',
     description: 'El torneo más grande del verano en Norteamérica. Formato de puntos estándar. Solo los mejores sobrevivirán.',
-    maxTeams: 64,
+    maxTeams: 23,
     maps: ['Erangel', 'Miramar', 'Sanhok'],
     streamLink: 'https://twitch.tv/squadup_esports',
+    maxWithdrawalTime: '17:00',
+    maxReserves: 5,
   },
   {
     id: 't2',
@@ -67,8 +69,10 @@ export let tournaments: Tournament[] = [
     timeZone: 'AR',
     infoSendTime: '7',
     description: 'Enfréntate en dúo contra los mejores de Sudamérica. Batalla campal hasta el final.',
-    maxTeams: 100,
+    maxTeams: 23,
     maps: ['Erangel', 'Livik'],
+    maxWithdrawalTime: '19:00',
+    maxReserves: 10,
   },
   {
     id: 't3',
@@ -255,7 +259,7 @@ export const friendsForComparison: (PlayerProfileInput & { favoriteMap: string, 
 export const initialUsers: UserWithRole[] = friendsForComparison;
 
 
-export const registeredTeams: Team[] = [
+export let registeredTeams: Team[] = [
   {
     id: 'team1',
     name: 'Los Invencibles',
@@ -272,6 +276,14 @@ export const registeredTeams: Team[] = [
       { id: 'c3', name: 'ShadowStriker', avatarUrl: 'https://placehold.co/40x40/8A2BE2/FFFFFF.png' },
     ]
   }
+];
+
+export let reserveTeams: Team[] = [
+    {
+        id: 'team3',
+        name: 'Los Reservistas',
+        players: [{id: 'p-res-1', name: 'Reserva1', avatarUrl: 'https://placehold.co/40x40.png'}]
+    }
 ];
 
 // Datos de ejemplo para simular qué inscripciones están aprobadas para el usuario actual.
@@ -332,10 +344,10 @@ export const feedPosts: FeedPost[] = [
 export const getRegistrationStatus = (tournamentId: string) => {
   if (typeof window === 'undefined') return 'not_registered';
   const status = window.localStorage.getItem(`tourney_reg_${tournamentId}`);
-  return (status || 'not_registered') as 'not_registered' | 'pending' | 'approved' | 'rejected';
+  return (status || 'not_registered') as 'not_registered' | 'pending' | 'approved' | 'rejected' | 'reserve';
 }
 
-export const updateRegistrationStatus = (tournamentId: string, status: 'not_registered' | 'pending' | 'approved' | 'rejected') => {
+export const updateRegistrationStatus = (tournamentId: string, status: 'not_registered' | 'pending' | 'approved' | 'rejected' | 'reserve') => {
   if (typeof window === 'undefined') return;
   window.localStorage.setItem(`tourney_reg_${tournamentId}`, status);
   // Dispatch a storage event to notify other tabs (like the admin tab)

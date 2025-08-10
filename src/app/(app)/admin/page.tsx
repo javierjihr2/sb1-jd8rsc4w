@@ -107,6 +107,8 @@ export default function AdminPage() {
         infoSendTime: formData.get('t-info-send-time') as string,
         maps: maps,
         streamLink: hasStream ? (formData.get('t-stream-link') as string) : undefined,
+        maxWithdrawalTime: formData.get('t-max-withdrawal-time') as string,
+        maxReserves: parseInt(formData.get('t-max-reserves') as string) || 0,
     };
     
     if (editingTournament) {
@@ -375,18 +377,23 @@ export default function AdminPage() {
                             </Select>
                         </div>
                     </div>
-                    <div className="space-y-2 animate-in fade-in-50">
-                        <Label>Horario de envío de información</Label>
-                        <Select name="t-info-send-time" defaultValue={defaultValues?.infoSendTime}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Seleccionar cuándo se envían los códigos"/>
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="7">7 minutos antes del inicio</SelectItem>
-                                <SelectItem value="10">10 minutos antes del inicio</SelectItem>
-                            </SelectContent>
-                        </Select>
-                        <p className="text-xs text-muted-foreground flex items-center gap-1"><Info className="h-3 w-3"/>El sistema notificará a los participantes con los datos de la sala en el momento elegido.</p>
+                     <div className="grid grid-cols-2 gap-4 animate-in fade-in-50">
+                        <div className="space-y-2">
+                            <Label>Horario de envío de información</Label>
+                            <Select name="t-info-send-time" defaultValue={defaultValues?.infoSendTime}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Seleccionar cuándo se envían los códigos"/>
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="7">7 minutos antes del inicio</SelectItem>
+                                    <SelectItem value="10">10 minutos antes del inicio</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                         <div className="space-y-2">
+                            <Label htmlFor="t-max-withdrawal-time">Horario Máx. para Bajas</Label>
+                            <Input id="t-max-withdrawal-time" name="t-max-withdrawal-time" type="time" defaultValue={defaultValues?.maxWithdrawalTime} />
+                        </div>
                     </div>
                 </>
             )}
@@ -439,9 +446,15 @@ export default function AdminPage() {
                 </div>
             )}
             
-            <div className="space-y-2">
-                <Label htmlFor="t-max-teams">Máximo de Equipos</Label>
-                <Input id="t-max-teams" name="t-max-teams" type="number" placeholder="Ej: 64" defaultValue={defaultValues?.maxTeams} required />
+            <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                    <Label htmlFor="t-max-teams">Máximo de Equipos</Label>
+                    <Input id="t-max-teams" name="t-max-teams" type="number" placeholder="Ej: 23" defaultValue={defaultValues?.maxTeams} required />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="t-max-reserves">Cantidad de Reservas</Label>
+                    <Input id="t-max-reserves" name="t-max-reserves" type="number" placeholder="Ej: 5" defaultValue={defaultValues?.maxReserves} />
+                </div>
             </div>
             <div className="space-y-2">
                 <Label htmlFor="t-mode">Modo</Label>
