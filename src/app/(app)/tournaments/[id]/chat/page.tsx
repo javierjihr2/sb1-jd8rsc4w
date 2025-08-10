@@ -63,7 +63,7 @@ export default function TournamentChatPage() {
     const maxSlots = tournament.maxTeams || 23;
     let registeredCount = registeredTeams.length;
     
-    let slotsList = `01.- ENTRADA\n02.- ENTRADA\n`;
+    let slotsList = `01.- _ENTRADA_\n02.- _ENTRADA_\n`;
     
     for (let i = 3; i <= maxSlots; i++) {
         const teamIndex = i - 3;
@@ -76,7 +76,7 @@ export default function TournamentChatPage() {
         ? tournament.maps.map((map) => `📍 ${map}`).join('\n')
         : 'Mapas no definidos.';
     
-    const timeZoneFlag = tournament.timeZone ? countryFlags[tournament.timeZone] || '' : '🇨🇱';
+    const timeZoneFlag = tournament.timeZone ? countryFlags[tournament.timeZone] || '' : '';
     const infoSendText = tournament.infoSendTime ? `⏰ **ID:** Se envía ${tournament.infoSendTime} minutos antes` : '';
 
     const messageHeader = isUpdate 
