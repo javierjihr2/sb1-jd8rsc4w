@@ -22,7 +22,7 @@ import {
   Loader2,
   Rss,
   ImageIcon,
-  FlaskConical,
+  Target,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -68,7 +68,7 @@ export default function DashboardLayout({
     { href: "/tournaments", label: "Torneos", icon: Swords, badge: 0 },
     { href: "/chats", label: "Chats", icon: MessageSquare, badge: recentChats.filter(c => c.unread).length },
     { href: "/matchmaking", label: "MATCH PUBGM", icon: Search, badge: 0 },
-    { href: "/equipment", label: "Lab. de Rendimiento", icon: FlaskConical, badge: 0 },
+    { href: "/equipment", label: "Taller de Precisión", icon: Target, badge: 0 },
     { href: "/recharge", label: "Recargar UC", icon: DollarSign, badge: 0 },
     { href: "/player-analysis", label: "Análisis de Jugador", icon: BrainCircuit },
     { href: "/play-map", label: "Estrategias de Mapas", icon: Map },

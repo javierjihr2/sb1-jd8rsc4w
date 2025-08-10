@@ -5,7 +5,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Wrench, PlusCircle, Trash2, Smartphone, Gamepad2, Loader2, Sparkles, ThumbsUp, ThumbsDown, CheckCircle, Brain, Terminal, ClipboardCopy, FlaskConical } from "lucide-react";
+import { Wrench, PlusCircle, Trash2, Smartphone, Gamepad2, Loader2, Sparkles, ThumbsUp, ThumbsDown, CheckCircle, Brain, Terminal, ClipboardCopy, Target } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
@@ -198,7 +198,7 @@ export default function EquipmentPage() {
     return (
         <div className="space-y-8">
             <div>
-                <h1 className="text-3xl font-bold flex items-center gap-2"><FlaskConical className="w-8 h-8 text-primary"/> Laboratorio de Rendimiento</h1>
+                <h1 className="text-3xl font-bold flex items-center gap-2"><Target className="w-8 h-8 text-primary"/> Taller de Precisión</h1>
                 <p className="text-muted-foreground">Prepara tus armas, sensibilidad y controles para la batalla.</p>
             </div>
 
