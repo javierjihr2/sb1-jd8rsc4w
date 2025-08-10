@@ -4,7 +4,7 @@
 import * as React from "react"
 import { useState, useEffect, useRef } from "react"
 import { useParams } from "next/navigation"
-import { tournaments, playerProfile, registeredTeams, getRegistrationStatus, updateRegistrationStatus } from "@/lib/data"
+import { tournaments, playerProfile, registeredTeams, getRegistrationStatus, updateRegistrationStatus, countryFlags } from "@/lib/data"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -76,8 +76,8 @@ export default function TournamentChatPage() {
         ? tournament.maps.map((map) => `📍 ${map}`).join('\n')
         : 'Mapas no definidos.';
     
-    const timeZone = tournament.timeZone || '🇨🇱';
-    const infoSendText = tournament.infoSendTime ? `⏰ **ID:** ${tournament.infoSendTime} minutos antes` : '';
+    const timeZoneFlag = tournament.timeZone ? countryFlags[tournament.timeZone] || '' : '🇨🇱';
+    const infoSendText = tournament.infoSendTime ? `⏰ **ID:** Se envía ${tournament.infoSendTime} minutos antes` : '';
 
     const messageHeader = isUpdate 
         ? `════ **LISTA DE EQUIPOS ACTUALIZADA** ════`
@@ -88,7 +88,7 @@ ${messageHeader}
 _Organizado por: ${playerProfile.name} 🥷_
 
 🗓️ **Fecha:** ${tournament.date}
-⏰ **Comienza:** ${tournament.startTime || 'Hora no definida'} hrs ${timeZone}
+⏰ **Comienza:** ${tournament.startTime || 'Hora no definida'} hrs ${timeZoneFlag}
 ${infoSendText}
 
 🗺️ **Mapas:**
@@ -113,18 +113,6 @@ _Por favor, mantengan una comunicación respetuosa. ¡Mucha suerte a todos!_
     }
   }, [tournament?.id]);
   
-  useEffect(() => {
-    if (!isMounted) return;
-    const teamCount = registeredTeams.length;
-    if (messages.length > 0 && teamCount > 0) {
-        const updateMessage = generateWelcomeMessage(true);
-         setMessages(prev => [
-            ...prev,
-            { sender: 'other', text: updateMessage },
-        ]);
-    }
-  }, [registeredTeams.length]);
-
   useEffect(() => {
     const handleTournamentUpdate = () => {
        const updateMessage = generateWelcomeMessage(true);
@@ -179,7 +167,7 @@ _Por favor, mantengan una comunicación respetuosa. ¡Mucha suerte a todos!_
           return;
       }
       
-      const timeZone = tournament.timeZone || '🇨🇱';
+      const timeZoneFlag = tournament.timeZone ? countryFlags[tournament.timeZone] || '' : '';
 
       const formattedMessage = `
 ══════════════════
@@ -190,7 +178,7 @@ _Organizado por: ${playerProfile.name} 🥷_
 🔑 **Detalles de la Sala:**
 • **ID:** \`${roomId}\`
 • **CONTRASEÑA:** \`${roomPassword}\`
-• **COMIENZA:** ${startTime} hrs ${timeZone}
+• **COMIENZA:** ${startTime} hrs ${timeZoneFlag}
 
 ${streamLink ? `\n📺 **Transmisión:**\n${streamLink}` : ''}
 `;

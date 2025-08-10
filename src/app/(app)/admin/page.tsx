@@ -116,6 +116,8 @@ export default function AdminPage() {
             title: "Torneo Actualizado",
             description: `El torneo "${tournamentData.name}" ha sido actualizado.`,
         });
+        // Dispatch event to notify other components, like the chat
+        window.dispatchEvent(new Event('tournamentUpdated'));
         toast({
             title: "Notificación Enviada",
             description: `Se envió un mensaje de actualización al chat del torneo.`,
@@ -225,6 +227,7 @@ export default function AdminPage() {
     })
     
      if (status === 'Aprobado') {
+        window.dispatchEvent(new Event('tournamentUpdated'));
         toast({
             title: "Notificación Enviada",
             description: `Se envió un mensaje de actualización al chat del torneo con el nuevo equipo.`,

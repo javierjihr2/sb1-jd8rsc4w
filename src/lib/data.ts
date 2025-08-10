@@ -28,6 +28,14 @@ export const mapOptions = [
     { value: "rondo", label: "Rondo" },
 ];
 
+export const countryFlags: { [key: string]: string } = {
+  US: '🇺🇸', CA: '🇨🇦', MX: '🇲🇽',
+  GT: '🇬🇹', BZ: '🇧🇿', SV: '🇸🇻', HN: '🇭🇳', NI: '🇳🇮', CR: '🇨🇷', PA: '🇵🇦',
+  CU: '🇨🇺', DO: '🇩🇴', PR: '🇵🇷', JM: '🇯🇲', HT: '🇭🇹', BS: '🇧🇸',
+  CO: '🇨🇴', VE: '🇻🇪', GY: '🇬🇾', SR: '🇸🇷', EC: '🇪🇨', PE: '🇵🇪', BR: '🇧🇷',
+  BO: '🇧🇴', PY: '🇵🇾', CL: '🇨🇱', AR: '🇦🇷', UY: '🇺🇾'
+};
+
 export let tournaments: Tournament[] = [
   {
     id: 't1',
@@ -39,7 +47,7 @@ export let tournaments: Tournament[] = [
     region: 'N.A.',
     type: 'Competitivo',
     startTime: '18:00',
-    timeZone: 'CST',
+    timeZone: 'MX',
     infoSendTime: '10',
     description: 'El torneo más grande del verano en Norteamérica. Formato de puntos estándar. Solo los mejores sobrevivirán.',
     maxTeams: 64,
@@ -56,7 +64,7 @@ export let tournaments: Tournament[] = [
     region: 'S.A.',
     type: 'Competitivo',
     startTime: '20:00',
-    timeZone: 'ART',
+    timeZone: 'AR',
     infoSendTime: '7',
     description: 'Enfréntate en dúo contra los mejores de Sudamérica. Batalla campal hasta el final.',
     maxTeams: 100,
