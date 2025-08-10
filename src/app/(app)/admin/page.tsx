@@ -23,8 +23,8 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
-import { Code, UserPlus, Newspaper, Check, X, Users, Swords, PlusCircle, Pencil, Trash2, LayoutDashboard, Settings, DollarSign, BarChart, BellRing, Wrench, Link as LinkIcon, KeyRound, RefreshCw, Briefcase, Star, CheckCircle, Banknote, Flag, Calendar as CalendarIcon, Clock, Info, Map } from "lucide-react"
-import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles, friendsForComparison as initialUsers, rechargeProviders, developers, services as initialServices, creators, bankAccounts, initialTransactions, addTournament, tournaments } from "@/lib/data"
+import { Code, UserPlus, Newspaper, Check, X, Users, Swords, PlusCircle, Pencil, Trash2, LayoutDashboard, Settings, DollarSign, BarChart, BellRing, Wrench, Link as LinkIcon, KeyRound, RefreshCw, Briefcase, Star, CheckCircle, Banknote, Flag, Calendar as CalendarIcon, Clock, Info, Map, Video } from "lucide-react"
+import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles, friendsForComparison as initialUsers, rechargeProviders, developers, services as initialServices, creators, bankAccounts, initialTransactions, addTournament, tournaments, updateTournament } from "@/lib/data"
 import type { RegistrationRequest, Tournament, NewsArticle, Service, UserWithRole, BankAccount, Transaction } from "@/lib/types"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -34,9 +34,10 @@ import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import Image from "next/image"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { format } from "date-fns"
+import { format, parseISO } from "date-fns"
 import { Calendar } from "@/components/ui/calendar"
 import { cn } from "@/lib/utils"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 
 
 export default function AdminPage() {
@@ -58,9 +59,12 @@ export default function AdminPage() {
   const [selectedAccount, setSelectedAccount] = useState<string>('');
   const currentBalance = transactions.reduce((acc, t) => acc + t.amount, 0);
 
-  // State for tournament creation
+  // State for tournament creation/editing
   const [tournamentDate, setTournamentDate] = useState<Date>();
   const [tournamentType, setTournamentType] = useState<string>('');
+  const [hasStream, setHasStream] = useState(false);
+  const [editingTournament, setEditingTournament] = useState<Tournament | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
 
   const handleCreateProfile = (event: React.FormEvent<HTMLFormElement>) => {
@@ -79,12 +83,12 @@ export default function AdminPage() {
     })
   }
   
-  const handleCreateTournament = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleTournamentSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    const newTournamentData: Omit<Tournament, 'id' | 'status'> = {
+    const tournamentData: Partial<Tournament> = {
         name: formData.get('t-name') as string,
-        date: tournamentDate ? format(tournamentDate, 'yyyy-MM-dd') : 'Fecha no definida',
+        date: tournamentDate ? format(tournamentDate, 'yyyy-MM-dd') : undefined,
         prize: formData.get('t-prize') as string,
         mode: formData.get('t-mode') as 'Solo' | 'Dúo' | 'Escuadra',
         region: formData.get('t-region') as 'N.A.' | 'S.A.',
@@ -94,26 +98,48 @@ export default function AdminPage() {
         startTime: formData.get('t-time') as string,
         timeZone: formData.get('t-timezone') as string,
         maps: (formData.get('t-maps') as string).split(',').map(m => m.trim()).filter(m => m),
+        streamLink: hasStream ? (formData.get('t-stream-link') as string) : undefined,
     };
     
-    // Create the full tournament object, including a new ID and default status.
-    const newTournament: Tournament = {
-        id: `t${Date.now()}`,
-        ...newTournamentData,
-        status: 'Próximamente',
-    };
+    if (editingTournament) {
+        // Update existing tournament
+        updateTournament(editingTournament.id, tournamentData);
+        toast({
+            title: "Torneo Actualizado",
+            description: `El torneo "${tournamentData.name}" ha sido actualizado.`,
+        });
+    } else {
+        // Create new tournament
+        const newTournament: Tournament = {
+            id: `t${Date.now()}`,
+            ...tournamentData,
+            status: 'Próximamente',
+        } as Tournament;
+        
+        addTournament(newTournament);
+        toast({
+          title: "Torneo Creado",
+          description: `El torneo "${newTournament.name}" ha sido añadido a la lista.`,
+        });
+    }
     
-    addTournament(newTournament);
     setTournaments([...tournaments]); // Force re-render
 
-    toast({
-      title: "Torneo Creado",
-      description: `El torneo "${newTournament.name}" ha sido añadido a la lista.`,
-    });
-    // Reset form
+    // Reset form and modals
     (event.target as HTMLFormElement).reset();
     setTournamentDate(undefined);
     setTournamentType('');
+    setHasStream(false);
+    setEditingTournament(null);
+    setIsEditModalOpen(false);
+  }
+
+  const openEditModal = (tournament: Tournament) => {
+    setEditingTournament(tournament);
+    setTournamentDate(tournament.date ? parseISO(tournament.date) : undefined);
+    setTournamentType(tournament.type);
+    setHasStream(!!tournament.streamLink);
+    setIsEditModalOpen(true);
   }
 
   const handleCreateService = (event: React.FormEvent<HTMLFormElement>) => {
@@ -225,6 +251,178 @@ export default function AdminPage() {
     setSelectedAccount('');
   };
 
+  const TournamentForm = ({ onSubmit, defaultValues }: { onSubmit: (e: React.FormEvent<HTMLFormElement>) => void, defaultValues?: Tournament | null }) => (
+    <form onSubmit={onSubmit}>
+        <CardContent className="grid gap-4 max-h-[70vh] overflow-y-auto p-6">
+            <div className="space-y-2">
+                <Label htmlFor="t-name">Nombre del Torneo</Label>
+                <Input id="t-name" name="t-name" placeholder="Ej: Copa de Verano" defaultValue={defaultValues?.name} required />
+            </div>
+            <div className="space-y-2">
+                <Label htmlFor="t-type">Tipo de Torneo</Label>
+                <Select name="t-type" onValueChange={setTournamentType} defaultValue={defaultValues?.type} required>
+                    <SelectTrigger id="t-type"><SelectValue placeholder="Selecciona un tipo" /></SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="competitivo">Competitivo</SelectItem>
+                        <SelectItem value="scrim">Scrim (Práctica)</SelectItem>
+                        <SelectItem value="puntos">Por Puntos</SelectItem>
+                        <SelectItem value="wow">Evento WOW</SelectItem>
+                        <SelectItem value="amistoso">Amistoso</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
+            <div className="space-y-2">
+                <Label htmlFor="t-date">Fecha del Torneo</Label>
+                    <Popover>
+                    <PopoverTrigger asChild>
+                    <Button
+                        variant={"outline"}
+                        className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !tournamentDate && "text-muted-foreground"
+                        )}
+                    >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {tournamentDate ? format(tournamentDate, "PPP") : <span>Elige una fecha</span>}
+                    </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                    <Calendar
+                        mode="single"
+                        selected={tournamentDate}
+                        onSelect={setTournamentDate}
+                        initialFocus
+                    />
+                    </PopoverContent>
+                </Popover>
+            </div>
+            {(tournamentType === 'competitivo' || tournamentType === 'scrim' || tournamentType === 'wow') && (
+                <>
+                    <div className="grid grid-cols-2 gap-4 animate-in fade-in-50">
+                        <div className="space-y-2">
+                            <Label htmlFor="t-time">Hora de Inicio</Label>
+                            <Input id="t-time" name="t-time" type="time" defaultValue={defaultValues?.startTime} required />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="t-timezone">Zona Horaria</Label>
+                            <Select name="t-timezone" defaultValue={defaultValues?.timeZone} required>
+                                <SelectTrigger id="t-timezone"><SelectValue placeholder="País" /></SelectTrigger>
+                                <SelectContent className="max-h-60">
+                                    <SelectGroup>
+                                        <Label className="px-2 py-1.5 text-xs font-semibold">Norteamérica</Label>
+                                        <SelectItem value="US">Estados Unidos</SelectItem>
+                                        <SelectItem value="CA">Canadá</SelectItem>
+                                        <SelectItem value="MX">México</SelectItem>
+                                    </SelectGroup>
+                                    <SelectGroup>
+                                        <Label className="px-2 py-1.5 text-xs font-semibold">Centroamérica</Label>
+                                        <SelectItem value="GT">Guatemala</SelectItem>
+                                        <SelectItem value="BZ">Belice</SelectItem>
+                                        <SelectItem value="SV">El Salvador</SelectItem>
+                                        <SelectItem value="HN">Honduras</SelectItem>
+                                        <SelectItem value="NI">Nicaragua</SelectItem>
+                                        <SelectItem value="CR">Costa Rica</SelectItem>
+                                        <SelectItem value="PA">Panamá</SelectItem>
+                                    </SelectGroup>
+                                    <SelectGroup>
+                                        <Label className="px-2 py-1.5 text-xs font-semibold">Caribe</Label>
+                                        <SelectItem value="CU">Cuba</SelectItem>
+                                        <SelectItem value="DO">Rep. Dominicana</SelectItem>
+                                        <SelectItem value="PR">Puerto Rico</SelectItem>
+                                        <SelectItem value="JM">Jamaica</SelectItem>
+                                        <SelectItem value="HT">Haití</SelectItem>
+                                        <SelectItem value="BS">Bahamas</SelectItem>
+                                    </SelectGroup>
+                                        <SelectGroup>
+                                        <Label className="px-2 py-1.5 text-xs font-semibold">Sudamérica</Label>
+                                        <SelectItem value="CO">Colombia</SelectItem>
+                                        <SelectItem value="VE">Venezuela</SelectItem>
+                                        <SelectItem value="GY">Guyana</SelectItem>
+                                        <SelectItem value="SR">Surinam</SelectItem>
+                                        <SelectItem value="EC">Ecuador</SelectItem>
+                                        <SelectItem value="PE">Perú</SelectItem>
+                                        <SelectItem value="BR">Brasil</SelectItem>
+                                        <SelectItem value="BO">Bolivia</SelectItem>
+                                        <SelectItem value="PY">Paraguay</SelectItem>
+                                        <SelectItem value="CL">Chile</SelectItem>
+                                        <SelectItem value="AR">Argentina</SelectItem>
+                                        <SelectItem value="UY">Uruguay</SelectItem>
+                                    </SelectGroup>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+                    <div className="space-y-2 animate-in fade-in-50">
+                        <Label>Horario de envío de información</Label>
+                        <Select name="t-info-send-time">
+                            <SelectTrigger>
+                                <SelectValue placeholder="Seleccionar cuándo se envían los códigos"/>
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="7">7 minutos antes del inicio</SelectItem>
+                                <SelectItem value="10">10 minutos antes del inicio</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <p className="text-xs text-muted-foreground flex items-center gap-1"><Info className="h-3 w-3"/>El sistema notificará a los participantes con los datos de la sala en el momento elegido.</p>
+                    </div>
+                </>
+            )}
+            <div className="space-y-2">
+                <Label htmlFor="t-prize">Premio</Label>
+                <Input id="t-prize" name="t-prize" placeholder="Ej: $1,000 USD o 'Premios en UC'" defaultValue={defaultValues?.prize} required />
+            </div>
+            <div className="space-y-2">
+                <Label htmlFor="t-maps">Mapas de la Partida</Label>
+                <Input id="t-maps" name="t-maps" placeholder="Ej: Erangel, Miramar, Sanhok" defaultValue={defaultValues?.maps?.join(', ')} />
+                <p className="text-xs text-muted-foreground">Separa los nombres de los mapas con comas.</p>
+            </div>
+                <div className="space-y-2">
+                <Label htmlFor="t-max-teams">Máximo de Equipos</Label>
+                <Input id="t-max-teams" name="t-max-teams" type="number" placeholder="Ej: 64" defaultValue={defaultValues?.maxTeams} required />
+            </div>
+            <div className="space-y-2">
+                <Label htmlFor="t-mode">Modo</Label>
+                <Select name="t-mode" defaultValue={defaultValues?.mode} required>
+                    <SelectTrigger id="t-mode"><SelectValue placeholder="Selecciona un modo" /></SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="Solo">Solo</SelectItem>
+                        <SelectItem value="Dúo">Dúo</SelectItem>
+                        <SelectItem value="Escuadra">Escuadra</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
+            <div className="space-y-2">
+                <Label htmlFor="t-region">Región</Label>
+                <Select name="t-region" defaultValue={defaultValues?.region} required>
+                    <SelectTrigger id="t-region"><SelectValue placeholder="Selecciona una región" /></SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="N.A.">Norteamérica</SelectItem>
+                        <SelectItem value="S.A.">Sudamérica</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
+             <div className="space-y-2">
+                <Label htmlFor="t-description">Reglas y Descripción</Label>
+                <Textarea id="t-description" name="t-description" placeholder="Describe el formato del torneo, sistema de puntos, reglas de conducta, etc." defaultValue={defaultValues?.description}/>
+            </div>
+             <div className="space-y-4 p-4 border rounded-lg">
+                <div className="flex items-center justify-between">
+                    <Label htmlFor="has-stream" className="flex items-center gap-2 font-semibold"><Video className="h-5 w-5 text-primary"/>¿Habrá Transmisión en Vivo?</Label>
+                    <Switch id="has-stream" checked={hasStream} onCheckedChange={setHasStream} />
+                </div>
+                {hasStream && (
+                    <div className="space-y-2 animate-in fade-in-50">
+                        <Label htmlFor="t-stream-link">Enlace de la Transmisión</Label>
+                        <Input id="t-stream-link" name="t-stream-link" placeholder="https://twitch.tv/..." defaultValue={defaultValues?.streamLink} />
+                    </div>
+                )}
+            </div>
+        </CardContent>
+        <CardFooter>
+            <Button type="submit" className="w-full">{defaultValues ? "Guardar Cambios" : "Crear Torneo"}</Button>
+        </CardFooter>
+    </form>
+  )
 
   return (
     <div className="space-y-8">
@@ -478,7 +676,7 @@ export default function AdminPage() {
                                         <p className="text-sm text-muted-foreground">{tournament.date} - {tournament.mode} - {tournament.region}</p>
                                     </div>
                                     <div className="flex gap-2">
-                                        <Button size="sm" variant="outline"><Pencil className="h-4 w-4 mr-1"/>Editar</Button>
+                                        <Button size="sm" variant="outline" onClick={() => openEditModal(tournament)}><Pencil className="h-4 w-4 mr-1"/>Editar</Button>
                                         <Button size="sm" variant="destructive"><Trash2 className="h-4 w-4 mr-1"/>Cancelar</Button>
                                     </div>
                                 </div>
@@ -492,168 +690,24 @@ export default function AdminPage() {
                             <CardTitle className="flex items-center gap-2"><PlusCircle className="h-5 w-5 text-primary"/> Crear Torneo</CardTitle>
                             <CardDescription>Rellena los detalles para configurar un nuevo evento.</CardDescription>
                         </CardHeader>
-                        <form onSubmit={handleCreateTournament}>
-                            <CardContent className="grid gap-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="t-name">Nombre del Torneo</Label>
-                                    <Input id="t-name" name="t-name" placeholder="Ej: Copa de Verano" required />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="t-type">Tipo de Torneo</Label>
-                                    <Select name="t-type" onValueChange={setTournamentType} required>
-                                        <SelectTrigger id="t-type"><SelectValue placeholder="Selecciona un tipo" /></SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="competitivo">Competitivo</SelectItem>
-                                            <SelectItem value="scrim">Scrim (Práctica)</SelectItem>
-                                            <SelectItem value="puntos">Por Puntos</SelectItem>
-                                            <SelectItem value="wow">Evento WOW</SelectItem>
-                                            <SelectItem value="amistoso">Amistoso</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="t-date">Fecha del Torneo</Label>
-                                     <Popover>
-                                        <PopoverTrigger asChild>
-                                        <Button
-                                            variant={"outline"}
-                                            className={cn(
-                                            "w-full justify-start text-left font-normal",
-                                            !tournamentDate && "text-muted-foreground"
-                                            )}
-                                        >
-                                            <CalendarIcon className="mr-2 h-4 w-4" />
-                                            {tournamentDate ? format(tournamentDate, "PPP") : <span>Elige una fecha</span>}
-                                        </Button>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0">
-                                        <Calendar
-                                            mode="single"
-                                            selected={tournamentDate}
-                                            onSelect={setTournamentDate}
-                                            initialFocus
-                                        />
-                                        </PopoverContent>
-                                    </Popover>
-                                </div>
-                                {(tournamentType === 'competitivo' || tournamentType === 'scrim' || tournamentType === 'wow') && (
-                                    <>
-                                        <div className="grid grid-cols-2 gap-4 animate-in fade-in-50">
-                                            <div className="space-y-2">
-                                                <Label htmlFor="t-time">Hora de Inicio</Label>
-                                                <Input id="t-time" name="t-time" type="time" required />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label htmlFor="t-timezone">Zona Horaria</Label>
-                                                <Select name="t-timezone" required>
-                                                    <SelectTrigger id="t-timezone"><SelectValue placeholder="País" /></SelectTrigger>
-                                                    <SelectContent className="max-h-60">
-                                                        <SelectGroup>
-                                                            <Label className="px-2 py-1.5 text-xs font-semibold">Norteamérica</Label>
-                                                            <SelectItem value="US">Estados Unidos</SelectItem>
-                                                            <SelectItem value="CA">Canadá</SelectItem>
-                                                            <SelectItem value="MX">México</SelectItem>
-                                                        </SelectGroup>
-                                                        <SelectGroup>
-                                                            <Label className="px-2 py-1.5 text-xs font-semibold">Centroamérica</Label>
-                                                            <SelectItem value="GT">Guatemala</SelectItem>
-                                                            <SelectItem value="BZ">Belice</SelectItem>
-                                                            <SelectItem value="SV">El Salvador</SelectItem>
-                                                            <SelectItem value="HN">Honduras</SelectItem>
-                                                            <SelectItem value="NI">Nicaragua</SelectItem>
-                                                            <SelectItem value="CR">Costa Rica</SelectItem>
-                                                            <SelectItem value="PA">Panamá</SelectItem>
-                                                        </SelectGroup>
-                                                        <SelectGroup>
-                                                            <Label className="px-2 py-1.5 text-xs font-semibold">Caribe</Label>
-                                                            <SelectItem value="CU">Cuba</SelectItem>
-                                                            <SelectItem value="DO">Rep. Dominicana</SelectItem>
-                                                            <SelectItem value="PR">Puerto Rico</SelectItem>
-                                                            <SelectItem value="JM">Jamaica</SelectItem>
-                                                            <SelectItem value="HT">Haití</SelectItem>
-                                                            <SelectItem value="BS">Bahamas</SelectItem>
-                                                        </SelectGroup>
-                                                         <SelectGroup>
-                                                            <Label className="px-2 py-1.5 text-xs font-semibold">Sudamérica</Label>
-                                                            <SelectItem value="CO">Colombia</SelectItem>
-                                                            <SelectItem value="VE">Venezuela</SelectItem>
-                                                            <SelectItem value="GY">Guyana</SelectItem>
-                                                            <SelectItem value="SR">Surinam</SelectItem>
-                                                            <SelectItem value="EC">Ecuador</SelectItem>
-                                                            <SelectItem value="PE">Perú</SelectItem>
-                                                            <SelectItem value="BR">Brasil</SelectItem>
-                                                            <SelectItem value="BO">Bolivia</SelectItem>
-                                                            <SelectItem value="PY">Paraguay</SelectItem>
-                                                            <SelectItem value="CL">Chile</SelectItem>
-                                                            <SelectItem value="AR">Argentina</SelectItem>
-                                                            <SelectItem value="UY">Uruguay</SelectItem>
-                                                        </SelectGroup>
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-                                        </div>
-                                        <div className="space-y-2 animate-in fade-in-50">
-                                            <Label>Horario de envío de información</Label>
-                                            <Select name="t-info-send-time">
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Seleccionar cuándo se envían los códigos"/>
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="7">7 minutos antes del inicio</SelectItem>
-                                                    <SelectItem value="10">10 minutos antes del inicio</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                            <p className="text-xs text-muted-foreground flex items-center gap-1"><Info className="h-3 w-3"/>El sistema notificará a los participantes con los datos de la sala en el momento elegido.</p>
-                                        </div>
-                                    </>
-                                )}
-                                <div className="space-y-2">
-                                    <Label htmlFor="t-prize">Premio</Label>
-                                    <Input id="t-prize" name="t-prize" placeholder="Ej: $1,000 USD o 'Premios en UC'" required />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="t-maps">Mapas de la Partida</Label>
-                                    <Input id="t-maps" name="t-maps" placeholder="Ej: Erangel, Miramar, Sanhok" />
-                                    <p className="text-xs text-muted-foreground">Separa los nombres de los mapas con comas.</p>
-                                </div>
-                                 <div className="space-y-2">
-                                    <Label htmlFor="t-max-teams">Máximo de Equipos</Label>
-                                    <Input id="t-max-teams" name="t-max-teams" type="number" placeholder="Ej: 64" required />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="t-mode">Modo</Label>
-                                    <Select name="t-mode" required>
-                                        <SelectTrigger id="t-mode"><SelectValue placeholder="Selecciona un modo" /></SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="Solo">Solo</SelectItem>
-                                            <SelectItem value="Dúo">Dúo</SelectItem>
-                                            <SelectItem value="Escuadra">Escuadra</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="t-region">Región</Label>
-                                    <Select name="t-region" required>
-                                        <SelectTrigger id="t-region"><SelectValue placeholder="Selecciona una región" /></SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="N.A.">Norteamérica</SelectItem>
-                                            <SelectItem value="S.A.">Sudamérica</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                 <div className="space-y-2">
-                                    <Label htmlFor="t-description">Reglas y Descripción</Label>
-                                    <Textarea id="t-description" name="t-description" placeholder="Describe el formato del torneo, sistema de puntos, reglas de conducta, etc." />
-                                </div>
-                            </CardContent>
-                            <CardFooter>
-                                <Button type="submit" className="w-full">Crear Torneo</Button>
-                            </CardFooter>
-                        </form>
+                        <TournamentForm onSubmit={handleTournamentSubmit}/>
                     </Card>
                 </div>
             </div>
         </TabsContent>
+
+        <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+            <DialogContent className="sm:max-w-xl">
+                <DialogHeader>
+                    <DialogTitle>Editar Torneo</DialogTitle>
+                    <DialogDescription>
+                        Modifica los detalles del torneo. Los cambios se guardarán inmediatamente.
+                    </DialogDescription>
+                </DialogHeader>
+                <TournamentForm onSubmit={handleTournamentSubmit} defaultValues={editingTournament}/>
+            </DialogContent>
+        </Dialog>
+
 
         <TabsContent value="services" className="mt-6">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">

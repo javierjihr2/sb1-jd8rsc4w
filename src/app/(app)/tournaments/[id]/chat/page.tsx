@@ -71,7 +71,7 @@ export default function TournamentChatPage() {
 
 **${tournament.date}**
 
-• **COMIENZA:** ${tournament.startTime || 'Hora no definida'} hrs 🇨🇱
+• COMIENZA: ${tournament.startTime || 'Hora no definida'} hrs 🇨🇱
 
 **𝑴𝒂𝒑𝒂𝒔:**
 ${mapsList}
@@ -79,12 +79,14 @@ ${mapsList}
 **SLOTs**
 ${slotsList}
 
+${tournament.streamLink ? `**Transmisión:**\n${tournament.streamLink}` : ''}
+
 Por favor, mantengan una comunicación respetuosa. ¡Mucha suerte a todos!
 `;
         setMessages([
             { 
                 sender: 'other', 
-                text: welcomeMessage.trim()
+                text: welcomeMessage.trim().replace(/\n\n\n/g, '\n\n') // Clean up extra newlines
             },
         ]);
     }
@@ -158,7 +160,7 @@ ${slotsList}
 ${streamLink || "No disponible"}
 `;
       
-      handleSendMessage(e, formattedMessage.trim());
+      handleSendMessage(e, formattedMessage.trim().replace(/\n\n\n/g, '\n\n'));
 
       // Reset form and close dialog
       setRoomId("");

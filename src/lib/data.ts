@@ -34,6 +34,7 @@ export let tournaments: Tournament[] = [
     description: 'El torneo más grande del verano en Norteamérica. Formato de puntos estándar. Solo los mejores sobrevivirán.',
     maxTeams: 64,
     maps: ['Erangel', 'Miramar', 'Sanhok'],
+    streamLink: 'https://twitch.tv/squadup_esports',
   },
   {
     id: 't2',
@@ -76,6 +77,14 @@ export let tournaments: Tournament[] = [
 // Function to add a new tournament to the list
 export const addTournament = (tournament: Tournament) => {
     tournaments.unshift(tournament);
+};
+
+// Function to update an existing tournament
+export const updateTournament = (id: string, updatedData: Partial<Tournament>) => {
+    const tournamentIndex = tournaments.findIndex(t => t.id === id);
+    if (tournamentIndex !== -1) {
+        tournaments[tournamentIndex] = { ...tournaments[tournamentIndex], ...updatedData };
+    }
 };
 
 

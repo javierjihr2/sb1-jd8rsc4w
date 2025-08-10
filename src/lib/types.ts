@@ -46,6 +46,7 @@ export type Tournament = {
   timeZone?: string;
   maxTeams?: number;
   maps?: string[];
+  streamLink?: string;
 };
 
 export type Message = {
