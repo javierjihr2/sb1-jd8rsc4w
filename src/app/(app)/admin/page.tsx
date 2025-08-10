@@ -22,13 +22,19 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
-import { Code, UserPlus, Newspaper, Check, X, Users, Swords, PlusCircle, Pencil, Trash2, LayoutDashboard, Settings, DollarSign, BarChart, BellRing, Wrench, Link as LinkIcon } from "lucide-react"
+import { Code, UserPlus, Newspaper, Check, X, Users, Swords, PlusCircle, Pencil, Trash2, LayoutDashboard, Settings, DollarSign, BarChart, BellRing, Wrench, Link as LinkIcon, KeyRound, RefreshCw } from "lucide-react"
 import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles, friendsForComparison as users, rechargeProviders } from "@/lib/data"
 import type { RegistrationRequest, Tournament, NewsArticle } from "@/lib/types"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Switch } from "@/components/ui/switch"
+
+
+const developers = [
+    { id: 'dev-01', name: 'Alice', status: 'Activo', apiKey: 'a1b2c3d4-...' },
+    { id: 'dev-02', name: 'Bob', status: 'Inactivo', apiKey: 'e5f6g7h8-...' },
+];
 
 
 export default function AdminPage() {
@@ -498,6 +504,38 @@ export default function AdminPage() {
                                </div>
                            ))}
                         </div>
+                        
+                         <div className="space-y-4 p-4 border rounded-lg">
+                           <h3 className="font-semibold flex items-center gap-2"><KeyRound className="h-5 w-5 text-primary"/>Gestión de API Keys</h3>
+                           <p className="text-sm text-muted-foreground">Administra el acceso para los desarrolladores.</p>
+                             <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Desarrollador</TableHead>
+                                        <TableHead>Estado</TableHead>
+                                        <TableHead>API Key</TableHead>
+                                        <TableHead className="text-right">Acciones</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {developers.map((dev) => (
+                                    <TableRow key={dev.id}>
+                                        <TableCell>
+                                            <div className="font-medium">{dev.name}</div>
+                                            <div className="text-xs text-muted-foreground">{dev.id}</div>
+                                        </TableCell>
+                                        <TableCell><Badge variant={dev.status === 'Activo' ? 'secondary' : 'destructive'}>{dev.status}</Badge></TableCell>
+                                        <TableCell><Input readOnly type="password" value={dev.apiKey}/></TableCell>
+                                        <TableCell className="text-right">
+                                            <Button size="sm" variant="outline" className="mr-2"><RefreshCw className="h-4 w-4 mr-1"/>Regenerar</Button>
+                                            <Button size="sm" variant="destructive"><Trash2 className="h-4 w-4 mr-1"/>Revocar</Button>
+                                        </TableCell>
+                                    </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </div>
+
 
                     </CardContent>
                     <CardFooter>

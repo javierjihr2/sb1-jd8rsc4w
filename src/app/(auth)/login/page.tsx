@@ -27,7 +27,7 @@ import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/hooks/use-toast"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Terminal } from "lucide-react"
+import { Terminal, KeyRound, Shield } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 const GoogleIcon = () => (
@@ -79,6 +79,13 @@ export default function LoginPage() {
     }
   }
   
+  const handleSpecialLogin = (e: React.FormEvent<HTMLFormElement>, role: 'admin' | 'dev') => {
+    e.preventDefault();
+    toast({ title: `Login de ${role === 'admin' ? 'Administrador' : 'Desarrollador'} exitoso`, description: 'Redirigiendo al panel...' });
+    router.push('/dashboard');
+  }
+
+
   const handleSocialLogin = async (provider: 'google' | 'facebook' | 'twitter') => {
       setError(null);
       let authProvider;
@@ -102,107 +109,174 @@ export default function LoginPage() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-background p-4">
       <Tabs defaultValue="login" className="w-full max-w-md">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="login">Iniciar Sesión</TabsTrigger>
           <TabsTrigger value="register">Registrarse</TabsTrigger>
+          <TabsTrigger value="staff">Personal</TabsTrigger>
         </TabsList>
-
-        <div className="pt-4 pb-4 text-center">
-            <p className="text-sm text-muted-foreground">O inicia sesión con</p>
-            <div className="flex justify-center gap-4 mt-2">
-                <Button variant="outline" onClick={() => handleSocialLogin('google')}><GoogleIcon /> Google</Button>
-                <Button variant="outline" onClick={() => handleSocialLogin('facebook')}><FacebookIcon /> Facebook</Button>
-                <Button variant="outline" onClick={() => handleSocialLogin('twitter')}><TwitterIcon /> Twitter</Button>
-            </div>
-             <div className="relative my-4">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  O continúa con
-                </span>
-              </div>
-            </div>
-        </div>
-
+        
         <TabsContent value="login">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-2xl">Iniciar Sesión</CardTitle>
-              <CardDescription>
-                Ingresa tu correo electrónico y contraseña para acceder a tu cuenta.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="login-email">Correo Electrónico</Label>
-                <Input id="login-email" type="email" placeholder="m@example.com" required value={email} onChange={e => setEmail(e.target.value)} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="login-password">Contraseña</Label>
-                <Input id="login-password" type="password" required value={password} onChange={e => setPassword(e.target.value)} />
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button className="w-full" onClick={() => handleAuthAction("login")}>Iniciar Sesión</Button>
-            </CardFooter>
-          </Card>
+            <div className="pt-4 pb-4 text-center">
+                <p className="text-sm text-muted-foreground">O inicia sesión con</p>
+                <div className="flex justify-center gap-4 mt-2">
+                    <Button variant="outline" onClick={() => handleSocialLogin('google')}><GoogleIcon /> Google</Button>
+                    <Button variant="outline" onClick={() => handleSocialLogin('facebook')}><FacebookIcon /> Facebook</Button>
+                    <Button variant="outline" onClick={() => handleSocialLogin('twitter')}><TwitterIcon /> Twitter</Button>
+                </div>
+                 <div className="relative my-4">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">
+                      O continúa con
+                    </span>
+                  </div>
+                </div>
+            </div>
+            <Card>
+                <CardHeader>
+                <CardTitle className="text-2xl">Iniciar Sesión</CardTitle>
+                <CardDescription>
+                    Ingresa tu correo electrónico y contraseña para acceder a tu cuenta.
+                </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                <div className="space-y-2">
+                    <Label htmlFor="login-email">Correo Electrónico</Label>
+                    <Input id="login-email" type="email" placeholder="m@example.com" required value={email} onChange={e => setEmail(e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="login-password">Contraseña</Label>
+                    <Input id="login-password" type="password" required value={password} onChange={e => setPassword(e.target.value)} />
+                </div>
+                </CardContent>
+                <CardFooter>
+                <Button className="w-full" onClick={() => handleAuthAction("login")}>Iniciar Sesión</Button>
+                </CardFooter>
+            </Card>
         </TabsContent>
 
         <TabsContent value="register">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-2xl">Registrarse</CardTitle>
-              <CardDescription>
-                Crea una nueva cuenta para empezar a conectar con jugadores.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="register-email">Correo Electrónico</Label>
-                <Input id="register-email" type="email" placeholder="m@example.com" required value={email} onChange={e => setEmail(e.target.value)} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="register-password">Contraseña</Label>
-                <Input id="register-password" type="password" required value={password} onChange={e => setPassword(e.target.value)} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="register-country">País</Label>
-                 <Select onValueChange={setCountry} value={country}>
-                    <SelectTrigger id="register-country">
-                        <SelectValue placeholder="Selecciona tu país" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="AR">Argentina</SelectItem>
-                        <SelectItem value="BO">Bolivia</SelectItem>
-                        <SelectItem value="BR">Brasil</SelectItem>
-                        <SelectItem value="CA">Canadá</SelectItem>
-                        <SelectItem value="CL">Chile</SelectItem>
-                        <SelectItem value="CO">Colombia</SelectItem>
-                        <SelectItem value="CR">Costa Rica</SelectItem>
-                        <SelectItem value="EC">Ecuador</SelectItem>
-                        <SelectItem value="SV">El Salvador</SelectItem>
-                        <SelectItem value="US">Estados Unidos</SelectItem>
-                        <SelectItem value="GT">Guatemala</SelectItem>
-                        <SelectItem value="HN">Honduras</SelectItem>
-                        <SelectItem value="MX">México</SelectItem>
-                        <SelectItem value="PA">Panamá</SelectItem>
-                        <SelectItem value="PY">Paraguay</SelectItem>
-                        <SelectItem value="PE">Perú</SelectItem>
-                        <SelectItem value="PR">Puerto Rico</SelectItem>
-                        <SelectItem value="DO">República Dominicana</SelectItem>
-                        <SelectItem value="UY">Uruguay</SelectItem>
-                        <SelectItem value="VE">Venezuela</SelectItem>
-                    </SelectContent>
-                </Select>
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button className="w-full" onClick={() => handleAuthAction("register")}>Crear Cuenta</Button>
-            </CardFooter>
-          </Card>
+             <div className="pt-4 pb-4 text-center">
+                <p className="text-sm text-muted-foreground">O regístrate con</p>
+                <div className="flex justify-center gap-4 mt-2">
+                    <Button variant="outline" onClick={() => handleSocialLogin('google')}><GoogleIcon /> Google</Button>
+                    <Button variant="outline" onClick={() => handleSocialLogin('facebook')}><FacebookIcon /> Facebook</Button>
+                    <Button variant="outline" onClick={() => handleSocialLogin('twitter')}><TwitterIcon /> Twitter</Button>
+                </div>
+                 <div className="relative my-4">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">
+                      O continúa con
+                    </span>
+                  </div>
+                </div>
+            </div>
+            <Card>
+                <CardHeader>
+                <CardTitle className="text-2xl">Registrarse</CardTitle>
+                <CardDescription>
+                    Crea una nueva cuenta para empezar a conectar con jugadores.
+                </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                <div className="space-y-2">
+                    <Label htmlFor="register-email">Correo Electrónico</Label>
+                    <Input id="register-email" type="email" placeholder="m@example.com" required value={email} onChange={e => setEmail(e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="register-password">Contraseña</Label>
+                    <Input id="register-password" type="password" required value={password} onChange={e => setPassword(e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="register-country">País</Label>
+                    <Select onValueChange={setCountry} value={country}>
+                        <SelectTrigger id="register-country">
+                            <SelectValue placeholder="Selecciona tu país" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="AR">Argentina</SelectItem>
+                            <SelectItem value="BO">Bolivia</SelectItem>
+                            <SelectItem value="BR">Brasil</SelectItem>
+                            <SelectItem value="CA">Canadá</SelectItem>
+                            <SelectItem value="CL">Chile</SelectItem>
+                            <SelectItem value="CO">Colombia</SelectItem>
+                            <SelectItem value="CR">Costa Rica</SelectItem>
+                            <SelectItem value="EC">Ecuador</SelectItem>
+                            <SelectItem value="SV">El Salvador</SelectItem>
+                            <SelectItem value="US">Estados Unidos</SelectItem>
+                            <SelectItem value="GT">Guatemala</SelectItem>
+                            <SelectItem value="HN">Honduras</SelectItem>
+                            <SelectItem value="MX">México</SelectItem>
+                            <SelectItem value="PA">Panamá</SelectItem>
+                            <SelectItem value="PY">Paraguay</SelectItem>
+                            <SelectItem value="PE">Perú</SelectItem>
+                            <SelectItem value="PR">Puerto Rico</SelectItem>
+                            <SelectItem value="DO">República Dominicana</SelectItem>
+                            <SelectItem value="UY">Uruguay</SelectItem>
+                            <SelectItem value="VE">Venezuela</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+                </CardContent>
+                <CardFooter>
+                <Button className="w-full" onClick={() => handleAuthAction("register")}>Crear Cuenta</Button>
+                </CardFooter>
+            </Card>
         </TabsContent>
+
+        <TabsContent value="staff">
+            <div className="space-y-6 pt-4">
+                <Card>
+                    <form onSubmit={(e) => handleSpecialLogin(e, 'admin')}>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2 text-xl"><Shield className="text-primary"/> Acceso para Administradores</CardTitle>
+                            <CardDescription>Inicia sesión con tus credenciales de administrador.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="admin-email">Correo de Administrador</Label>
+                                <Input id="admin-email" type="email" placeholder="admin@squadup.com" required/>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="admin-password">Contraseña</Label>
+                                <Input id="admin-password" type="password" required />
+                            </div>
+                        </CardContent>
+                        <CardFooter>
+                            <Button type="submit" className="w-full">Entrar como Admin</Button>
+                        </CardFooter>
+                    </form>
+                </Card>
+
+                 <Card>
+                    <form onSubmit={(e) => handleSpecialLogin(e, 'dev')}>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2 text-xl"><KeyRound className="text-accent"/> Portal para Desarrolladores</CardTitle>
+                             <CardDescription>Accede al sistema con tu clave de API.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="dev-id">ID de Desarrollador</Label>
+                                <Input id="dev-id" placeholder="dev-..." required/>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="api-key">Clave de API</Label>
+                                <Input id="api-key" type="password" placeholder="••••••••••••••••" required />
+                            </div>
+                        </CardContent>
+                        <CardFooter>
+                            <Button type="submit" variant="secondary" className="w-full">Acceder como Desarrollador</Button>
+                        </CardFooter>
+                    </form>
+                </Card>
+            </div>
+        </TabsContent>
+
         {error && (
             <Alert variant="destructive" className="mt-4">
                 <Terminal className="h-4 w-4" />
@@ -214,3 +288,5 @@ export default function LoginPage() {
     </div>
   )
 }
+
+    
