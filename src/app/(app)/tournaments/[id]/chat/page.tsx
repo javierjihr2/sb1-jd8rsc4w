@@ -217,7 +217,7 @@ export default function TournamentChatPage() {
                         </CardContent>
                     </Card>
                 )}
-                <div className="h-[500px] flex flex-col">
+                <div className="h-[800px] flex flex-col">
                     <ScrollArea className="flex-1 mb-4 border rounded-lg p-4 bg-muted/50">
                         <div className="space-y-4 text-sm">
                             {messages.map((msg, index) => (
