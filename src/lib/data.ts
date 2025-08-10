@@ -239,6 +239,7 @@ export const feedPosts: FeedPost[] = [
     content: '¡Qué locura la nueva actualización! El modo de juego es increíble. ¿Alguien para probarlo?',
     likes: 12,
     comments: 3,
+    commentsList: [],
   },
   {
     id: 'post2',
@@ -248,6 +249,7 @@ export const feedPosts: FeedPost[] = [
     imageUrl: 'https://placehold.co/800x400.png',
     likes: 25,
     comments: 8,
+    commentsList: [],
   },
   {
     id: 'post3',
@@ -256,6 +258,7 @@ export const feedPosts: FeedPost[] = [
     content: 'Finalmente llegué a As Dominador esta temporada. ¡El esfuerzo valió la pena! Gracias a mi dúo por el apoyo. 💪',
     likes: 42,
     comments: 11,
+    commentsList: [],
   }
 ];
 
@@ -278,13 +281,13 @@ export const rechargeProviders: RechargeProvider[] = [
     {
         name: "Midasbuy",
         description: "Plataforma oficial para recargas de UC en juegos populares. Segura y con bonificaciones frecuentes.",
-        url: "YOUR_MIDASBUY_AFFILIATE_LINK_HERE", 
+        url: "https://www.midasbuy.com/", 
         logoUrl: "https://placehold.co/100x40/000000/FFFFFF.png"
     },
     {
         name: "Eneba",
         description: "Marketplace de claves de juegos y tarjetas de regalo donde a menudo se encuentran descuentos para UC.",
-        url: "YOUR_ENEBA_AFFILIATE_LINK_HERE", 
+        url: "https://www.eneba.com/", 
         logoUrl: "https://placehold.co/100x40/3c3c3c/FFFFFF.png"
     }
 ];
