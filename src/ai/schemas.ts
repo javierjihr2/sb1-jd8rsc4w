@@ -172,20 +172,15 @@ export const PlayerComparisonSchema = z.object({
 });
 export type PlayerComparison = z.infer<typeof PlayerComparisonSchema>;
 
-const MessageSchema = z.object({
-  role: z.enum(['user', 'model']),
-  content: z.string(),
-});
-
 export const AvatarInputSchema = z.object({
-  history: z.array(MessageSchema).describe('El historial de la conversación entre el usuario y la IA.'),
+  idea: z.string().describe("The user's idea for a design, e.g., 'a logo for my team Night Wolves' or 'an avatar of a soldier with a tiger helmet'"),
 });
 export type AvatarInput = z.infer<typeof AvatarInputSchema>;
 
-export const RefinedPromptOutputSchema = z.object({
-    revisedPrompt: z.string().describe('El prompt final que la IA refinó para generar la imagen.'),
+export const ImageGenOutputSchema = z.object({
+  imageUrls: z.array(z.string()).describe('A list of URLs of the generated images, as data URIs.'),
 });
-export type RefinedPromptOutput = z.infer<typeof RefinedPromptOutputSchema>;
+export type ImageGenOutput = z.infer<typeof ImageGenOutputSchema>;
 
 
 const PlayerProfileForIcebreakerSchema = z.object({
