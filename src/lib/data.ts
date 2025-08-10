@@ -19,6 +19,15 @@ export const playerProfile: PlayerProfile = {
   role: 'Admin', // El admin también puede ser creador
 };
 
+export const mapOptions = [
+    { value: "erangel", label: "Erangel" },
+    { value: "miramar", label: "Miramar" },
+    { value: "sanhok", label: "Sanhok" },
+    { value: "vikendi", label: "Vikendi" },
+    { value: "livik", label: "Livik" },
+    { value: "rondo", label: "Rondo" },
+];
+
 export let tournaments: Tournament[] = [
   {
     id: 't1',

@@ -45,7 +45,7 @@ export default function TournamentChatPage() {
   const [roomId, setRoomId] = useState("");
   const [roomPassword, setRoomPassword] = useState("");
   const [startTime, setStartTime] = useState("");
-  const [streamLink, setStreamLink] = useState("");
+  const [streamLink, setStreamLink] = useState(tournament?.streamLink || "");
 
   const lastMessageRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -166,7 +166,7 @@ ${streamLink || "No disponible"}
       setRoomId("");
       setRoomPassword("");
       setStartTime("");
-      setStreamLink("");
+      setStreamLink(tournament.streamLink || "");
       setRoomInfoDialogOpen(false);
       toast({ title: "Datos de la Sala Enviados", description: "La información ha sido publicada en el chat del torneo." });
   }

@@ -24,7 +24,7 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
 import { Code, UserPlus, Newspaper, Check, X, Users, Swords, PlusCircle, Pencil, Trash2, LayoutDashboard, Settings, DollarSign, BarChart, BellRing, Wrench, Link as LinkIcon, KeyRound, RefreshCw, Briefcase, Star, CheckCircle, Banknote, Flag, Calendar as CalendarIcon, Clock, Info, Map, Video } from "lucide-react"
-import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles, friendsForComparison as initialUsers, rechargeProviders, developers, services as initialServices, creators, bankAccounts, initialTransactions, addTournament, tournaments, updateTournament } from "@/lib/data"
+import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles, friendsForComparison as initialUsers, rechargeProviders, developers, services as initialServices, creators, bankAccounts, initialTransactions, addTournament, tournaments, updateTournament, mapOptions } from "@/lib/data"
 import type { RegistrationRequest, Tournament, NewsArticle, Service, UserWithRole, BankAccount, Transaction } from "@/lib/types"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -86,6 +86,13 @@ export default function AdminPage() {
   const handleTournamentSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
+    const maps = [
+        formData.get('t-map-1') as string,
+        formData.get('t-map-2') as string,
+        formData.get('t-map-3') as string,
+        formData.get('t-map-4') as string,
+    ].filter(Boolean);
+
     const tournamentData: Partial<Tournament> = {
         name: formData.get('t-name') as string,
         date: tournamentDate ? format(tournamentDate, 'yyyy-MM-dd') : undefined,
@@ -97,7 +104,7 @@ export default function AdminPage() {
         maxTeams: parseInt(formData.get('t-max-teams') as string),
         startTime: formData.get('t-time') as string,
         timeZone: formData.get('t-timezone') as string,
-        maps: (formData.get('t-maps') as string).split(',').map(m => m.trim()).filter(m => m),
+        maps: maps,
         streamLink: hasStream ? (formData.get('t-stream-link') as string) : undefined,
     };
     
@@ -260,7 +267,7 @@ export default function AdminPage() {
             </div>
             <div className="space-y-2">
                 <Label htmlFor="t-type">Tipo de Torneo</Label>
-                <Select name="t-type" onValueChange={setTournamentType} defaultValue={defaultValues?.type} required>
+                <Select name="t-type" onValueChange={setTournamentType} defaultValue={defaultValues?.type || tournamentType} required>
                     <SelectTrigger id="t-type"><SelectValue placeholder="Selecciona un tipo" /></SelectTrigger>
                     <SelectContent>
                         <SelectItem value="competitivo">Competitivo</SelectItem>
@@ -371,12 +378,52 @@ export default function AdminPage() {
                 <Label htmlFor="t-prize">Premio</Label>
                 <Input id="t-prize" name="t-prize" placeholder="Ej: $1,000 USD o 'Premios en UC'" defaultValue={defaultValues?.prize} required />
             </div>
+            
+            {(tournamentType === 'competitivo' || tournamentType === 'scrim' || tournamentType === 'wow') && (
+                <div className="space-y-4 p-4 border rounded-lg animate-in fade-in-50">
+                    <Label className="font-semibold flex items-center gap-2"><Map className="h-5 w-5 text-primary"/> Selección de Mapas</Label>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="t-map-1">Mapa 1</Label>
+                             <Select name="t-map-1" defaultValue={defaultValues?.maps?.[0]}>
+                                <SelectTrigger><SelectValue placeholder="Seleccionar mapa"/></SelectTrigger>
+                                <SelectContent>
+                                    {mapOptions.map(m => <SelectItem key={m.value} value={m.label}>{m.label}</SelectItem>)}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="t-map-2">Mapa 2</Label>
+                             <Select name="t-map-2" defaultValue={defaultValues?.maps?.[1]}>
+                                <SelectTrigger><SelectValue placeholder="Seleccionar mapa"/></SelectTrigger>
+                                <SelectContent>
+                                    {mapOptions.map(m => <SelectItem key={m.value} value={m.label}>{m.label}</SelectItem>)}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="t-map-3">Mapa 3</Label>
+                             <Select name="t-map-3" defaultValue={defaultValues?.maps?.[2]}>
+                                <SelectTrigger><SelectValue placeholder="Seleccionar mapa"/></SelectTrigger>
+                                <SelectContent>
+                                    {mapOptions.map(m => <SelectItem key={m.value} value={m.label}>{m.label}</SelectItem>)}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                         <div className="space-y-2">
+                            <Label htmlFor="t-map-4">Mapa 4 (Opcional)</Label>
+                             <Select name="t-map-4" defaultValue={defaultValues?.maps?.[3]}>
+                                <SelectTrigger><SelectValue placeholder="Seleccionar mapa"/></SelectTrigger>
+                                <SelectContent>
+                                    {mapOptions.map(m => <SelectItem key={m.value} value={m.label}>{m.label}</SelectItem>)}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+                </div>
+            )}
+            
             <div className="space-y-2">
-                <Label htmlFor="t-maps">Mapas de la Partida</Label>
-                <Input id="t-maps" name="t-maps" placeholder="Ej: Erangel, Miramar, Sanhok" defaultValue={defaultValues?.maps?.join(', ')} />
-                <p className="text-xs text-muted-foreground">Separa los nombres de los mapas con comas.</p>
-            </div>
-                <div className="space-y-2">
                 <Label htmlFor="t-max-teams">Máximo de Equipos</Label>
                 <Input id="t-max-teams" name="t-max-teams" type="number" placeholder="Ej: 64" defaultValue={defaultValues?.maxTeams} required />
             </div>
