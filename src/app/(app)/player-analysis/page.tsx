@@ -6,7 +6,7 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { playerProfile } from "@/lib/data"
+import { playerProfile, friendsForComparison } from "@/lib/data"
 import { BrainCircuit, Loader2, Sparkles, Terminal, Users2, Heart, Image as ImageIcon, Download, Send, Paperclip, X } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import type { PlayerAnalysis, PlayerAnalysisInput, ImageGenOutput, AvatarInput } from "@/ai/schemas"
@@ -43,11 +43,12 @@ export default function PlayerAnalysisPage() {
         setAnalysis(null);
 
         try {
-            const input: Omit<PlayerAnalysisInput, 'friends'> = {
+            const input: PlayerAnalysisInput = {
                 wins: playerProfile.stats.wins,
                 kills: playerProfile.stats.kills,
                 kdRatio: playerProfile.stats.kdRatio,
-                rank: playerProfile.rank
+                rank: playerProfile.rank,
+                friends: friendsForComparison.filter(f => f.id !== playerProfile.id).map(f => ({ name: f.name, avatarUrl: f.avatarUrl })),
             };
             const result = await getPlayerAnalysis(input);
             setAnalysis(result);

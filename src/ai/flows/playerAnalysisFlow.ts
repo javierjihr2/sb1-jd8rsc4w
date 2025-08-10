@@ -10,24 +10,19 @@
 
 import {ai} from '@/ai/genkit';
 import { PlayerAnalysisInputSchema, PlayerAnalysisSchema, type PlayerAnalysis, type PlayerAnalysisInput } from '../schemas';
-import { recentChats } from '@/lib/data';
 
-// El cliente llama a esta función. La lista de amigos ahora se gestiona en el servidor.
 export async function getPlayerAnalysis(
-  input: Omit<PlayerAnalysisInput, 'friends'>
+  input: PlayerAnalysisInput
 ): Promise<PlayerAnalysis> {
-  // Obtenemos la lista de amigos aquí para pasarla al flujo.
-  const friends = recentChats.slice(1).map(c => ({ name: c.name, avatarUrl: c.avatarUrl }));
-  const fullInput = { ...input, friends };
-  return playerAnalysisFlow(fullInput);
+  return playerAnalysisFlow(input);
 }
 
 const prompt = ai.definePrompt({
   name: 'playerAnalysisPrompt',
   input: {schema: PlayerAnalysisInputSchema},
   output: {schema: PlayerAnalysisSchema},
-  prompt: `Eres un analista experto y un poco coqueto en el juego para móviles PUBG Mobile.
-Tu tarea es analizar las estadísticas de un jugador y proporcionar un análisis conciso y experto de su perfil, con un toque de encanto.
+  prompt: `Eres un analista experto y amigable en el juego para móviles PUBG Mobile.
+Tu tarea es analizar las estadísticas de un jugador y proporcionar un análisis conciso y experto de su perfil, con un tono positivo y motivador.
 Basándote en las estadísticas proporcionadas, genera un resumen de su estilo de juego, sus puntos fuertes clave y las áreas de mejora.
 Mantén un análisis positivo y alentador.
 
@@ -37,9 +32,9 @@ Estadísticas del Jugador:
 - Ratio K/D: {{{kdRatio}}}
 - Rango: {{{rank}}}
 
-Además, y aquí viene la parte divertida, quiero que elijas al "compañero de equipo ideal" de la lista de amigos proporcionada.
-Elige a uno de ellos y da una razón creativa y un poco coqueta de por qué harían un "Dúo Dinámico" imparable en el campo de batalla.
-La razón debe ser juguetona y halagadora.
+Además, quiero que elijas al "compañero de equipo ideal" de la lista de amigos proporcionada.
+Elige a uno de ellos y da una razón creativa y profesional de por qué harían un "Dúo Dinámico" imparable en el campo de batalla.
+La razón debe ser juguetona y halagadora, enfocada en la sinergia de juego.
 
 Lista de Amigos Disponibles:
 {{#each friends}}

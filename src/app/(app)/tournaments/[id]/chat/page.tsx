@@ -29,6 +29,8 @@ import { cn } from "@/lib/utils"
 import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "cmdk"
+
 
 const participants = registeredTeams.flatMap(team => team.players);
 
@@ -385,7 +387,7 @@ ${streamLink ? `\n📺 **Transmisión:**\n${streamLink}` : ''}
                         </div>
                     </ScrollArea>
                     <form onSubmit={handleSendMessage} className="flex items-center gap-2">
-                            <Popover open={showMentionPopover} onOpenChange={setShowMentionPopover}>
+                        <Popover open={showMentionPopover} onOpenChange={setShowMentionPopover}>
                             <PopoverTrigger asChild>
                                 <Input 
                                     ref={inputRef}
@@ -396,17 +398,21 @@ ${streamLink ? `\n📺 **Transmisión:**\n${streamLink}` : ''}
                                     disabled={isChatLocked && !isOrganizer}
                                 />
                             </PopoverTrigger>
-                            <PopoverContent className="w-64 p-1">
-                                <CommandList>
-                                    <ScrollArea className="h-48">
-                                    {participants.map(p => (
-                                        <CommandItem key={p.id} onSelect={() => handleMentionSelect(p.name)} className="flex items-center gap-2 cursor-pointer">
-                                                <Avatar className="h-6 w-6"><AvatarImage src={p.avatarUrl}/><AvatarFallback>{p.name.substring(0,1)}</AvatarFallback></Avatar>
-                                            <span>{p.name}</span>
-                                        </CommandItem>
-                                    ))}
-                                    </ScrollArea>
-                                </CommandList>
+                            <PopoverContent className="w-64 p-0">
+                                <Command>
+                                  <CommandInput placeholder="Mencionar a..." />
+                                  <CommandList>
+                                    <CommandEmpty>No se encontraron jugadores.</CommandEmpty>
+                                    <CommandGroup>
+                                        {participants.map(p => (
+                                            <CommandItem key={p.id} onSelect={() => handleMentionSelect(p.name)} value={p.name} className="flex items-center gap-2 cursor-pointer">
+                                                    <Avatar className="h-6 w-6"><AvatarImage src={p.avatarUrl}/><AvatarFallback>{p.name.substring(0,1)}</AvatarFallback></Avatar>
+                                                <span>{p.name}</span>
+                                            </CommandItem>
+                                        ))}
+                                    </CommandGroup>
+                                  </CommandList>
+                                </Command>
                             </PopoverContent>
                         </Popover>
                         <Button type="submit" size="icon" disabled={isChatLocked && !isOrganizer}>
@@ -419,16 +425,3 @@ ${streamLink ? `\n📺 **Transmisión:**\n${streamLink}` : ''}
     </div>
   )
 }
-
-// Minimal Command components for the popover
-const CommandList = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ className, ...props }, ref) => (
-  <div ref={ref} className={className} {...props} />
-));
-CommandList.displayName = "CommandList";
-
-const CommandItem = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement> & { onSelect: () => void }>(({ className, onSelect, ...props }, ref) => (
-  <div ref={ref} onClick={onSelect} className={cn("flex items-center gap-2 p-2 rounded-sm hover:bg-accent cursor-pointer", className)} {...props} />
-));
-CommandItem.displayName = "CommandItem";
-
-    
