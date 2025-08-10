@@ -33,6 +33,7 @@ export let tournaments: Tournament[] = [
     timeZone: 'CST',
     description: 'El torneo más grande del verano en Norteamérica. Formato de puntos estándar. Solo los mejores sobrevivirán.',
     maxTeams: 64,
+    maps: ['Erangel', 'Miramar', 'Sanhok'],
   },
   {
     id: 't2',
@@ -47,6 +48,7 @@ export let tournaments: Tournament[] = [
     timeZone: 'ART',
     description: 'Enfréntate en dúo contra los mejores de Sudamérica. Batalla campal hasta el final.',
     maxTeams: 100,
+    maps: ['Erangel', 'Livik'],
   },
   {
     id: 't3',

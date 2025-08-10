@@ -25,6 +25,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import type { Message } from "@/lib/types"
 import Link from "next/link"
 import { useToast } from "@/hooks/use-toast"
+import { cn } from "@/lib/utils"
 
 const participants = registeredTeams.flatMap(team => team.players);
 
@@ -53,18 +54,30 @@ export default function TournamentChatPage() {
 
   useEffect(() => {
     if (tournament) {
+        const slotsList = Array.from({ length: tournament.maxTeams || 23 }, (_, i) => {
+            const team = registeredTeams[i];
+            const slotNumber = (i + 1).toString().padStart(2, '0');
+            return `${slotNumber}↬${team ? `_${team.name.toUpperCase()}_` : ''}`;
+        }).join('\n');
+
+        const mapsList = tournament.maps && tournament.maps.length > 0 
+            ? tournament.maps.map((map, i) => `${i+1}. ${map}`).join('\n')
+            : 'Mapas no definidos.';
+
         const welcomeMessage = `
 **${tournament.name.toUpperCase()}**
 
-¡Bienvenidos a la sala oficial del torneo!
+𝑶𝒓𝒈𝒂𝒏𝒊𝒛𝒂: ${playerProfile.name} 🥷
 
-**Detalles del Evento:**
-• **Fecha:** ${tournament.date}
-• **Modo:** ${tournament.mode}
-• **Premio:** ${tournament.prize}
+**${tournament.date}**
 
-**Equipos Inscritos:**
-${registeredTeams.map((team, i) => `${(i + 1).toString().padStart(2, '0')}↬ ${team.name}`).join('\n')}
+• **COMIENZA:** ${tournament.startTime || 'Hora no definida'} hrs 🇨🇱
+
+**𝑴𝒂𝒑𝒂𝒔:**
+${mapsList}
+
+**SLOTs**
+${slotsList}
 
 Por favor, mantengan una comunicación respetuosa. ¡Mucha suerte a todos!
 `;
@@ -119,6 +132,10 @@ Por favor, mantengan una comunicación respetuosa. ¡Mucha suerte a todos!
           const slotNumber = (i + 1).toString().padStart(2, '0');
           return `${slotNumber}↬${team ? `_${team.name.toUpperCase()}_` : ''}`;
       }).join('\n');
+      
+      const mapsList = tournament.maps && tournament.maps.length > 0
+        ? tournament.maps.map((map, i) => `${i+1}. ${map}`).join('\n')
+        : 'Mapas no definidos.';
 
       const formattedMessage = `
 **${tournament.name.toUpperCase()}**
@@ -129,12 +146,10 @@ Por favor, mantengan una comunicación respetuosa. ¡Mucha suerte a todos!
 
 • **ID:** \`${roomId}\`
 • **CONTRASEÑA:** \`${roomPassword}\`
-• **COMIENZA:** ${startTime} hrs
+• **COMIENZA:** ${startTime} hrs 🇨🇱
 
 **𝑴𝒂𝒑𝒂𝒔:**
-1. Erangel
-2. Miramar
-3. Sanhok
+${mapsList}
 
 **SLOTs**
 ${slotsList}

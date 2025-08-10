@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
-import { Code, UserPlus, Newspaper, Check, X, Users, Swords, PlusCircle, Pencil, Trash2, LayoutDashboard, Settings, DollarSign, BarChart, BellRing, Wrench, Link as LinkIcon, KeyRound, RefreshCw, Briefcase, Star, CheckCircle, Banknote, Flag, Calendar as CalendarIcon, Clock, Info } from "lucide-react"
+import { Code, UserPlus, Newspaper, Check, X, Users, Swords, PlusCircle, Pencil, Trash2, LayoutDashboard, Settings, DollarSign, BarChart, BellRing, Wrench, Link as LinkIcon, KeyRound, RefreshCw, Briefcase, Star, CheckCircle, Banknote, Flag, Calendar as CalendarIcon, Clock, Info, Map } from "lucide-react"
 import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles, friendsForComparison as initialUsers, rechargeProviders, developers, services as initialServices, creators, bankAccounts, initialTransactions, addTournament, tournaments } from "@/lib/data"
 import type { RegistrationRequest, Tournament, NewsArticle, Service, UserWithRole, BankAccount, Transaction } from "@/lib/types"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -93,6 +93,7 @@ export default function AdminPage() {
         maxTeams: parseInt(formData.get('t-max-teams') as string),
         startTime: formData.get('t-time') as string,
         timeZone: formData.get('t-timezone') as string,
+        maps: (formData.get('t-maps') as string).split(',').map(m => m.trim()).filter(m => m),
     };
     
     // Create the full tournament object, including a new ID and default status.
@@ -610,6 +611,11 @@ export default function AdminPage() {
                                     <Label htmlFor="t-prize">Premio</Label>
                                     <Input id="t-prize" name="t-prize" placeholder="Ej: $1,000 USD o 'Premios en UC'" required />
                                 </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="t-maps">Mapas de la Partida</Label>
+                                    <Input id="t-maps" name="t-maps" placeholder="Ej: Erangel, Miramar, Sanhok" />
+                                    <p className="text-xs text-muted-foreground">Separa los nombres de los mapas con comas.</p>
+                                </div>
                                  <div className="space-y-2">
                                     <Label htmlFor="t-max-teams">Máximo de Equipos</Label>
                                     <Input id="t-max-teams" name="t-max-teams" type="number" placeholder="Ej: 64" required />
@@ -1077,5 +1083,3 @@ export default function AdminPage() {
     </div>
   )
 }
-
-    

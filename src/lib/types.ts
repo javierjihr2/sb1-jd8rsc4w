@@ -45,6 +45,7 @@ export type Tournament = {
   startTime?: string;
   timeZone?: string;
   maxTeams?: number;
+  maps?: string[];
 };
 
 export type Message = {
@@ -161,5 +162,3 @@ export type Transaction = {
     amount: number;
     type: 'Ingreso' | 'Retiro';
 }
-
-    
