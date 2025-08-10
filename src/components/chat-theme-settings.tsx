@@ -90,3 +90,4 @@ export function ChatThemeSettings({ children, setTheme, onUploadClick }: ChatThe
     </DropdownMenu>
   )
 }
+
