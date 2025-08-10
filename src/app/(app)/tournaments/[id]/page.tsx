@@ -11,10 +11,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
-import { Calendar, Users, Trophy, Shield, MessageSquare, PlusCircle, AlertCircle, Send } from "lucide-react"
+import { Calendar, Users, Trophy, MessageSquare, PlusCircle, AlertCircle, Send, Flag } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import type { Message } from "@/lib/types"
+import type { Message, RegistrationRequest } from "@/lib/types"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import Image from "next/image"
 
 // Datos de ejemplo para el chat del torneo
 const initialTournamentMessages: Message[] = [
@@ -28,6 +30,9 @@ export default function TournamentDetailPage({ params }: { params: { id: string 
   const { toast } = useToast();
   const tournament = tournaments.find(t => t.id === params.id)
   
+  const [teamName, setTeamName] = useState("");
+  const [teamTag, setTeamTag] = useState("");
+  const [countryCode, setCountryCode] = useState(playerProfile.countryCode || "");
   const [selectedTeammates, setSelectedTeammates] = useState<Set<string>>(new Set())
   const [registrationStatus, setRegistrationStatus] = useState<'not_registered' | 'pending' | 'approved' | 'rejected'>('not_registered');
   const [isMounted, setIsMounted] = useState(false);
@@ -90,6 +95,11 @@ export default function TournamentDetailPage({ params }: { params: { id: string 
   }
   
   const handleRegisterTeam = () => {
+    if (!teamName || !teamTag) {
+        toast({ variant: "destructive", title: "Campos Incompletos", description: "Por favor, completa el nombre y el tag del equipo." });
+        return;
+    }
+
     const requiredPlayers = tournament.mode === 'Dúo' ? 1 : 3;
     if (selectedTeammates.size !== requiredPlayers && tournament.mode !== 'Solo') {
        toast({
@@ -100,12 +110,31 @@ export default function TournamentDetailPage({ params }: { params: { id: string 
         return;
     }
     
+    // Simular la creación de una nueva solicitud de registro
+    const newRequest: RegistrationRequest = {
+        id: `req-${Date.now()}`,
+        teamName,
+        teamTag,
+        countryCode,
+        tournamentId: tournament.id,
+        tournamentName: tournament.name,
+        status: 'Pendiente',
+        players: [
+            playerProfile, 
+            ...teamMates.filter(tm => selectedTeammates.has(tm.id))
+        ]
+    };
+    
+    // En una app real, esto se enviaría al backend. Aquí lo guardamos en localStorage.
+    const existingRequests = JSON.parse(localStorage.getItem('tournament_requests') || '[]');
+    localStorage.setItem('tournament_requests', JSON.stringify([...existingRequests, newRequest]));
+
     updateRegistrationStatus(tournament.id, 'pending');
     setRegistrationStatus('pending');
 
     toast({
       title: "Solicitud Enviada",
-      description: `Tu solicitud para el torneo "${tournament.name}" está pendiente de aprobación.`,
+      description: `La solicitud del equipo "${teamName}" está pendiente de aprobación.`,
     })
   }
 
@@ -133,7 +162,7 @@ export default function TournamentDetailPage({ params }: { params: { id: string 
         return { text: 'Solicitud Rechazada', disabled: true };
       case 'not_registered':
       default:
-        return { text: `Inscribir ${tournament.mode}`, disabled: tournament.status !== 'Abierto' };
+        return { text: `Inscribir Equipo`, disabled: tournament.status !== 'Abierto' };
     }
   }
 
@@ -242,12 +271,51 @@ export default function TournamentDetailPage({ params }: { params: { id: string 
         <div className="lg:col-span-1">
           <Card className="sticky top-20">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2"><PlusCircle className="h-5 w-5 text-primary"/> Inscribir Escuadra</CardTitle>
+              <CardTitle className="flex items-center gap-2"><PlusCircle className="h-5 w-5 text-primary"/> Inscripción al Torneo</CardTitle>
               <CardDescription>
-                {tournament.status === 'Abierto' ? "Selecciona tu equipo y envía la solicitud." : "Las inscripciones están cerradas."}
+                {tournament.status === 'Abierto' ? "Completa los datos de tu equipo para registrarte." : "Las inscripciones están cerradas."}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
+                <div className="space-y-2">
+                    <Label htmlFor="team-name">Nombre del Equipo</Label>
+                    <Input id="team-name" placeholder="Ej: Furia Nocturna" value={teamName} onChange={e => setTeamName(e.target.value)} disabled={registrationStatus !== 'not_registered'}/>
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="team-tag">Tag del Equipo</Label>
+                    <Input id="team-tag" placeholder="Ej: FN" value={teamTag} onChange={e => setTeamTag(e.target.value)} disabled={registrationStatus !== 'not_registered'}/>
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="team-country">País del Equipo</Label>
+                    <Select onValueChange={setCountryCode} value={countryCode} disabled={registrationStatus !== 'not_registered'}>
+                        <SelectTrigger id="team-country">
+                            <SelectValue placeholder="Selecciona el país de tu equipo" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="AR">Argentina</SelectItem>
+                            <SelectItem value="BO">Bolivia</SelectItem>
+                            <SelectItem value="BR">Brasil</SelectItem>
+                            <SelectItem value="CA">Canadá</SelectItem>
+                            <SelectItem value="CL">Chile</SelectItem>
+                            <SelectItem value="CO">Colombia</SelectItem>
+                            <SelectItem value="CR">Costa Rica</SelectItem>
+                            <SelectItem value="EC">Ecuador</SelectItem>
+                            <SelectItem value="SV">El Salvador</SelectItem>
+                            <SelectItem value="US">Estados Unidos</SelectItem>
+                            <SelectItem value="GT">Guatemala</SelectItem>
+                            <SelectItem value="HN">Honduras</SelectItem>
+                            <SelectItem value="MX">México</SelectItem>
+                            <SelectItem value="PA">Panamá</SelectItem>
+                            <SelectItem value="PY">Paraguay</SelectItem>
+                            <SelectItem value="PE">Perú</SelectItem>
+                            <SelectItem value="PR">Puerto Rico</SelectItem>
+                            <SelectItem value="DO">República Dominicana</SelectItem>
+                            <SelectItem value="UY">Uruguay</SelectItem>
+                            <SelectItem value="VE">Venezuela</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+
                 {tournament.mode !== 'Solo' && (
                     <div>
                         <h4 className="font-semibold mb-2">Tu Escuadra</h4>
@@ -310,3 +378,5 @@ export default function TournamentDetailPage({ params }: { params: { id: string 
     </div>
   )
 }
+
+    

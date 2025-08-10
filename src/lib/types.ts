@@ -1,5 +1,4 @@
 
-
 import type { PlayerProfileInput as PlayerProfileInputSchema } from '@/ai/schemas';
 
 export type PlayerProfile = {
@@ -16,8 +15,7 @@ export type PlayerProfile = {
     kills: number;
     kdRatio: number;
   };
-  isAdmin?: boolean;
-  role?: 'Jugador' | 'Creador' | 'Admin';
+  role: 'Jugador' | 'Creador' | 'Admin';
 };
 
 // Re-exporting this type for use in data.ts without circular dependency issues with AI schemas.
@@ -84,6 +82,8 @@ export type Team = {
 export type RegistrationRequest = {
     id: string;
     teamName: string;
+    teamTag: string;
+    countryCode: string;
     tournamentId: string;
     tournamentName: string;
     players: Player[];
@@ -150,3 +150,5 @@ export type Transaction = {
     amount: number;
     type: 'Ingreso' | 'Retiro';
 }
+
+    

@@ -1,9 +1,8 @@
 
-
 import type { PlayerProfile, Tournament, Chat, NewsArticle, Team, RegistrationRequest, FeedPost, RechargeProvider, Developer, Service, UserWithRole, BankAccount, Transaction } from './types';
 import type { PlayerProfileInput } from '@/ai/schemas';
 
-export const playerProfile: PlayerProfile & { role: 'Jugador' | 'Creador' | 'Admin' } = {
+export const playerProfile: PlayerProfile = {
   id: 'p1',
   name: 'Player1_Pro',
   email: 'pro_player@email.com',
@@ -17,7 +16,6 @@ export const playerProfile: PlayerProfile & { role: 'Jugador' | 'Creador' | 'Adm
     kills: 2345,
     kdRatio: 4.8,
   },
-  isAdmin: true,
   role: 'Admin', // El admin también puede ser creador
 };
 
@@ -233,6 +231,8 @@ export const initialRegistrationRequests: RegistrationRequest[] = [
   {
     id: 'req1',
     teamName: 'Dream Team',
+    teamTag: 'DT',
+    countryCode: 'MX',
     tournamentId: 't2',
     tournamentName: 'Duelo de Titanes',
     status: 'Pendiente',
@@ -386,3 +386,5 @@ export const initialTransactions: Transaction[] = [
     { id: 'txn2', date: '2024-07-27', description: 'Suscripción Creador Pro - ShadowStriker', amount: 5.00, type: 'Ingreso' },
     { id: 'txn3', date: '2024-07-25', description: 'Suscripción Creador Básico - Phoenix_Queen', amount: 3.00, type: 'Ingreso' },
 ];
+
+    

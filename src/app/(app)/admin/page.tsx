@@ -1,5 +1,4 @@
 
-
 "use client"
 
 import { useState } from "react"
@@ -23,7 +22,7 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
-import { Code, UserPlus, Newspaper, Check, X, Users, Swords, PlusCircle, Pencil, Trash2, LayoutDashboard, Settings, DollarSign, BarChart, BellRing, Wrench, Link as LinkIcon, KeyRound, RefreshCw, Briefcase, Star, CheckCircle, Banknote } from "lucide-react"
+import { Code, UserPlus, Newspaper, Check, X, Users, Swords, PlusCircle, Pencil, Trash2, LayoutDashboard, Settings, DollarSign, BarChart, BellRing, Wrench, Link as LinkIcon, KeyRound, RefreshCw, Briefcase, Star, CheckCircle, Banknote, Flag } from "lucide-react"
 import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles, friendsForComparison as initialUsers, rechargeProviders, developers, services as initialServices, creators, bankAccounts, initialTransactions } from "@/lib/data"
 import type { RegistrationRequest, Tournament, NewsArticle, Service, UserWithRole, BankAccount, Transaction } from "@/lib/types"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -32,6 +31,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
+import Image from "next/image"
 
 
 export default function AdminPage() {
@@ -368,8 +368,19 @@ export default function AdminPage() {
                             {requests.map(request => (
                                 <div key={request.id} className="p-4 bg-muted/50 rounded-lg flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                                     <div className="flex-1">
-                                        <p className="font-bold text-lg">{request.teamName}</p>
-                                        <p className="text-sm text-muted-foreground">{request.tournamentName}</p>
+                                         <div className="flex items-center gap-2">
+                                            {request.countryCode && (
+                                                <Image 
+                                                    src={`https://flagsapi.com/${request.countryCode}/shiny/64.png`}
+                                                    alt={`${request.countryCode} flag`}
+                                                    width={24}
+                                                    height={18}
+                                                    className="rounded-sm"
+                                                />
+                                            )}
+                                            <p className="font-bold text-lg">{request.teamName} <span className="text-sm text-muted-foreground font-normal">[{request.teamTag}]</span></p>
+                                        </div>
+                                        <p className="text-sm text-muted-foreground mt-1">Para: {request.tournamentName}</p>
                                         <div className="flex -space-x-2 overflow-hidden mt-2">
                                             {request.players.map(player => (
                                             <Avatar key={player.id} className="inline-block h-10 w-10 rounded-full ring-2 ring-background">
@@ -904,3 +915,5 @@ export default function AdminPage() {
     </div>
   )
 }
+
+    

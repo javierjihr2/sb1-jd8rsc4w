@@ -30,6 +30,7 @@ export default function TournamentsPage() {
   
   const naTournaments = tournaments.filter(t => t.region === 'N.A.');
   const saTournaments = tournaments.filter(t => t.region === 'S.A.');
+  const canCreate = playerProfile.role === 'Admin' || playerProfile.role === 'Creador';
 
   return (
     <div className="space-y-8">
@@ -43,7 +44,7 @@ export default function TournamentsPage() {
                 <Filter className="mr-2 h-4 w-4" />
                 Filtrar
             </Button>
-            {playerProfile.isAdmin && (
+            {canCreate && (
               <Button>
                   <PlusCircle className="mr-2 h-4 w-4" />
                   Crear Torneo
@@ -161,3 +162,5 @@ export default function TournamentsPage() {
     </div>
   )
 }
+
+    
