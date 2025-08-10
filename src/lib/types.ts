@@ -114,4 +114,18 @@ export type Developer = {
     apiKey: string;
 };
 
+export type Service = {
+  id: string;
+  creatorName: string;
+  avatarUrl: string;
+  serviceTitle: string;
+  description: string;
+  price: string;
+  rating: number;
+  reviews: number;
+  isVerified: boolean;
+  isFeatured: boolean;
+};
+    
+
     

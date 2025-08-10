@@ -22,9 +22,9 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
-import { Code, UserPlus, Newspaper, Check, X, Users, Swords, PlusCircle, Pencil, Trash2, LayoutDashboard, Settings, DollarSign, BarChart, BellRing, Wrench, Link as LinkIcon, KeyRound, RefreshCw } from "lucide-react"
-import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles, friendsForComparison as users, rechargeProviders, developers } from "@/lib/data"
-import type { RegistrationRequest, Tournament, NewsArticle } from "@/lib/types"
+import { Code, UserPlus, Newspaper, Check, X, Users, Swords, PlusCircle, Pencil, Trash2, LayoutDashboard, Settings, DollarSign, BarChart, BellRing, Wrench, Link as LinkIcon, KeyRound, RefreshCw, Briefcase, Star, CheckCircle } from "lucide-react"
+import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles, friendsForComparison as users, rechargeProviders, developers, services as initialServices } from "@/lib/data"
+import type { RegistrationRequest, Tournament, NewsArticle, Service } from "@/lib/types"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -36,6 +36,7 @@ export default function AdminPage() {
   const { toast } = useToast()
   const [requests, setRequests] = useState<RegistrationRequest[]>(initialRegistrationRequests)
   const [tournaments, setTournaments] = useState<Tournament[]>(initialTournaments)
+  const [services, setServices] = useState<Service[]>(initialServices);
 
   const handleCreateProfile = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -59,6 +60,29 @@ export default function AdminPage() {
       title: "Torneo Creado",
       description: "El nuevo torneo ha sido añadido a la lista.",
     })
+  }
+
+  const handleCreateService = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const newService: Service = {
+        id: `s${services.length + 1}`,
+        creatorName: formData.get('s-creatorName') as string,
+        avatarUrl: formData.get('s-avatarUrl') as string,
+        serviceTitle: formData.get('s-serviceTitle') as string,
+        description: formData.get('s-description') as string,
+        price: formData.get('s-price') as string,
+        rating: 0,
+        reviews: 0,
+        isVerified: false,
+        isFeatured: false,
+    };
+    setServices(prev => [...prev, newService]);
+    toast({
+      title: "Servicio Creado",
+      description: `El servicio "${newService.serviceTitle}" ha sido añadido.`,
+    });
+    (event.target as HTMLFormElement).reset();
   }
   
   const handleSaveSettings = (event: React.FormEvent<HTMLFormElement>) => {
@@ -87,10 +111,11 @@ export default function AdminPage() {
         </div>
       
        <Tabs defaultValue="dashboard" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-5">
+        <TabsList className="grid w-full grid-cols-3 md:grid-cols-6">
             <TabsTrigger value="dashboard"><LayoutDashboard className="mr-2"/>Dashboard</TabsTrigger>
             <TabsTrigger value="users"><Users className="mr-2"/>Usuarios</TabsTrigger>
             <TabsTrigger value="tournaments"><Swords className="mr-2"/>Torneos</TabsTrigger>
+            <TabsTrigger value="services"><Briefcase className="mr-2"/>Servicios</TabsTrigger>
             <TabsTrigger value="news"><Newspaper className="mr-2"/>Noticias</TabsTrigger>
             <TabsTrigger value="settings"><Settings className="mr-2"/>Ajustes</TabsTrigger>
         </TabsList>
@@ -358,6 +383,87 @@ export default function AdminPage() {
             </div>
         </TabsContent>
 
+        <TabsContent value="services" className="mt-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+                <div className="lg:col-span-2 space-y-8">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Gestionar Servicios de Creadores</CardTitle>
+                            <CardDescription>Edita, verifica o elimina los servicios ofrecidos en la aplicación.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                           <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Servicio</TableHead>
+                                        <TableHead>Creador</TableHead>
+                                        <TableHead>Estado</TableHead>
+                                        <TableHead className="text-right">Acciones</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {services.map((service) => (
+                                    <TableRow key={service.id}>
+                                        <TableCell>
+                                            <div className="font-medium">{service.serviceTitle}</div>
+                                            <div className="text-xs text-muted-foreground">{service.price}</div>
+                                        </TableCell>
+                                        <TableCell>{service.creatorName}</TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center gap-2">
+                                                {service.isVerified && <Badge variant="secondary"><CheckCircle className="mr-1 h-3 w-3"/> Verificado</Badge>}
+                                                {service.isFeatured && <Badge className="bg-amber-400 text-amber-900 hover:bg-amber-400/80"><Star className="mr-1 h-3 w-3"/> Destacado</Badge>}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            <Button size="sm" variant="outline" className="mr-2"><Pencil className="h-4 w-4"/></Button>
+                                            <Button size="sm" variant="destructive"><Trash2 className="h-4 w-4"/></Button>
+                                        </TableCell>
+                                    </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </CardContent>
+                    </Card>
+                </div>
+                <div className="lg:col-span-1 space-y-8">
+                     <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2"><PlusCircle className="h-5 w-5 text-primary"/> Añadir Servicio</CardTitle>
+                            <CardDescription>Crea una nueva oferta de servicio en el Centro de Creadores.</CardDescription>
+                        </CardHeader>
+                        <form onSubmit={handleCreateService}>
+                            <CardContent className="grid gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="s-creatorName">Nombre del Creador</Label>
+                                    <Input id="s-creatorName" name="s-creatorName" required />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="s-avatarUrl">URL del Avatar</Label>
+                                    <Input id="s-avatarUrl" name="s-avatarUrl" defaultValue="https://placehold.co/100x100.png" required />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="s-serviceTitle">Título del Servicio</Label>
+                                    <Input id="s-serviceTitle" name="s-serviceTitle" required />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="s-description">Descripción</Label>
+                                    <Textarea id="s-description" name="s-description" required />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="s-price">Precio (Regalo del juego)</Label>
+                                    <Input id="s-price" name="s-price" placeholder='Ej: 1 Regalo "Moto"' required />
+                                </div>
+                            </CardContent>
+                            <CardFooter>
+                                <Button type="submit" className="w-full">Añadir Servicio</Button>
+                            </CardFooter>
+                        </form>
+                    </Card>
+                </div>
+            </div>
+        </TabsContent>
+
          <TabsContent value="news" className="mt-6">
              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
                 <div className="lg:col-span-2 space-y-8">
@@ -545,5 +651,7 @@ export default function AdminPage() {
     </div>
   )
 }
+
+    
 
     

@@ -1,68 +1,17 @@
 
 "use client"
 
-import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Briefcase, CheckCircle, Filter, MessageSquare, Search, Star, Medal } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import Link from "next/link";
-import { useToast } from "@/hooks/use-toast";
+import { services } from "@/lib/data";
+import { Briefcase, CheckCircle, Filter, MessageSquare, Search, Star, Medal } from "lucide-react";
 import Image from "next/image";
-
-const services = [
-    {
-        id: 's1',
-        creatorName: 'CoachMaster',
-        avatarUrl: 'https://placehold.co/100x100.png',
-        serviceTitle: 'Coaching de Puntería y Estrategia',
-        description: 'Sesiones personalizadas para mejorar tu KD, control de retroceso y toma de decisiones. Analizo tus partidas y te doy feedback para subir de rango.',
-        price: '3 Regalos "Avión"',
-        rating: 4.9,
-        reviews: 28,
-        isVerified: true,
-        isFeatured: true,
-    },
-    {
-        id: 's2',
-        creatorName: 'DuoPerfecto',
-        avatarUrl: 'https://placehold.co/100x100.png',
-        serviceTitle: 'Compañero Profesional para Dúos',
-        description: '¿Cansado de jugar con randoms? Te acompaño en tus partidas de ranking para asegurar victorias y subir puntos. Paciencia y buena comunicación garantizadas.',
-        price: '1 Regalo "Moto"',
-        rating: 5.0,
-        reviews: 42,
-        isVerified: true,
-        isFeatured: false,
-    },
-     {
-        id: 's3',
-        creatorName: 'AnalistaTáctico',
-        avatarUrl: 'https://placehold.co/100x100.png',
-        serviceTitle: 'Análisis de Partidas de Torneo',
-        description: 'Reviso las grabaciones de tus partidas de scrims o torneos y te entrego un informe detallado sobre rotaciones, posicionamiento y errores a corregir.',
-        price: '5 Regalos "Casco Nivel 3"',
-        rating: 4.8,
-        reviews: 15,
-        isVerified: false,
-        isFeatured: false,
-    },
-     {
-        id: 's4',
-        creatorName: 'LaJefa',
-        avatarUrl: 'https://placehold.co/100x100.png',
-        serviceTitle: 'IGL para tu Squad',
-        description: 'Lidero a tu equipo en partidas de ranking. Me encargo de las calls, rotaciones y estrategia para que ustedes solo se preocupen por disparar.',
-        price: '2 Regalos "Coche Deportivo"',
-        rating: 5.0,
-        reviews: 31,
-        isVerified: true,
-        isFeatured: false,
-    },
-]
+import Link from "next/link";
 
 export default function ServicesPage() {
     const { toast } = useToast();
@@ -159,3 +108,5 @@ export default function ServicesPage() {
         </div>
     )
 }
+
+    

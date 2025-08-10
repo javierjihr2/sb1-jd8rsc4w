@@ -1,6 +1,6 @@
 
 
-import type { PlayerProfile, Tournament, Chat, NewsArticle, Team, RegistrationRequest, FeedPost, RechargeProvider, Developer } from './types';
+import type { PlayerProfile, Tournament, Chat, NewsArticle, Team, RegistrationRequest, FeedPost, RechargeProvider, Developer, Service } from './types';
 import type { PlayerProfileInput } from '@/ai/schemas';
 
 export const playerProfile: PlayerProfile = {
@@ -296,5 +296,57 @@ export const developers: Developer[] = [
     { id: 'dev-01', name: 'Alice', status: 'Activo', apiKey: 'a1b2c3d4-e5f6-g7h8' },
     { id: 'dev-02', name: 'Bob', status: 'Inactivo', apiKey: 'i9j0k1l2-m3n4-o5p6' },
 ];
+
+export const services: Service[] = [
+    {
+        id: 's1',
+        creatorName: 'CoachMaster',
+        avatarUrl: 'https://placehold.co/100x100.png',
+        serviceTitle: 'Coaching de Puntería y Estrategia',
+        description: 'Sesiones personalizadas para mejorar tu KD, control de retroceso y toma de decisiones. Analizo tus partidas y te doy feedback para subir de rango.',
+        price: '3 Regalos "Avión"',
+        rating: 4.9,
+        reviews: 28,
+        isVerified: true,
+        isFeatured: true,
+    },
+    {
+        id: 's2',
+        creatorName: 'DuoPerfecto',
+        avatarUrl: 'https://placehold.co/100x100.png',
+        serviceTitle: 'Compañero Profesional para Dúos',
+        description: '¿Cansado de jugar con randoms? Te acompaño en tus partidas de ranking para asegurar victorias y subir puntos. Paciencia y buena comunicación garantizadas.',
+        price: '1 Regalo "Moto"',
+        rating: 5.0,
+        reviews: 42,
+        isVerified: true,
+        isFeatured: false,
+    },
+     {
+        id: 's3',
+        creatorName: 'AnalistaTáctico',
+        avatarUrl: 'https://placehold.co/100x100.png',
+        serviceTitle: 'Análisis de Partidas de Torneo',
+        description: 'Reviso las grabaciones de tus partidas de scrims o torneos y te entrego un informe detallado sobre rotaciones, posicionamiento y errores a corregir.',
+        price: '5 Regalos "Casco Nivel 3"',
+        rating: 4.8,
+        reviews: 15,
+        isVerified: false,
+        isFeatured: false,
+    },
+     {
+        id: 's4',
+        creatorName: 'LaJefa',
+        avatarUrl: 'https://placehold.co/100x100.png',
+        serviceTitle: 'IGL para tu Squad',
+        description: 'Lidero a tu equipo en partidas de ranking. Me encargo de las calls, rotaciones y estrategia para que ustedes solo se preocupen por disparar.',
+        price: '2 Regalos "Coche Deportivo"',
+        rating: 5.0,
+        reviews: 31,
+        isVerified: true,
+        isFeatured: false,
+    },
+];
+    
 
     
