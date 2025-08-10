@@ -30,8 +30,9 @@ export default function TournamentsPage() {
   const naTournaments = tournaments.filter(t => t.region === 'N.A.');
   const saTournaments = tournaments.filter(t => t.region === 'S.A.');
 
+  // Filtra los torneos donde el usuario actual (playerProfile.id) ha sido aprobado.
   const accessibleChats = tournaments.filter(t => 
-    myApprovedRegistrations.some(reg => reg.tournamentId === t.id && reg.status === 'approved')
+    myApprovedRegistrations.some(reg => reg.userId === playerProfile.id && reg.tournamentId === t.id && reg.status === 'approved')
   );
 
   return (

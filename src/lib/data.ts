@@ -287,9 +287,18 @@ export let reserveTeams: Team[] = [
 ];
 
 // Datos de ejemplo para simular qué inscripciones están aprobadas para el usuario actual.
-export const myApprovedRegistrations: ApprovedRegistration[] = [
-  { userId: 'p1', tournamentId: 't2', status: 'approved' },
+export let myApprovedRegistrations: ApprovedRegistration[] = [
+  // { userId: 'p1', tournamentId: 't2', status: 'approved' },
 ];
+
+export const addApprovedRegistration = (reg: ApprovedRegistration) => {
+    if (!myApprovedRegistrations.some(r => r.userId === reg.userId && r.tournamentId === reg.tournamentId)) {
+        myApprovedRegistrations.push(reg);
+    }
+}
+export const removeApprovedRegistration = (tournamentId: string, userId: string = playerProfile.id) => {
+    myApprovedRegistrations = myApprovedRegistrations.filter(r => !(r.userId === userId && r.tournamentId === tournamentId));
+}
 
 export const teamMates = friendsForComparison.filter(f => f.id !== 'p1');
 
@@ -341,15 +350,15 @@ export const feedPosts: FeedPost[] = [
 
 
 // Helper functions to simulate registration state persistence (using localStorage)
-export const getRegistrationStatus = (tournamentId: string) => {
+export const getRegistrationStatus = (tournamentId: string, userId: string = playerProfile.id) => {
   if (typeof window === 'undefined') return 'not_registered';
-  const status = window.localStorage.getItem(`tourney_reg_${tournamentId}`);
+  const status = window.localStorage.getItem(`tourney_reg_${tournamentId}_${userId}`);
   return (status || 'not_registered') as 'not_registered' | 'pending' | 'approved' | 'rejected' | 'reserve';
 }
 
-export const updateRegistrationStatus = (tournamentId: string, status: 'not_registered' | 'pending' | 'approved' | 'rejected' | 'reserve') => {
+export const updateRegistrationStatus = (tournamentId: string, status: 'not_registered' | 'pending' | 'approved' | 'rejected' | 'reserve', userId: string = playerProfile.id) => {
   if (typeof window === 'undefined') return;
-  window.localStorage.setItem(`tourney_reg_${tournamentId}`, status);
+  window.localStorage.setItem(`tourney_reg_${tournamentId}_${userId}`, status);
   // Dispatch a storage event to notify other tabs (like the admin tab)
   window.dispatchEvent(new Event('storage'));
 }

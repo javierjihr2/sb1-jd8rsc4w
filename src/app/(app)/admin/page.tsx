@@ -24,7 +24,7 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
 import { Code, UserPlus, Newspaper, Check, X, Users, Swords, PlusCircle, Pencil, Trash2, LayoutDashboard, Settings, DollarSign, BarChart, BellRing, Wrench, Link as LinkIcon, KeyRound, RefreshCw, Briefcase, Star, CheckCircle, Banknote, Flag, Calendar as CalendarIcon, Clock, Info, Map, Video } from "lucide-react"
-import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles, friendsForComparison as initialUsers, rechargeProviders, developers, services as initialServices, creators, bankAccounts, initialTransactions, addTournament, tournaments, updateTournament, mapOptions, registeredTeams, updateRegistrationStatus } from "@/lib/data"
+import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles, friendsForComparison as initialUsers, rechargeProviders, developers, services as initialServices, creators, bankAccounts, initialTransactions, addTournament, tournaments, updateTournament, mapOptions, registeredTeams, updateRegistrationStatus, addApprovedRegistration } from "@/lib/data"
 import type { RegistrationRequest, Tournament, NewsArticle, Service, UserWithRole, BankAccount, Transaction } from "@/lib/types"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -231,7 +231,10 @@ export default function AdminPage() {
         description: `El equipo ${request.teamName} ha sido ${status.toLowerCase()}.`,
     });
 
-    if (status === 'Aprobado') {
+    // Assume the first player in the request is the user who registered.
+    const registeringUserId = request.players[0]?.id;
+
+    if (status === 'Aprobado' && registeringUserId) {
         // Add the team to the main registered list
         const newTeam = {
             id: `team-${Date.now()}`,
@@ -241,10 +244,11 @@ export default function AdminPage() {
         registeredTeams.push(newTeam);
 
         // Update the registration status for the user who made the request
-        const userId = request.players[0]?.id; // Assuming the first player is the one who registered
-        if (userId) {
-            updateRegistrationStatus(request.tournamentId, 'approved');
-        }
+        updateRegistrationStatus(request.tournamentId, 'approved', registeringUserId);
+        
+        // Add to the approved list for chat access
+        addApprovedRegistration({ userId: registeringUserId, tournamentId: request.tournamentId, status: 'approved' });
+
 
         // Notify other components (like the chat) to update
         window.dispatchEvent(new Event('tournamentUpdated'));
@@ -252,6 +256,8 @@ export default function AdminPage() {
             title: "Notificación Enviada",
             description: `Se envió un mensaje de actualización al chat del torneo con el nuevo equipo.`,
         });
+    } else if (status === 'Rechazado' && registeringUserId) {
+        updateRegistrationStatus(request.tournamentId, 'rejected', registeringUserId);
     }
   }
   

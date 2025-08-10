@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { notFound, useRouter, useParams } from "next/navigation"
-import { tournaments, playerProfile, teamMates, registeredTeams as initialRegisteredTeams, getRegistrationStatus, updateRegistrationStatus, reserveTeams as initialReserveTeams } from "@/lib/data"
+import { tournaments, playerProfile, teamMates, registeredTeams as initialRegisteredTeams, getRegistrationStatus, updateRegistrationStatus, reserveTeams as initialReserveTeams, myApprovedRegistrations, addApprovedRegistration, removeApprovedRegistration } from "@/lib/data"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -85,28 +85,35 @@ export default function TournamentDetailPage() {
 
   const handleWithdraw = () => {
     const myTeamIndex = _registeredTeams.findIndex(t => t.players.some(p => p.id === playerProfile.id));
+    
     if (myTeamIndex !== -1) {
         const myTeam = _registeredTeams[myTeamIndex];
         let promotedTeam: Team | undefined;
         let finalRegisteredTeams = [..._registeredTeams];
         let finalReserveTeams = [..._reserveTeams];
 
-        // Eliminar al equipo de la lista de registrados temporalmente
+        // Eliminar al equipo de la lista de registrados
         finalRegisteredTeams.splice(myTeamIndex, 1);
 
-        // Si hay reservas, promover la primera
+        // Si hay reservas, promover la primera para ocupar el slot
         if (finalReserveTeams.length > 0) {
             promotedTeam = finalReserveTeams.shift();
             if (promotedTeam) {
                 // Insertar el equipo promovido en el mismo slot que quedó libre
                 finalRegisteredTeams.splice(myTeamIndex, 0, promotedTeam);
+                // Actualizar el estado del nuevo equipo a 'approved'
+                updateRegistrationStatus(tournament.id, 'approved', promotedTeam.players[0].id);
+                addApprovedRegistration({ userId: promotedTeam.players[0].id, tournamentId: tournament.id, status: 'approved' });
             }
         }
         
+        // Actualizar los estados locales
         setRegisteredTeams(finalRegisteredTeams);
         setReserveTeams(finalReserveTeams);
         
+        // Cambiar el estado del jugador actual y eliminarlo de la lista de aprobados
         updateRegistrationStatus(tournament.id, 'not_registered');
+        removeApprovedRegistration(tournament.id);
         setRegistrationStatus('not_registered');
 
         // Notificar al chat para que se actualice la lista de slots
@@ -116,6 +123,14 @@ export default function TournamentDetailPage() {
             title: "Te has dado de baja",
             description: `${myTeam.name} ha sido retirado del torneo.` + (promotedTeam ? ` El equipo ${promotedTeam.name} ha sido promovido de la reserva.` : '')
         });
+    } else {
+        // Lógica si está en reserva y quiere darse de baja
+        updateRegistrationStatus(tournament.id, 'not_registered');
+        setRegistrationStatus('not_registered');
+         toast({
+            title: "Baja de Reserva",
+            description: `Has sido retirado de la lista de reserva.`
+        });
     }
   }
   
@@ -124,9 +139,9 @@ export default function TournamentDetailPage() {
 
   const getButtonState = () => {
     if (registrationStatus === 'pending') return { text: 'Solicitud Pendiente', disabled: true };
-    if (registrationStatus === 'approved') return { text: 'Inscripción Aprobada', disabled: false, isWithdraw: true };
+    if (registrationStatus === 'approved') return { text: 'Darse de Baja', disabled: false, isWithdraw: true };
     if (registrationStatus === 'rejected') return { text: 'Solicitud Rechazada', disabled: true };
-    if (registrationStatus === 'reserve') return { text: 'Inscrito en Reserva', disabled: true };
+    if (registrationStatus === 'reserve') return { text: 'Darse de Baja (Reserva)', disabled: false, isWithdraw: true };
     
     if (mainSlotsFull) {
         if (reserveSlotsAvailable) {
@@ -207,15 +222,15 @@ export default function TournamentDetailPage() {
             <CardContent className="space-y-6">
                 <div className="space-y-2">
                     <Label htmlFor="team-name">Nombre del Equipo</Label>
-                    <Input id="team-name" placeholder="Ej: Furia Nocturna" value={teamName} onChange={e => setTeamName(e.target.value)} disabled={registrationStatus === 'approved'}/>
+                    <Input id="team-name" placeholder="Ej: Furia Nocturna" value={teamName} onChange={e => setTeamName(e.target.value)} disabled={registrationStatus === 'approved' || registrationStatus === 'pending' || registrationStatus === 'reserve'}/>
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="team-tag">Tag del Equipo</Label>
-                    <Input id="team-tag" placeholder="Ej: FN" value={teamTag} onChange={e => setTeamTag(e.target.value)} disabled={registrationStatus === 'approved'}/>
+                    <Input id="team-tag" placeholder="Ej: FN" value={teamTag} onChange={e => setTeamTag(e.target.value)} disabled={registrationStatus === 'approved' || registrationStatus === 'pending' || registrationStatus === 'reserve'}/>
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="team-country">País del Equipo</Label>
-                    <Select onValueChange={setCountryCode} value={countryCode} disabled={registrationStatus === 'approved'}>
+                    <Select onValueChange={setCountryCode} value={countryCode} disabled={registrationStatus === 'approved' || registrationStatus === 'pending' || registrationStatus === 'reserve'}>
                         <SelectTrigger id="team-country">
                             <SelectValue placeholder="Selecciona el país de tu equipo" />
                         </SelectTrigger>
@@ -254,7 +269,7 @@ export default function TournamentDetailPage() {
                 {buttonState.isWithdraw ? (
                      <Button onClick={handleWithdraw} className="w-full" variant="destructive">
                         <LogOut className="mr-2 h-4 w-4"/>
-                        Darse de Baja
+                        {buttonState.text}
                     </Button>
                 ) : (
                     <Button onClick={() => handleRegisterTeam(buttonState.isReserve)} className="w-full" disabled={buttonState.disabled}>
