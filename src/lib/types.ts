@@ -116,11 +116,13 @@ export type Developer = {
 
 export type Service = {
   id: string;
+  creatorId: string;
   creatorName: string;
-  avatarUrl: string;
+  uid: string;
   serviceTitle: string;
   description: string;
-  price: string;
+  price: number;
+  voluntaryOptions: string[];
   rating: number;
   reviews: number;
   isVerified: boolean;

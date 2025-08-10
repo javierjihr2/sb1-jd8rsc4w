@@ -1,4 +1,5 @@
 
+
 "use client"
 
 import { useState } from "react"
@@ -23,13 +24,14 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
 import { Code, UserPlus, Newspaper, Check, X, Users, Swords, PlusCircle, Pencil, Trash2, LayoutDashboard, Settings, DollarSign, BarChart, BellRing, Wrench, Link as LinkIcon, KeyRound, RefreshCw, Briefcase, Star, CheckCircle } from "lucide-react"
-import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles, friendsForComparison as users, rechargeProviders, developers, services as initialServices } from "@/lib/data"
+import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles, friendsForComparison as users, rechargeProviders, developers, services as initialServices, creators } from "@/lib/data"
 import type { RegistrationRequest, Tournament, NewsArticle, Service } from "@/lib/types"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
+import { Checkbox } from "@/components/ui/checkbox"
 
 
 export default function AdminPage() {
@@ -37,7 +39,12 @@ export default function AdminPage() {
   const [requests, setRequests] = useState<RegistrationRequest[]>(initialRegistrationRequests)
   const [tournaments, setTournaments] = useState<Tournament[]>(initialTournaments)
   const [services, setServices] = useState<Service[]>(initialServices);
+  
+  // State for the new service form
   const [serviceTitle, setServiceTitle] = useState("");
+  const [creatorId, setCreatorId] = useState("");
+  const [price, setPrice] = useState<string>("");
+  const [voluntaryOptions, setVoluntaryOptions] = useState<Set<string>>(new Set());
 
 
   const handleCreateProfile = (event: React.FormEvent<HTMLFormElement>) => {
@@ -67,13 +74,26 @@ export default function AdminPage() {
   const handleCreateService = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
+    const selectedCreator = creators.find(c => c.id === creatorId);
+
+    if (!selectedCreator) {
+        toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Por favor, selecciona un creador válido.",
+        });
+        return;
+    }
+
     const newService: Service = {
         id: `s${services.length + 1}`,
-        creatorName: formData.get('s-creatorName') as string,
-        avatarUrl: formData.get('s-avatarUrl') as string,
+        creatorId: selectedCreator.id,
+        creatorName: selectedCreator.name,
+        uid: formData.get('s-uid') as string,
         serviceTitle: serviceTitle,
         description: formData.get('s-description') as string,
-        price: formData.get('s-price') as string,
+        price: parseFloat(price) || 0,
+        voluntaryOptions: price === "0" ? Array.from(voluntaryOptions) : [],
         rating: 0,
         reviews: 0,
         isVerified: false,
@@ -84,8 +104,25 @@ export default function AdminPage() {
       title: "Servicio Creado",
       description: `El servicio "${newService.serviceTitle}" ha sido añadido.`,
     });
+    
+    // Reset form state
     (event.target as HTMLFormElement).reset();
     setServiceTitle("");
+    setCreatorId("");
+    setPrice("");
+    setVoluntaryOptions(new Set());
+  }
+
+  const handleVoluntaryOptionChange = (option: string, checked: boolean) => {
+    setVoluntaryOptions(prev => {
+        const newSet = new Set(prev);
+        if (checked) {
+            newSet.add(option);
+        } else {
+            newSet.delete(option);
+        }
+        return newSet;
+    });
   }
   
   const handleSaveSettings = (event: React.FormEvent<HTMLFormElement>) => {
@@ -409,7 +446,9 @@ export default function AdminPage() {
                                     <TableRow key={service.id}>
                                         <TableCell>
                                             <div className="font-medium">{service.serviceTitle}</div>
-                                            <div className="text-xs text-muted-foreground">{service.price}</div>
+                                            <div className="text-xs text-muted-foreground">
+                                                {service.price > 0 ? `$${service.price.toFixed(2)}` : 'Gratis'}
+                                            </div>
                                         </TableCell>
                                         <TableCell>{service.creatorName}</TableCell>
                                         <TableCell>
@@ -438,12 +477,19 @@ export default function AdminPage() {
                         <form onSubmit={handleCreateService}>
                             <CardContent className="grid gap-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="s-creatorName">Nombre del Creador</Label>
-                                    <Input id="s-creatorName" name="s-creatorName" required />
+                                    <Label htmlFor="s-creatorId">Nombre del Creador</Label>
+                                    <Select onValueChange={setCreatorId} value={creatorId} required>
+                                        <SelectTrigger id="s-creatorId">
+                                            <SelectValue placeholder="Selecciona un creador" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {creators.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                                        </SelectContent>
+                                    </Select>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="s-avatarUrl">URL del Avatar</Label>
-                                    <Input id="s-avatarUrl" name="s-avatarUrl" defaultValue="https://placehold.co/100x100.png" required />
+                                    <Label htmlFor="s-uid">UID del Jugador</Label>
+                                    <Input id="s-uid" name="s-uid" placeholder="5123456789" required />
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="s-serviceTitle">Título del Servicio</Label>
@@ -458,6 +504,8 @@ export default function AdminPage() {
                                             <SelectItem value="IGL (In-Game Leader) para tu Squad">IGL (In-Game Leader) para tu Squad</SelectItem>
                                             <SelectItem value="Entrenamiento de Control de Retroceso (Recoil)">Entrenamiento de Control de Retroceso (Recoil)</SelectItem>
                                             <SelectItem value="Optimización de Sensibilidad y Controles (HUD)">Optimización de Sensibilidad y Controles (HUD)</SelectItem>
+                                            <SelectItem value="Entrenamiento de Rotaciones y Posicionamiento">Entrenamiento de Rotaciones y Posicionamiento</SelectItem>
+                                            <SelectItem value="Gestión y Creación de Equipos de Torneo">Gestión y Creación de Equipos de Torneo</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
@@ -466,9 +514,42 @@ export default function AdminPage() {
                                     <Textarea id="s-description" name="s-description" placeholder="Describe el servicio en detalle..." required />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="s-price">Precio (Regalo del juego)</Label>
-                                    <Input id="s-price" name="s-price" placeholder='Ej: 1 Regalo "Moto"' required />
+                                    <Label htmlFor="s-price">Precio (USD)</Label>
+                                    <Input 
+                                        id="s-price" 
+                                        name="s-price"
+                                        type="number"
+                                        step="0.01" 
+                                        placeholder='Ej: 25.00 (0 para gratis)' 
+                                        value={price}
+                                        onChange={(e) => setPrice(e.target.value)}
+                                        required 
+                                    />
                                 </div>
+
+                                {price === '0' && (
+                                    <div className="space-y-4 p-4 border rounded-lg bg-muted/50 animate-in fade-in-50">
+                                        <Label className="font-semibold">Opciones de Intercambio Voluntario</Label>
+                                        <div className="space-y-2">
+                                            {[
+                                                {id: 'pop', label: 'Intercambio de Popularidad'},
+                                                {id: 'uc', label: 'Regalos UC'},
+                                                {id: 'friend', label: 'Agregar como Amigo'},
+                                                {id: 'social', label: 'Soporte en Redes Sociales'},
+                                            ].map(opt => (
+                                                <div key={opt.id} className="flex items-center space-x-2">
+                                                    <Checkbox 
+                                                        id={`opt-${opt.id}`} 
+                                                        onCheckedChange={(checked) => handleVoluntaryOptionChange(opt.label, checked as boolean)}
+                                                    />
+                                                    <label htmlFor={`opt-${opt.id}`} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                                        {opt.label}
+                                                    </label>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </CardContent>
                             <CardFooter>
                                 <Button type="submit" className="w-full">Añadir Servicio</Button>
@@ -670,3 +751,4 @@ export default function AdminPage() {
     
 
     
+

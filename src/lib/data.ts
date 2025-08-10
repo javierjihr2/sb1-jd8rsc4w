@@ -300,11 +300,13 @@ export const developers: Developer[] = [
 export const services: Service[] = [
     {
         id: 's1',
-        creatorName: 'CoachMaster',
-        avatarUrl: 'https://placehold.co/100x100.png',
+        creatorId: 'c2',
+        creatorName: 'Ninja_Dude',
+        uid: '5123456789',
         serviceTitle: 'Coaching de Puntería y Estrategia',
         description: 'Sesiones personalizadas para mejorar tu KD, control de retroceso y toma de decisiones. Analizo tus partidas y te doy feedback para subir de rango.',
-        price: '3 Regalos "Avión"',
+        price: 25.00,
+        voluntaryOptions: [],
         rating: 4.9,
         reviews: 28,
         isVerified: true,
@@ -312,11 +314,13 @@ export const services: Service[] = [
     },
     {
         id: 's2',
-        creatorName: 'DuoPerfecto',
-        avatarUrl: 'https://placehold.co/100x100.png',
+        creatorId: 'c3',
+        creatorName: 'ShadowStriker',
+        uid: '5987654321',
         serviceTitle: 'Compañero Profesional para Dúos',
         description: '¿Cansado de jugar con randoms? Te acompaño en tus partidas de ranking para asegurar victorias y subir puntos. Paciencia y buena comunicación garantizadas.',
-        price: '1 Regalo "Moto"',
+        price: 0,
+        voluntaryOptions: ['Intercambio de Popularidad', 'Agregar como Amigo'],
         rating: 5.0,
         reviews: 42,
         isVerified: true,
@@ -324,11 +328,13 @@ export const services: Service[] = [
     },
      {
         id: 's3',
-        creatorName: 'AnalistaTáctico',
-        avatarUrl: 'https://placehold.co/100x100.png',
+        creatorId: 'c4',
+        creatorName: 'Phoenix_Queen',
+        uid: '5246813579',
         serviceTitle: 'Análisis de Partidas de Torneo',
         description: 'Reviso las grabaciones de tus partidas de scrims o torneos y te entrego un informe detallado sobre rotaciones, posicionamiento y errores a corregir.',
-        price: '5 Regalos "Casco Nivel 3"',
+        price: 50.00,
+        voluntaryOptions: [],
         rating: 4.8,
         reviews: 15,
         isVerified: false,
@@ -336,17 +342,21 @@ export const services: Service[] = [
     },
      {
         id: 's4',
-        creatorName: 'LaJefa',
-        avatarUrl: 'https://placehold.co/100x100.png',
+        creatorId: 'f1',
+        creatorName: 'GamerX_Treme',
+        uid: '5369124875',
         serviceTitle: 'IGL para tu Squad',
         description: 'Lidero a tu equipo en partidas de ranking. Me encargo de las calls, rotaciones y estrategia para que ustedes solo se preocupen por disparar.',
-        price: '2 Regalos "Coche Deportivo"',
+        price: 0,
+        voluntaryOptions: ['Intercambio de Popularidad', 'Regalos UC'],
         rating: 5.0,
         reviews: 31,
         isVerified: true,
         isFeatured: false,
     },
 ];
+
+export const creators = friendsForComparison.map(f => ({ id: f.id, name: f.name }));
     
 
     
