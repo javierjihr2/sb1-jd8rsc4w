@@ -14,6 +14,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Switch } from '@/components/ui/switch';
 
 
 interface SavedSensitivity extends DecodedSensitivity {
@@ -22,7 +23,7 @@ interface SavedSensitivity extends DecodedSensitivity {
 }
 
 const emptyScope = { tpp: 0, fpp: 0, redDot: 0, scope2x: 0, scope3x: 0, scope4x: 0, scope6x: 0, scope8x: 0 };
-const emptySettings: Sensitivity = {
+const initialSettings: Sensitivity = {
     camera: { ...emptyScope },
     ads: { ...emptyScope },
     gyroscope: { ...emptyScope },
@@ -40,125 +41,38 @@ const scopeLabels: { [key: string]: string } = {
     scope8x: "Mira 8x",
 };
 
-
-const AnalysisResult = ({ analysisData, onSave, onCancel }: { analysisData: DecodedSensitivity, onSave: (data: SavedSensitivity) => void, onCancel: () => void }) => {
-    const [editableData, setEditableData] = useState<DecodedSensitivity>(analysisData);
-    const [name, setName] = useState(analysisData.analysis.suggestedName || "Mi Sensibilidad");
-
-    const handleValueChange = (category: 'camera' | 'ads' | 'gyroscope', scope: string, value: string) => {
-        const numValue = parseInt(value) || 0;
-        setEditableData(prev => ({
-            ...prev,
-            settings: {
-                ...prev.settings,
-                [category]: {
-                    // @ts-ignore
-                    ...prev.settings[category],
-                    [scope]: numValue
-                }
-            }
-        }));
-    };
-    
-    const renderEditableScopeTable = (title: string, category: 'camera' | 'ads' | 'gyroscope', data: any) => (
-        <div>
-            <h3 className="text-lg font-semibold text-primary mb-2">{title}</h3>
-            <div className="border rounded-lg">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Mira</TableHead>
-                            <TableHead className="text-right w-[120px]">Sensibilidad</TableHead>
+const EditableScopeTable = ({ title, category, data, onValueChange }: { title: string, category: 'camera' | 'ads' | 'gyroscope', data: any, onValueChange: (category: 'camera' | 'ads' | 'gyroscope', scope: string, value: string) => void }) => (
+    <div>
+        <h3 className="text-lg font-semibold text-primary mb-2">{title}</h3>
+        <div className="border rounded-lg">
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>Mira</TableHead>
+                        <TableHead className="text-right w-[120px]">Sensibilidad</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {Object.keys(scopeLabels).map((scope) => (
+                         <TableRow key={`${category}-${scope}`}>
+                            <TableCell>{scopeLabels[scope] || scope}</TableCell>
+                            <TableCell className="text-right">
+                                 <Input 
+                                    id={`${category}-${scope}`} 
+                                    type="number" 
+                                    className="h-8 text-right"
+                                    value={data?.[scope] || ''}
+                                    onChange={(e) => onValueChange(category, scope, e.target.value)}
+                                    placeholder="0"
+                                />
+                            </TableCell>
                         </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {Object.entries(data).map(([scope, value]) => (
-                             <TableRow key={`${category}-${scope}`}>
-                                <TableCell>{scopeLabels[scope] || scope}</TableCell>
-                                <TableCell className="text-right">
-                                     <Input 
-                                        id={`${category}-${scope}`} 
-                                        type="number" 
-                                        className="h-8 text-right"
-                                        value={value as number || ''}
-                                        onChange={(e) => handleValueChange(category, scope, e.target.value)}
-                                    />
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </div>
+                    ))}
+                </TableBody>
+            </Table>
         </div>
-    );
-
-    const handleSaveClick = () => {
-       const finalData: SavedSensitivity = {
-           ...editableData,
-           id: `sens-${Date.now()}`,
-           userGivenName: name,
-       }
-       onSave(finalData);
-    };
-
-    return (
-        <Card className="animate-in fade-in-50 mt-6">
-            <CardHeader>
-                <CardTitle>Análisis y Edición</CardTitle>
-                <CardDescription>Revisa el análisis de la IA y ajusta los valores si es necesario antes de guardar.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-                <Alert variant="destructive">
-                    <AlertTriangle className="h-4 w-4" />
-                    <AlertTitle>Aviso Importante</AlertTitle>
-                    <AlertDescription>
-                        La IA interpreta el código para generar una configuración. Es posible que los valores no sean exactos. Por favor, verifica y edita los números si es necesario antes de guardar.
-                    </AlertDescription>
-                </Alert>
-
-                <div className="space-y-2">
-                    <Label htmlFor="sensitivity-name">Nombre de la Configuración</Label>
-                    <Input id="sensitivity-name" value={name} onChange={(e) => setName(e.target.value)} />
-                </div>
-                
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {renderEditableScopeTable('Sensibilidad de Cámara', 'camera', editableData.settings.camera)}
-                    {renderEditableScopeTable('Sensibilidad de ADS', 'ads', editableData.settings.ads)}
-                    {editableData.settings.gyroscope && renderEditableScopeTable('Sensibilidad de Giroscopio', 'gyroscope', editableData.settings.gyroscope)}
-                </div>
-                
-                 <Collapsible>
-                    <CollapsibleTrigger asChild>
-                         <Button variant="link" className="text-lg font-semibold text-primary w-full text-left flex items-center gap-2 p-0 h-auto">
-                            <Bot className="h-5 w-5"/>Ver Análisis Táctico de IA
-                        </Button>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent className="pt-4 space-y-4">
-                         <div>
-                            <h4 className="font-semibold flex items-center gap-2 mb-2"><Gamepad2 className="h-4 w-4"/>Estilo de Juego Sugerido</h4>
-                            <p className="text-sm text-muted-foreground">{editableData.analysis.playStyle}</p>
-                        </div>
-                        <div>
-                            <h4 className="font-semibold flex items-center gap-2 mb-2"><Brain className="h-4 w-4"/>Análisis Táctico</h4>
-                            <p className="text-sm text-muted-foreground">{editableData.analysis.tacticalAnalysis}</p>
-                        </div>
-                        <div>
-                            <h4 className="font-semibold flex items-center gap-2 mb-2"><Crosshair className="h-4 w-4"/>Armas Recomendadas</h4>
-                            <ul className="list-disc list-inside text-sm text-muted-foreground">
-                                {editableData.analysis.recommendedWeapons.map(w => <li key={w}>{w}</li>)}
-                            </ul>
-                        </div>
-                    </CollapsibleContent>
-                 </Collapsible>
-
-            </CardContent>
-            <CardFooter className="gap-2">
-                <Button onClick={handleSaveClick}><Save className="mr-2"/> Guardar en mi Arsenal</Button>
-                <Button variant="outline" onClick={onCancel}><X className="mr-2"/> Cancelar</Button>
-            </CardFooter>
-        </Card>
-    );
-};
+    </div>
+);
 
 
 export default function SensitivitiesPage() {
@@ -166,45 +80,60 @@ export default function SensitivitiesPage() {
     const [savedSensitivities, setSavedSensitivities] = useState<SavedSensitivity[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [sensitivityCode, setSensitivityCode] = useState('');
+    const [currentSettings, setCurrentSettings] = useState<Sensitivity>(initialSettings);
     const [analysisResult, setAnalysisResult] = useState<DecodedSensitivity | null>(null);
+    const [hasGyro, setHasGyro] = useState(false);
+    const [isFormVisible, setIsFormVisible] = useState(false);
+    const [configName, setConfigName] = useState("");
+
+
+    const handleValueChange = (category: 'camera' | 'ads' | 'gyroscope', scope: string, value: string) => {
+        const numValue = parseInt(value, 10);
+        setCurrentSettings(prev => {
+            const newCategoryState = { ...(prev[category] || emptyScope), [scope]: isNaN(numValue) ? 0 : numValue };
+            return {
+                ...prev,
+                [category]: newCategoryState,
+            };
+        });
+    };
+    
+    const handleCodeChange = (value: string) => {
+        setCurrentSettings(prev => ({ ...prev, code: value }));
+    };
 
     const handleAnalyze = async () => {
-        if (!sensitivityCode.trim()) {
-            setError("Por favor, introduce un código de sensibilidad.");
-            return;
-        }
         setIsLoading(true);
         setError(null);
         setAnalysisResult(null);
 
         try {
-            // Simulate providing a full structure even if some parts are empty
-            const placeholderSettings: DecodeSensitivityInput = {
-                settings: {
-                    ...emptySettings,
-                    code: sensitivityCode
-                }
+            const input: DecodeSensitivityInput = { settings: currentSettings };
+            const result = await decodeSensitivity(input);
+            const savedData: SavedSensitivity = {
+                ...result,
+                id: `sens-${Date.now()}`,
+                userGivenName: configName || `Mi Configuración #${savedSensitivities.length + 1}`,
+                settings: currentSettings, // Ensure we save the user's manual input
             };
-            const result = await decodeSensitivity(placeholderSettings);
-            setAnalysisResult(result);
+            setSavedSensitivities(prev => [savedData, ...prev]);
+            toast({ title: 'Análisis Completo', description: `"${savedData.userGivenName}" ha sido guardado en tu arsenal.` });
+            resetForm();
         } catch (e) {
             console.error(e);
-            setError('Error al analizar con la IA. El código podría ser inválido o el servicio no está disponible.');
+            setError('Error al analizar con la IA. El servicio no está disponible.');
         } finally {
             setIsLoading(false);
         }
     };
     
-    const handleSaveAnalysis = (data: SavedSensitivity) => {
-        setSavedSensitivities(prev => [data, ...prev]);
-        setAnalysisResult(null);
-        setSensitivityCode('');
-        toast({
-            title: 'Sensibilidad Guardada',
-            description: `"${data.userGivenName}" ha sido añadido a tu arsenal.`,
-        });
-    };
+    const resetForm = () => {
+        setIsFormVisible(false);
+        setCurrentSettings(initialSettings);
+        setHasGyro(false);
+        setConfigName("");
+        setError(null);
+    }
 
     const handleCopyCode = (code: string) => {
         if (!code) {
@@ -225,48 +154,65 @@ export default function SensitivitiesPage() {
         <div className="space-y-8">
             <div>
                 <h1 className="text-3xl font-bold flex items-center gap-2"><FileCode className="w-8 h-8 text-primary"/> Arsenal de Sensibilidad</h1>
-                <p className="text-muted-foreground">Analiza códigos de sensibilidad, edita los valores y guarda tus configuraciones perfectas.</p>
+                <p className="text-muted-foreground">Añade tus configuraciones, analízalas con IA y guárdalas en tu colección personal.</p>
             </div>
             
-            {!analysisResult && (
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Decodificar y Analizar Sensibilidad</CardTitle>
-                        <CardDescription>Pega un código de sensibilidad de PUBG Mobile. La IA generará una configuración y un análisis táctico que podrás editar.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                         <div className="space-y-2">
-                            <Label htmlFor="code-input">Código de Sensibilidad</Label>
-                            <Input id="code-input" placeholder="Pega tu código aquí (ej: 7293-4161-...)" value={sensitivityCode} onChange={(e) => setSensitivityCode(e.target.value)} />
-                        </div>
-                         <Button onClick={handleAnalyze} disabled={isLoading}>
-                            {isLoading ? <Loader2 className="mr-2 animate-spin" /> : <Sparkles className="mr-2" />}
-                            {isLoading ? 'Analizando...' : 'Analizar Código'}
+            <Card>
+                <CardHeader>
+                    <CardTitle>{isFormVisible ? "Añadir Nueva Sensibilidad al Arsenal" : "Gestiona tus Configuraciones"}</CardTitle>
+                    <CardDescription>{isFormVisible ? "Introduce tus valores de sensibilidad y la IA los analizará." : "Visualiza tus configuraciones guardadas o añade una nueva."}</CardDescription>
+                </CardHeader>
+                {!isFormVisible && (
+                    <CardContent>
+                        <Button onClick={() => setIsFormVisible(true)}>
+                            <Sparkles className="mr-2 h-4 w-4" />
+                            Añadir y Analizar Nueva Sensibilidad
                         </Button>
-                        {error && <Alert variant="destructive" className="mt-4"><Terminal className="h-4 w-4" /><AlertDescription>{error}</AlertDescription></Alert>}
                     </CardContent>
-                </Card>
-            )}
+                )}
+                {isFormVisible && (
+                     <CardContent className="space-y-6 animate-in fade-in-50">
+                        <div className="space-y-2">
+                            <Label htmlFor="config-name">Nombre para esta Configuración</Label>
+                            <Input id="config-name" placeholder='Ej: "Mi config para rushear"' value={configName} onChange={e => setConfigName(e.target.value)} />
+                        </div>
 
-            {isLoading && (
-                 <Card className="mt-6">
-                    <CardHeader><Skeleton className="h-8 w-1/2" /></CardHeader>
-                    <CardContent className="space-y-4">
-                        <Skeleton className="h-10 w-full" />
-                        <Skeleton className="h-24 w-full" />
-                        <Skeleton className="h-24 w-full" />
+                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <EditableScopeTable title="Sensibilidad de Cámara" category="camera" data={currentSettings.camera} onValueChange={handleValueChange} />
+                            <EditableScopeTable title="Sensibilidad de ADS" category="ads" data={currentSettings.ads} onValueChange={handleValueChange} />
+                            
+                            <div className="space-y-4">
+                                <div className="flex items-center space-x-2">
+                                    <Switch id="gyro-switch" checked={hasGyro} onCheckedChange={setHasGyro} />
+                                    <Label htmlFor="gyro-switch">Añadir Sensibilidad de Giroscopio</Label>
+                                </div>
+                                {hasGyro && (
+                                     <div className="animate-in fade-in-50">
+                                        <EditableScopeTable title="Giroscopio" category="gyroscope" data={currentSettings.gyroscope} onValueChange={handleValueChange} />
+                                     </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="config-code">Tu Código de Importación (Opcional)</Label>
+                            <Input id="config-code" placeholder="Pega tu código aquí (ej: 7293-4161-...)" value={currentSettings.code} onChange={e => handleCodeChange(e.target.value)} />
+                        </div>
+                        {error && <Alert variant="destructive"><Terminal className="h-4 w-4" /><AlertDescription>{error}</AlertDescription></Alert>}
+                        <div className="flex gap-2">
+                            <Button onClick={handleAnalyze} disabled={isLoading}>
+                                {isLoading ? <Loader2 className="mr-2 animate-spin" /> : <Bot className="mr-2" />}
+                                {isLoading ? 'Analizando...' : 'Analizar y Guardar'}
+                            </Button>
+                             <Button variant="outline" onClick={resetForm}>
+                                <X className="mr-2" />
+                                Cancelar
+                            </Button>
+                        </div>
                     </CardContent>
-                </Card>
-            )}
+                )}
+            </Card>
 
-            {analysisResult && !isLoading && (
-                <AnalysisResult 
-                    analysisData={analysisResult} 
-                    onSave={handleSaveAnalysis}
-                    onCancel={() => { setAnalysisResult(null); setSensitivityCode(''); }}
-                />
-            )}
-            
             {savedSensitivities.length > 0 && (
                  <div className="space-y-4 pt-8">
                     <h2 className="text-2xl font-bold">Mi Arsenal</h2>
@@ -318,14 +264,14 @@ export default function SensitivitiesPage() {
                     </div>
                 </div>
             )}
-             {savedSensitivities.length === 0 && !analysisResult && !isLoading && (
+             {savedSensitivities.length === 0 && !isFormVisible && (
                  <Card className="h-full flex flex-col items-center justify-center text-center p-8 border-dashed min-h-[300px]">
                     <div className="p-4 bg-primary/10 rounded-full mb-4">
                         <FileCode className="h-12 w-12 text-primary" />
                     </div>
                     <h2 className="text-2xl font-bold">Tu Arsenal está Vacío</h2>
                     <p className="text-muted-foreground max-w-md">
-                       Pega un código de sensibilidad para analizarlo, editarlo y guardarlo en tu colección personal.
+                       Haz clic en el botón de arriba para añadir tu primera configuración de sensibilidad y obtener un análisis detallado por IA.
                     </p>
                 </Card>
             )}
