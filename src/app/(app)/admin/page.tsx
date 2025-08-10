@@ -24,7 +24,7 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
 import { Code, UserPlus, Newspaper, Check, X, Users, Swords, PlusCircle, Pencil, Trash2, LayoutDashboard, Settings, DollarSign, BarChart, BellRing, Wrench, Link as LinkIcon, KeyRound, RefreshCw, Briefcase, Star, CheckCircle, Banknote, Flag, Calendar as CalendarIcon, Clock, Info } from "lucide-react"
-import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles, friendsForComparison as initialUsers, rechargeProviders, developers, services as initialServices, creators, bankAccounts, initialTransactions, addTournament } from "@/lib/data"
+import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles, friendsForComparison as initialUsers, rechargeProviders, developers, services as initialServices, creators, bankAccounts, initialTransactions, addTournament, tournaments } from "@/lib/data"
 import type { RegistrationRequest, Tournament, NewsArticle, Service, UserWithRole, BankAccount, Transaction } from "@/lib/types"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -42,7 +42,7 @@ import { cn } from "@/lib/utils"
 export default function AdminPage() {
   const { toast } = useToast()
   const [requests, setRequests] = useState<RegistrationRequest[]>(initialRegistrationRequests)
-  const [tournaments, setTournaments] = useState<Tournament[]>(initialTournaments)
+  const [currentTournaments, setTournaments] = useState<Tournament[]>(initialTournaments)
   const [services, setServices] = useState<Service[]>(initialServices);
   const [users, setUsers] = useState<UserWithRole[]>(initialUsers);
   const [transactions, setTransactions] = useState<Transaction[]>(initialTransactions);
@@ -103,7 +103,7 @@ export default function AdminPage() {
     };
     
     addTournament(newTournament);
-    setTournaments(prev => [...prev, newTournament]);
+    setTournaments([...tournaments]); // Force re-render
 
     toast({
       title: "Torneo Creado",
@@ -470,7 +470,7 @@ export default function AdminPage() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            {tournaments.map(tournament => (
+                            {currentTournaments.map(tournament => (
                                 <div key={tournament.id} className="p-4 bg-muted/50 rounded-lg flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                                     <div>
                                         <p className="font-bold">{tournament.name}</p>
@@ -1077,3 +1077,5 @@ export default function AdminPage() {
     </div>
   )
 }
+
+    
