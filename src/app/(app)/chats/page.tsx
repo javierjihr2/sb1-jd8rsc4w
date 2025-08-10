@@ -7,17 +7,20 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { recentChats as initialChats } from "@/lib/data"
-import { Search, Send, Mic, Phone, Video, Settings, Paperclip, File, Image as ImageIcon, User, Sticker } from "lucide-react"
+import { Search, Send, Mic, Phone, Video, Paperclip, File, ImageIcon as ImageIconLucide, User, Sticker, Settings2 } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import type { Chat } from "@/lib/types"
+import { ChatThemeSettings } from "@/components/chat-theme-settings"
+import { cn } from "@/lib/utils"
 
 export default function ChatsPage() {
   const [chats, setChats] = useState<Chat[]>(initialChats);
-  const [selectedChat, setSelectedChat] = useState<Chat>(chats[0]);
+  const [selectedChat, setSelectedChat] = useState<Chat | null>(chats[0] || null);
   const [message, setMessage] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+  const [chatTheme, setChatTheme] = useState('bg-chat-default');
+
   const handleSelectChat = (chat: Chat) => {
     setSelectedChat(chat);
     // Marcar como leído
@@ -39,6 +42,7 @@ export default function ChatsPage() {
         return {
           ...chat,
           messages: [...chat.messages, newMessage],
+          lastMessageTimestamp: newMessage.timestamp,
         };
       }
       return chat;
@@ -75,18 +79,21 @@ export default function ChatsPage() {
               {chats.map((chat) => (
                 <div 
                   key={chat.id} 
-                  className={`flex items-center gap-3 p-4 border-b cursor-pointer hover:bg-muted/50 ${selectedChat?.id === chat.id ? 'bg-muted' : ''}`}
+                  className={`flex items-center gap-3 p-4 border-b cursor-pointer hover:bg-muted/50 transition-colors ${selectedChat?.id === chat.id ? 'bg-muted' : ''}`}
                   onClick={() => handleSelectChat(chat)}
                 >
                   <Avatar className="h-10 w-10">
                     <AvatarImage src={chat.avatarUrl} alt={chat.name} data-ai-hint="gaming character" />
                     <AvatarFallback>{chat.name.substring(0, 2)}</AvatarFallback>
                   </Avatar>
-                  <div className="flex-1">
-                    <p className="font-semibold">{chat.name}</p>
+                  <div className="flex-1 overflow-hidden">
+                    <p className="font-semibold truncate">{chat.name}</p>
                     <p className="text-sm text-muted-foreground truncate">{chat.messages[chat.messages.length - 1]?.text}</p>
                   </div>
-                  {chat.unread && <div className="h-2.5 w-2.5 rounded-full bg-primary" />}
+                  <div className="flex flex-col items-end text-xs">
+                     {chat.unread && <span className="h-2.5 w-2.5 rounded-full bg-primary mb-1" />}
+                     <span className="text-muted-foreground">{chat.lastMessageTimestamp}</span>
+                  </div>
                 </div>
               ))}
             </div>
@@ -95,54 +102,61 @@ export default function ChatsPage() {
       </Card>
 
       {/* Chat Window */}
-      <Card className="md:col-span-2 lg:col-span-3 flex flex-col">
+      <Card className="md:col-span-2 lg:col-span-3 flex flex-col overflow-hidden">
         {selectedChat ? (
           <>
-            <CardHeader className="p-4 border-b flex flex-row items-center gap-3">
+            <CardHeader className="p-4 border-b flex flex-row items-center gap-3 z-10 bg-card/80 backdrop-blur-sm">
               <Avatar>
                 <AvatarImage src={selectedChat.avatarUrl} alt={selectedChat.name} data-ai-hint="gaming character"/>
                 <AvatarFallback>{selectedChat.name.substring(0,2)}</AvatarFallback>
               </Avatar>
               <div className="flex-1">
                 <CardTitle>{selectedChat.name}</CardTitle>
+                <p className="text-xs text-green-500">En línea</p>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1">
                 <Button variant="ghost" size="icon">
                   <Video className="h-5 w-5"/>
                 </Button>
                  <Button variant="ghost" size="icon">
                   <Phone className="h-5 w-5"/>
                 </Button>
-                 <Button variant="ghost" size="icon">
-                  <Settings className="h-5 w-5"/>
-                </Button>
+                 <ChatThemeSettings setTheme={setChatTheme}>
+                    <Button variant="ghost" size="icon">
+                        <Settings2 className="h-5 w-5"/>
+                    </Button>
+                 </ChatThemeSettings>
               </div>
             </CardHeader>
-            <ScrollArea className="flex-1">
-                <CardContent className="p-4 space-y-4 bg-background/50 text-sm">
-                {selectedChat.messages.map((msg, index) => (
-                    <div 
-                        key={index} 
-                        className={`flex ${msg.sender === 'me' ? 'justify-end' : 'justify-start'}`}
-                        ref={index === selectedChat.messages.length - 1 ? lastMessageRef : null}
-                    >
-                        <div className={`p-3 rounded-xl max-w-md ${msg.sender === 'me' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
-                        {msg.text}
+            <div className={cn("flex-1 relative", chatTheme)}>
+                <div className="absolute inset-0 bg-black/30 backdrop-blur-sm"></div>
+                <ScrollArea className="h-full absolute inset-0">
+                    <CardContent className="p-4 space-y-4 text-sm ">
+                    {selectedChat.messages.map((msg, index) => (
+                        <div 
+                            key={index} 
+                            className={`flex gap-2 items-end ${msg.sender === 'me' ? 'justify-end' : 'justify-start'}`}
+                            ref={index === selectedChat.messages.length - 1 ? lastMessageRef : null}
+                        >
+                             {msg.sender !== 'me' && <Avatar className="h-6 w-6"><AvatarImage src={selectedChat.avatarUrl}/><AvatarFallback>{selectedChat.name.substring(0,1)}</AvatarFallback></Avatar>}
+                            <div className={`p-3 rounded-xl max-w-md shadow-md ${msg.sender === 'me' ? 'bg-primary text-primary-foreground rounded-br-none' : 'bg-card text-card-foreground rounded-bl-none'}`}>
+                            {msg.text}
+                            </div>
                         </div>
-                    </div>
-                ))}
-                </CardContent>
-            </ScrollArea>
-            <form onSubmit={handleSendMessage} className="p-4 border-t bg-card flex items-center gap-2">
+                    ))}
+                    </CardContent>
+                </ScrollArea>
+            </div>
+            <form onSubmit={handleSendMessage} className="p-4 border-t bg-card flex items-center gap-2 z-10">
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                       <Button type="button" size="icon" variant="outline">
+                       <Button type="button" size="icon" variant="ghost">
                             <Paperclip className="h-5 w-5" />
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start">
                         <DropdownMenuItem onClick={() => fileInputRef.current?.click()}>
-                            <ImageIcon className="mr-2" />
+                            <ImageIconLucide className="mr-2" />
                             <span>Foto o Video</span>
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => fileInputRef.current?.click()}>
@@ -159,7 +173,7 @@ export default function ChatsPage() {
 
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                       <Button type="button" size="icon" variant="outline">
+                       <Button type="button" size="icon" variant="ghost">
                             <Sticker className="h-5 w-5" />
                         </Button>
                     </DropdownMenuTrigger>
@@ -174,14 +188,14 @@ export default function ChatsPage() {
 
               <Input 
                 placeholder="Escribe un mensaje..." 
-                className="flex-1 bg-background" 
+                className="flex-1 bg-background rounded-full px-4" 
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
               />
-               <Button type="button" size="icon" variant="outline">
+               <Button type="button" size="icon" variant="ghost">
                 <Mic className="h-5 w-5" />
               </Button>
-              <Button type="submit" size="icon">
+              <Button type="submit" size="icon" className="rounded-full">
                 <Send className="h-5 w-5" />
               </Button>
             </form>

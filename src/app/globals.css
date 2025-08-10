@@ -92,3 +92,24 @@
     font-family: var(--font-inter), sans-serif;
   }
 }
+
+@layer utilities {
+    .bg-chat-default {
+        @apply bg-muted;
+    }
+    .bg-chat-erangel {
+        background-image: url('https://placehold.co/1920x1080/556B2F/FFFFFF.png?text=Erangel');
+        background-size: cover;
+        background-position: center;
+    }
+    .bg-chat-miramar {
+        background-image: url('https://placehold.co/1920x1080/D2B48C/FFFFFF.png?text=Miramar');
+        background-size: cover;
+        background-position: center;
+    }
+    .bg-chat-sanhok {
+        background-image: url('https://placehold.co/1920x1080/2E8B57/FFFFFF.png?text=Sanhok');
+        background-size: cover;
+        background-position: center;
+    }
+}

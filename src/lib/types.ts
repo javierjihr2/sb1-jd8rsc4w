@@ -50,6 +50,7 @@ export type Chat = {
   avatarUrl: string;
   unread: boolean;
   messages: Message[];
+  lastMessageTimestamp?: string;
 };
 
 export type NewsArticle = {

@@ -65,6 +65,7 @@ export const recentChats: Chat[] = [
     name: 'AlphaSquad',
     avatarUrl: 'https://placehold.co/40x40/1E90FF/FFFFFF.png',
     unread: true,
+    lastMessageTimestamp: '20:15',
     messages: [
         { sender: 'other', text: '¿Listos para el torneo de mañana?' },
         { sender: 'me', text: '¡Más que listos! Estuve practicando toda la tarde.' },
@@ -76,6 +77,7 @@ export const recentChats: Chat[] = [
     name: 'Ninja_Dude',
     avatarUrl: 'https://placehold.co/40x40/32CD32/FFFFFF.png',
     unread: true,
+    lastMessageTimestamp: '18:42',
      messages: [
         { sender: 'other', text: '¡Buena partida la de antes!' },
         { sender: 'me', text: '¡Igualmente! Ese último squad casi nos complica.' },
@@ -87,6 +89,7 @@ export const recentChats: Chat[] = [
     name: 'ShadowStriker',
     avatarUrl: 'https://placehold.co/40x40/8A2BE2/FFFFFF.png',
     unread: false,
+    lastMessageTimestamp: 'Ayer',
      messages: [
         { sender: 'other', text: 'Te envié una solicitud de amistad.' },
     ]
@@ -96,6 +99,7 @@ export const recentChats: Chat[] = [
     name: 'Phoenix_Queen',
     avatarUrl: 'https://placehold.co/40x40/FF4500/FFFFFF.png',
     unread: false,
+    lastMessageTimestamp: 'Ayer',
      messages: [
         { sender: 'other', text: 'Necesitamos un cuarto para la práctica de esta noche, ¿te unes?' },
         { sender: 'me', text: 'Claro, ¿a qué hora?' },
