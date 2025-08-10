@@ -1,17 +1,17 @@
 
 'use server';
 /**
- * @fileOverview An AI agent for generating custom player avatars, logos, and other designs through a conversational interface.
+ * @fileOverview An AI agent for refining a design prompt through conversation.
  *
- * - generateAvatar - A function that handles the design generation process.
- * - AvatarInput - The input type for the generateAvatar function.
- * - AvatarOutput - The return type for the generateAvatar function.
+ * - refinePrompt - A function that handles the prompt refinement process.
+ * - AvatarInput - The input type for the refinePrompt function.
+ * - RefinedPromptOutput - The return type for the refinePrompt function.
  */
 
 import {ai} from '@/ai/genkit';
-import { AvatarInputSchema, AvatarSchema, type Avatar, type AvatarInput } from '../schemas';
+import { AvatarInputSchema, RefinedPromptOutputSchema, type AvatarInput, type RefinedPromptOutput } from '../schemas';
 
-export async function generateAvatar(input: AvatarInput): Promise<Avatar> {
+export async function refinePrompt(input: AvatarInput): Promise<RefinedPromptOutput> {
   return avatarFlow(input);
 }
 
@@ -19,12 +19,12 @@ const avatarFlow = ai.defineFlow(
   {
     name: 'avatarFlow',
     inputSchema: AvatarInputSchema,
-    outputSchema: AvatarSchema,
+    outputSchema: RefinedPromptOutputSchema,
   },
   async ({history}) => {
     
     const llmResponse = await ai.generate({
-      prompt: `Eres un Asistente de Diseño Gráfico de IA, un experto en el universo visual y la estética del videojuego PUBG Mobile y otros "battle royale". Tu misión es actuar como un chatbot que refina y enriquece un prompt de generación de imágenes basado en una conversación con un usuario, para luego pasarlo a un modelo de imagen.
+      prompt: `Eres un Asistente de Diseño Gráfico de IA, un experto en el universo visual y la estética del videojuego PUBG Mobile y otros "battle royale". Tu misión es actuar como un chatbot que refina y enriquece un prompt de generación de imágenes basado en una conversación con un usuario.
 
       Historial de la Conversación (el último mensaje es la petición más reciente del usuario):
       ${JSON.stringify(history)}
@@ -50,27 +50,7 @@ const avatarFlow = ai.defineFlow(
 
     const imageGenerationPrompt = llmResponse.text;
 
-    const generateImage = async () => {
-      const {media} = await ai.generate({
-        model: 'googleai/gemini-2.0-flash-preview-image-generation',
-        prompt: imageGenerationPrompt,
-        config: {
-          responseModalities: ['TEXT', 'IMAGE'],
-        },
-      });
-       if (!media?.url) {
-        throw new Error("El modelo de IA no pudo generar una imagen de avatar.");
-      }
-      return media.url;
-    }
-
-    const [imageUrl1, imageUrl2] = await Promise.all([
-        generateImage(),
-        generateImage()
-    ]);
-
     return {
-      imageUrls: [imageUrl1, imageUrl2],
       revisedPrompt: imageGenerationPrompt,
     };
   }

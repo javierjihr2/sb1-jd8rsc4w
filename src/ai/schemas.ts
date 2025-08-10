@@ -182,11 +182,10 @@ export const AvatarInputSchema = z.object({
 });
 export type AvatarInput = z.infer<typeof AvatarInputSchema>;
 
-export const AvatarSchema = z.object({
-  imageUrls: z.array(z.string()).describe('Una lista de URLs de las imágenes de avatar generadas, deben ser data URIs.'),
-  revisedPrompt: z.string().optional().describe('El prompt final que la IA usó para generar la imagen.'),
+export const RefinedPromptOutputSchema = z.object({
+    revisedPrompt: z.string().describe('El prompt final que la IA refinó para generar la imagen.'),
 });
-export type Avatar = z.infer<typeof AvatarSchema>;
+export type RefinedPromptOutput = z.infer<typeof RefinedPromptOutputSchema>;
 
 
 const PlayerProfileForIcebreakerSchema = z.object({
