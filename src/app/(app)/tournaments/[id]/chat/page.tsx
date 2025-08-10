@@ -53,10 +53,25 @@ export default function TournamentChatPage() {
 
   useEffect(() => {
     if (tournament) {
+        const welcomeMessage = `
+**${tournament.name.toUpperCase()}**
+
+¡Bienvenidos a la sala oficial del torneo!
+
+**Detalles del Evento:**
+• **Fecha:** ${tournament.date}
+• **Modo:** ${tournament.mode}
+• **Premio:** ${tournament.prize}
+
+**Equipos Inscritos:**
+${registeredTeams.map((team, i) => `${(i + 1).toString().padStart(2, '0')}↬ ${team.name}`).join('\n')}
+
+Por favor, mantengan una comunicación respetuosa. ¡Mucha suerte a todos!
+`;
         setMessages([
             { 
                 sender: 'other', 
-                text: `¡Bienvenidos al chat del torneo "${tournament.name}"!\n\n**Detalles del Evento:**\n- **Fecha y Hora:** ${tournament.date}\n- **Premio Total:** ${tournament.prize}\n- **Modo:** ${tournament.mode}\n\n**Info Importante:**\n- Por favor, mantén una comunicación respetuosa.\n- Las reglas completas se pueden encontrar en la página del torneo.\n\n**Equipos Inscritos:**\n${registeredTeams.map((team, i) => `${i + 1}. ${team.name}`).join('\n')}\n\n¡Mucha suerte a todos los participantes!` 
+                text: welcomeMessage.trim()
             },
         ]);
     }
@@ -306,6 +321,6 @@ const CommandList = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDi
 CommandList.displayName = "CommandList";
 
 const CommandItem = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement> & { onSelect: () => void }>(({ className, onSelect, ...props }, ref) => (
-  <div ref={ref} onClick={onSelect} className={className} {...props} />
+  <div ref={ref} onClick={onSelect} className={cn("flex items-center gap-2 p-2 rounded-sm hover:bg-accent cursor-pointer", className)} {...props} />
 ));
 CommandItem.displayName = "CommandItem";
