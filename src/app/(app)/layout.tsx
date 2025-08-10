@@ -72,10 +72,9 @@ export default function DashboardLayout({
     { href: "/equipment", label: "Taller de Precisión", icon: Target, badge: 0 },
     { href: "/recharge", label: "Recargar UC", icon: DollarSign, badge: 0 },
     { href: "/sensitivities", label: "Mis Sensibilidades", icon: FileCode },
-    { href: "/player-analysis", label: "Análisis de Jugador", icon: BrainCircuit },
+    { href: "/player-analysis", label: "Análisis con IA", icon: BrainCircuit },
     { href: "/play-map", label: "Estrategias de Mapas", icon: Map },
     { href: "/compare", label: "Comparador de Dúos", icon: Users },
-    { href: "/player-analysis#avatar", label: "Asistente de Diseño IA", icon: ImageIcon },
     { href: "/support", label: "Soporte", icon: HelpCircle, badge: 0 },
   ]
   
