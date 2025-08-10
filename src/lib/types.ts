@@ -50,6 +50,7 @@ export type Tournament = {
   streamLink?: string;
   maxWithdrawalTime?: string;
   maxReserves?: number;
+  messageTemplate?: string;
 };
 
 export type Message = {

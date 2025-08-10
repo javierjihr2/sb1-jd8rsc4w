@@ -23,8 +23,8 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
-import { Code, UserPlus, Newspaper, Check, X, Users, Swords, PlusCircle, Pencil, Trash2, LayoutDashboard, Settings, DollarSign, BarChart, BellRing, Wrench, Link as LinkIcon, KeyRound, RefreshCw, Briefcase, Star, CheckCircle, Banknote, Flag, Calendar as CalendarIcon, Clock, Info, Map, Video, ShieldAlert, FileText, Lightbulb } from "lucide-react"
-import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles, friendsForComparison as initialUsers, rechargeProviders, developers, services as initialServices, creators, bankAccounts, initialTransactions, addTournament, tournaments, updateTournament, mapOptions, registeredTeams, updateRegistrationStatus, addApprovedRegistration, reserveTeams, playerProfile, tournamentMessageTemplate } from "@/lib/data"
+import { Code, UserPlus, Newspaper, Check, X, Users, Swords, PlusCircle, Pencil, Trash2, LayoutDashboard, Settings, DollarSign, BarChart, BellRing, Wrench, Link as LinkIcon, KeyRound, RefreshCw, Briefcase, Star, CheckCircle, Banknote, Flag, Calendar as CalendarIcon, Clock, Info, Map, Video, ShieldAlert, FileText, Lightbulb, ChevronDown } from "lucide-react"
+import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles, friendsForComparison as initialUsers, rechargeProviders, developers, services as initialServices, creators, bankAccounts, initialTransactions, addTournament, tournaments, updateTournament, mapOptions, registeredTeams, updateRegistrationStatus, addApprovedRegistration, reserveTeams, playerProfile, tournamentMessageTemplate as globalTournamentMessageTemplate } from "@/lib/data"
 import type { RegistrationRequest, Tournament, NewsArticle, Service, UserWithRole, BankAccount, Transaction, Team } from "@/lib/types"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -38,6 +38,7 @@ import { format, parseISO } from "date-fns"
 import { Calendar } from "@/components/ui/calendar"
 import { cn } from "@/lib/utils"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 
 
 export default function AdminPage() {
@@ -67,7 +68,7 @@ export default function AdminPage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   
   // State for message template
-  const [messageTemplate, setMessageTemplate] = useState(tournamentMessageTemplate);
+  const [messageTemplate, setMessageTemplate] = useState(globalTournamentMessageTemplate);
 
 
   const handleCreateProfile = (event: React.FormEvent<HTMLFormElement>) => {
@@ -112,6 +113,7 @@ export default function AdminPage() {
         streamLink: hasStream ? (formData.get('t-stream-link') as string) : undefined,
         maxWithdrawalTime: formData.get('t-max-withdrawal-time') as string,
         maxReserves: parseInt(formData.get('t-max-reserves') as string) || 0,
+        messageTemplate: formData.get('t-message-template') as string || undefined,
     };
     
     if (editingTournament) {
@@ -221,7 +223,6 @@ export default function AdminPage() {
     // In a real app, this would save to a db. Here, we update the imported variable.
     // NOTE: This is a simplified approach for demonstration. A real app would use a state management solution or API calls.
     // For the purpose of this simulation, we will directly mutate the imported variable.
-    // This is generally not a good practice in React.
     require('@/lib/data').tournamentMessageTemplate = messageTemplate;
 
     toast({
@@ -534,6 +535,27 @@ export default function AdminPage() {
                     </div>
                 )}
             </div>
+            <Collapsible>
+              <CollapsibleTrigger className="flex items-center gap-2 text-sm font-semibold text-primary">
+                <ChevronDown className="h-4 w-4"/>
+                Personalizar Plantilla de Mensaje (Opcional)
+              </CollapsibleTrigger>
+              <CollapsibleContent className="pt-4 animate-in fade-in-50">
+                  <div className="space-y-2 p-4 border rounded-lg">
+                    <Label htmlFor="t-message-template">Plantilla Específica para este Torneo</Label>
+                    <Textarea 
+                      id="t-message-template"
+                      name="t-message-template"
+                      className="min-h-[200px] font-mono text-xs"
+                      placeholder="Deja en blanco para usar la plantilla global de Ajustes."
+                      defaultValue={defaultValues?.messageTemplate}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Si rellenas este campo, este torneo usará esta plantilla en lugar de la global. Puedes usar las mismas etiquetas (ej: {'{{header}}'}).
+                    </p>
+                  </div>
+              </CollapsibleContent>
+            </Collapsible>
         </CardContent>
         <CardFooter>
             <Button type="submit" className="w-full">{defaultValues ? "Guardar Cambios" : "Crear Torneo"}</Button>
@@ -1220,7 +1242,7 @@ export default function AdminPage() {
                         <div className="space-y-4 p-4 border rounded-lg">
                             <h3 className="font-semibold flex items-center gap-2"><FileText className="h-5 w-5 text-primary"/>Plantilla de Mensaje para Torneos</h3>
                             <div className="space-y-2">
-                                <Label htmlFor="message-template">Estructura del Mensaje Automático</Label>
+                                <Label htmlFor="message-template">Estructura del Mensaje Automático (Global)</Label>
                                 <Textarea 
                                     id="message-template" 
                                     className="min-h-[300px] font-mono text-xs"
@@ -1236,6 +1258,7 @@ export default function AdminPage() {
                                 <code className="text-xs grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-4 gap-y-1 mt-2">
                                     <span>{'{{header}}'}</span>
                                     <span>{'{{organizerName}}'}</span>
+                                    <span>{'{{tournamentName}}'}</span>
                                     <span>{'{{date}}'}</span>
                                     <span>{'{{startTime}}'}</span>
                                     <span>{'{{timeZoneFlag}}'}</span>

@@ -4,7 +4,7 @@
 import * as React from "react"
 import { useState, useEffect, useRef } from "react"
 import { useParams } from "next/navigation"
-import { tournaments, playerProfile, registeredTeams, getRegistrationStatus, updateRegistrationStatus, countryFlags, reserveTeams, tournamentMessageTemplate } from "@/lib/data"
+import { tournaments, playerProfile, registeredTeams, getRegistrationStatus, updateRegistrationStatus, countryFlags, reserveTeams, tournamentMessageTemplate as globalTournamentMessageTemplate } from "@/lib/data"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -93,9 +93,12 @@ export default function TournamentChatPage() {
     
     const streamLinkText = tournament.streamLink ? `\n📺 **Transmisión:**\n${tournament.streamLink}` : '';
 
-    let populatedTemplate = tournamentMessageTemplate
+    const templateToUse = tournament.messageTemplate || globalTournamentMessageTemplate;
+
+    let populatedTemplate = templateToUse
         .replace('{{header}}', messageHeader)
         .replace('{{organizerName}}', playerProfile.name)
+        .replace('{{tournamentName}}', tournament.name)
         .replace('{{date}}', tournament.date)
         .replace('{{startTime}}', tournament.startTime || 'Hora no definida')
         .replace('{{timeZoneFlag}}', timeZoneFlag)
@@ -121,7 +124,7 @@ export default function TournamentChatPage() {
   
   useEffect(() => {
     const handleTournamentUpdate = () => {
-       if (isChatLocked || autoUpdatesPaused) return; // No enviar actualizaciones si el chat está bloqueado o las actualizaciones pausadas
+       if (autoUpdatesPaused) return; 
        const updateMessage = generateWelcomeMessage(true);
         setMessages(prev => [
             ...prev,
@@ -130,7 +133,7 @@ export default function TournamentChatPage() {
     };
     window.addEventListener('tournamentUpdated', handleTournamentUpdate);
     return () => window.removeEventListener('tournamentUpdated', handleTournamentUpdate);
-  }, [isChatLocked, autoUpdatesPaused]);
+  }, [autoUpdatesPaused]);
 
 
    useEffect(() => {
