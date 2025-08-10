@@ -10,8 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { services } from "@/lib/data";
 import { Briefcase, CheckCircle, Filter, MessageSquare, Search, Star, Medal } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 export default function ServicesPage() {
     const { toast } = useToast();
@@ -58,35 +58,44 @@ export default function ServicesPage() {
 
             <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                 {services.map(service => (
-                    <Card key={service.id} className={`flex flex-col overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${service.isFeatured ? 'border-amber-400 border-2 shadow-amber-500/10' : ''}`}>
-                        <CardHeader className="p-0 relative">
-                           <Image src="https://placehold.co/400x150/FF6B35/FFFFFF.png" data-ai-hint="abstract gradient" alt="Card Background" width={400} height={150} className="object-cover" />
-                           <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]"></div>
-                           <div className="absolute top-0 right-0 m-2">
-                                {service.isFeatured && <Badge variant="secondary" className="bg-amber-400 text-amber-900 border-amber-500"><Medal className="mr-1 h-4 w-4"/>Recomendado</Badge>}
-                           </div>
-                           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2">
-                                <Avatar className="w-24 h-24 border-4 border-background ring-2 ring-primary">
-                                    <AvatarImage src={service.avatarUrl} data-ai-hint="gaming character"/>
-                                    <AvatarFallback>{service.creatorName.substring(0,2)}</AvatarFallback>
-                                </Avatar>
-                           </div>
-                        </CardHeader>
-                        <CardContent className="pt-16 text-center">
-                            <h3 className="text-xl font-bold text-primary">{service.serviceTitle}</h3>
-                            <div className="flex items-center justify-center gap-2 mt-1">
-                                <p className="font-semibold">{service.creatorName}</p>
-                                {service.isVerified && <CheckCircle className="h-4 w-4 text-green-500" title="Verificado"/>}
+                    <Card key={service.id} className={cn(
+                        "flex flex-col overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1",
+                        service.isFeatured ? 'border-amber-400/50 bg-amber-500/5' : ''
+                    )}>
+                        <CardHeader className="flex-row items-center gap-4">
+                           <Avatar className="w-14 h-14 border-2 border-primary/50">
+                                <AvatarImage src={service.avatarUrl} data-ai-hint="gaming character"/>
+                                <AvatarFallback>{service.creatorName.substring(0,2)}</AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1">
+                                <CardTitle className="text-base flex items-center gap-2">
+                                    {service.creatorName}
+                                    {service.isVerified && <CheckCircle className="h-4 w-4 text-green-500" title="Verificado"/>}
+                                </CardTitle>
+                                <CardDescription className="text-xs">
+                                     {service.isFeatured ? (
+                                        <Badge variant="secondary" className="mt-1 text-amber-900 bg-amber-400/80 border-amber-500/50">
+                                            <Medal className="mr-1 h-3 w-3"/>Recomendado
+                                        </Badge>
+                                     ) : (
+                                        `UID: ${service.uid}`
+                                     )}
+                                </CardDescription>
                             </div>
-                             <div className="flex items-center justify-center gap-1 text-sm text-muted-foreground mt-2">
-                                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" /> 
+                        </CardHeader>
+                        <CardContent className="flex-1 space-y-3">
+                           <h3 className="text-lg font-bold text-primary leading-tight">{service.serviceTitle}</h3>
+                           <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                                <Star className="h-4 w-4 fill-amber-400 text-amber-400" /> 
                                 <span className="font-bold">{service.rating.toFixed(1)}</span>
                                 <span>({service.reviews} reseñas)</span>
                             </div>
-                            <p className="text-sm text-muted-foreground mt-4 h-16 line-clamp-3">{service.description}</p>
+                            <p className="text-sm text-muted-foreground h-16 line-clamp-3">{service.description}</p>
                         </CardContent>
-                        <CardFooter className="flex-col items-stretch gap-3 mt-auto p-4">
-                            <div className="text-center font-bold text-lg py-2 border-y">{service.price > 0 ? `$${service.price.toFixed(2)}` : 'Gratis / Intercambio'}</div>
+                        <CardFooter className="flex-col items-stretch gap-3 mt-auto pt-4 border-t">
+                            <div className="text-center font-bold text-xl py-2">
+                                {service.price > 0 ? `$${service.price.toFixed(2)} USD` : 'Gratis / Intercambio'}
+                            </div>
                             <div className="flex gap-2">
                                 <Button className="flex-1" onClick={() => handleContact(service.creatorName)}>
                                     <MessageSquare className="mr-2 h-4 w-4" />
@@ -103,8 +112,7 @@ export default function ServicesPage() {
 
              <div className="text-center text-muted-foreground text-sm space-y-2 pt-8">
                 <p><strong>Aviso de Seguridad:</strong> Todas las comunicaciones y acuerdos se realizan bajo tu propia responsabilidad.</p>
-                <p>¿Quieres ofrecer tus servicios? <Link href="/support" className="text-primary underline">Contacta con nosotros</Link> para unirte al programa de creadores.</p>
+                <p>¿Quieres ofrecer tus servicios? <Link href="/creator-hub" className="text-primary underline">Visita el Portal del Creador</Link> para empezar.</p>
             </div>
         </div>
     )
-}
