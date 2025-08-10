@@ -115,6 +115,11 @@ export default function AdminPage() {
             title: "Torneo Actualizado",
             description: `El torneo "${tournamentData.name}" ha sido actualizado.`,
         });
+        toast({
+            title: "Notificación Enviada",
+            description: `Se envió un mensaje de actualización al chat del torneo.`,
+        });
+
     } else {
         // Create new tournament
         const newTournament: Tournament = {
@@ -217,6 +222,13 @@ export default function AdminPage() {
         title: `Solicitud ${status}`,
         description: `El equipo ha sido ${status.toLowerCase()} para el torneo.`,
     })
+    
+     if (status === 'Aprobado') {
+        toast({
+            title: "Notificación Enviada",
+            description: `Se envió un mensaje de actualización al chat del torneo con el nuevo equipo.`,
+        });
+    }
   }
   
   const handleWithdrawal = (e: React.FormEvent<HTMLFormElement>) => {

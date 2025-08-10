@@ -18,7 +18,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { MessageSquare, Send, ArrowLeft, KeyRound, UserPlus, Link as LinkIcon, Clock } from "lucide-react"
+import { MessageSquare, Send, ArrowLeft, KeyRound, UserPlus, Link as LinkIcon, Clock, Lock } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -26,6 +26,7 @@ import type { Message } from "@/lib/types"
 import Link from "next/link"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
+import { Switch } from "@/components/ui/switch"
 
 const participants = registeredTeams.flatMap(team => team.players);
 
@@ -40,6 +41,8 @@ export default function TournamentChatPage() {
   const [isRoomInfoDialogOpen, setRoomInfoDialogOpen] = useState(false);
   const [isAddUserDialogOpen, setAddUserDialogOpen] = useState(false);
   const [showMentionPopover, setShowMentionPopover] = useState(false);
+  const [isChatLocked, setIsChatLocked] = useState(false);
+
 
   // Form state for room info
   const [roomId, setRoomId] = useState("");
@@ -51,23 +54,32 @@ export default function TournamentChatPage() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const isOrganizer = playerProfile.role === 'Admin' || playerProfile.role === 'Creator';
+  
+  const generateWelcomeMessage = (isUpdate = false) => {
+    if (!tournament) return "";
+    
+    const maxSlots = tournament.maxTeams || 23;
+    const registeredCount = registeredTeams.length;
+    
+    let slotsList = `01.- ENTRADA\n02.- ENTRADA\n`;
+    
+    for (let i = 3; i <= maxSlots; i++) {
+        const teamIndex = i - 3; // Start filling from the first registered team
+        const slotNumber = i.toString().padStart(2, '0');
+        const team = registeredTeams[teamIndex];
+        slotsList += `${slotNumber}.- ${team ? `_${team.name.toUpperCase()}_` : ''}\n`;
+    }
 
-  useEffect(() => {
-    if (tournament) {
-        const slotsList = Array.from({ length: tournament.maxTeams || 23 }, (_, i) => {
-            const team = registeredTeams[i];
-            const slotNumber = (i + 1).toString().padStart(2, '0');
-            return `${slotNumber}.- ${team ? `_${team.name.toUpperCase()}_` : ''}`;
-        }).join('\n');
+    const mapsList = tournament.maps && tournament.maps.length > 0 
+        ? tournament.maps.map((map, i) => `${i+1}. ${map}`).join('\n')
+        : 'Mapas no definidos.';
 
-        const mapsList = tournament.maps && tournament.maps.length > 0 
-            ? tournament.maps.map((map, i) => `${i+1}. ${map}`).join('\n')
-            : 'Mapas no definidos.';
-
-        const welcomeMessage = `
-══════════════════
-**${tournament.name.toUpperCase()}**
-══════════════════
+    const messageHeader = isUpdate 
+        ? `════ **LISTA DE EQUIPOS ACTUALIZADA** ════`
+        : `══════════════════\n**${tournament.name.toUpperCase()}**\n══════════════════`;
+        
+    return `
+${messageHeader}
 _Organizado por: ${playerProfile.name} 🥷_
 
 🗓️ **Fecha:** ${tournament.date}
@@ -76,22 +88,39 @@ _Organizado por: ${playerProfile.name} 🥷_
 🗺️ **Mapas:**
 ${mapsList}
 
-👥 **Equipos Inscritos:**
-${slotsList}
+👥 **Equipos Inscritos (${registeredCount}/${maxSlots - 2}):**
+${slotsList.trim()}
 
 ${tournament.streamLink ? `\n📺 **Transmisión:**\n${tournament.streamLink}` : ''}
 
 _Por favor, mantengan una comunicación respetuosa. ¡Mucha suerte a todos!_
-`;
+`.trim().replace(/\n\n\n/g, '\n\n');
+  }
+
+  useEffect(() => {
+    const welcomeMessage = generateWelcomeMessage();
+    if(welcomeMessage) {
         setMessages([
-            { 
-                sender: 'other', 
-                text: welcomeMessage.trim().replace(/\n\n\n/g, '\n\n') // Clean up extra newlines
-            },
+            { sender: 'other', text: welcomeMessage },
         ]);
     }
-  }, [tournament]);
+  }, [tournament?.id]);
   
+  // Effect to re-send the message when registered teams change
+  useEffect(() => {
+    // This is a simulation. In a real app, this would be triggered by a websocket or Firestore listener
+    const teamCount = registeredTeams.length;
+    // To avoid re-sending on initial load, we check if there are already messages
+    if (messages.length > 0 && teamCount > 0) {
+        const updateMessage = generateWelcomeMessage(true);
+         setMessages(prev => [
+            ...prev,
+            { sender: 'other', text: updateMessage },
+        ]);
+    }
+  }, [registeredTeams.length]);
+
+
    useEffect(() => {
     if (lastMessageRef.current) {
       lastMessageRef.current.scrollIntoView({ behavior: "smooth" });
@@ -129,11 +158,14 @@ _Por favor, mantengan una comunicación respetuosa. ¡Mucha suerte a todos!_
       e.preventDefault();
 
       const maxSlots = tournament?.maxTeams || 23;
-      const slotsList = Array.from({ length: maxSlots }, (_, i) => {
-          const team = registeredTeams[i];
-          const slotNumber = (i + 1).toString().padStart(2, '0');
-          return `${slotNumber}.- ${team ? `_${team.name.toUpperCase()}_` : ''}`;
-      }).join('\n');
+      
+      let slotsList = `01.- ENTRADA\n02.- ENTRADA\n`;
+      for (let i = 3; i <= maxSlots; i++) {
+        const teamIndex = i - 3;
+        const slotNumber = i.toString().padStart(2, '0');
+        const team = registeredTeams[teamIndex];
+        slotsList += `${slotNumber}.- ${team ? `_${team.name.toUpperCase()}_` : ''}\n`;
+      }
       
       const mapsList = tournament.maps && tournament.maps.length > 0
         ? tournament.maps.map((map, i) => `${i+1}. ${map}`).join('\n')
@@ -154,7 +186,7 @@ _Organizado por: ${playerProfile.name} 🥷_
 ${mapsList}
 
 👥 **Equipos Inscritos:**
-${slotsList}
+${slotsList.trim()}
 
 ${streamLink ? `\n📺 **Transmisión:**\n${streamLink}` : ''}
 `;
@@ -215,7 +247,7 @@ ${streamLink ? `\n📺 **Transmisión:**\n${streamLink}` : ''}
                         <CardHeader>
                             <CardTitle className="text-lg">Panel del Organizador</CardTitle>
                         </CardHeader>
-                        <CardContent className="flex flex-wrap gap-2">
+                        <CardContent className="flex flex-wrap gap-4 items-center">
                             <Dialog open={isRoomInfoDialogOpen} onOpenChange={setRoomInfoDialogOpen}>
                                 <DialogTrigger asChild>
                                     <Button variant="outline">
@@ -274,6 +306,10 @@ ${streamLink ? `\n📺 **Transmisión:**\n${streamLink}` : ''}
                                      </form>
                                 </DialogContent>
                             </Dialog>
+                             <div className="flex items-center space-x-2">
+                                <Switch id="lock-chat" checked={isChatLocked} onCheckedChange={setIsChatLocked} />
+                                <Label htmlFor="lock-chat">Cerrar Inscripciones y Chat</Label>
+                            </div>
                         </CardContent>
                     </Card>
                 )}
@@ -300,10 +336,11 @@ ${streamLink ? `\n📺 **Transmisión:**\n${streamLink}` : ''}
                             <PopoverTrigger asChild>
                                <Input 
                                     ref={inputRef}
-                                    placeholder="Escribe un mensaje táctico o usa @ para mencionar..." 
+                                    placeholder={isChatLocked && !isOrganizer ? "El chat está cerrado por el organizador." : "Escribe un mensaje táctico o usa @ para mencionar..."}
                                     className="flex-1 bg-background" 
                                     value={newMessage}
                                     onChange={(e) => setNewMessage(e.target.value)}
+                                    disabled={isChatLocked && !isOrganizer}
                                 />
                             </PopoverTrigger>
                             <PopoverContent className="w-64 p-1">
@@ -319,7 +356,7 @@ ${streamLink ? `\n📺 **Transmisión:**\n${streamLink}` : ''}
                                 </CommandList>
                             </PopoverContent>
                         </Popover>
-                        <Button type="submit" size="icon">
+                        <Button type="submit" size="icon" disabled={isChatLocked && !isOrganizer}>
                             <Send className="h-5 w-5" />
                         </Button>
                     </form>
