@@ -3,7 +3,7 @@
 
 import * as React from "react"
 import { useState, useEffect, useRef } from "react"
-import { notFound } from "next/navigation"
+import { notFound, useParams } from "next/navigation"
 import { tournaments, playerProfile, registeredTeams } from "@/lib/data"
 import { Button } from "@/components/ui/button"
 import {
@@ -28,7 +28,9 @@ import { useToast } from "@/hooks/use-toast"
 
 const participants = registeredTeams.flatMap(team => team.players);
 
-export default function TournamentChatPage({ params: { id } }: { params: { id: string } }) {
+export default function TournamentChatPage() {
+  const params = useParams();
+  const id = params.id as string;
   const tournament = tournaments.find(t => t.id === id);
   const { toast } = useToast();
 
