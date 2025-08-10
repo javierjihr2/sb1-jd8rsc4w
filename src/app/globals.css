@@ -98,17 +98,17 @@
         @apply bg-muted;
     }
     .bg-chat-erangel {
-        background-image: url('https://placehold.co/1920x1080/556B2F/FFFFFF.png?text=Erangel');
+        background-image: url('https://placehold.co/1920x1080/556B2F/FFFFFF.png');
         background-size: cover;
         background-position: center;
     }
     .bg-chat-miramar {
-        background-image: url('https://placehold.co/1920x1080/D2B48C/FFFFFF.png?text=Miramar');
+        background-image: url('https://placehold.co/1920x1080/D2B48C/FFFFFF.png');
         background-size: cover;
         background-position: center;
     }
     .bg-chat-sanhok {
-        background-image: url('https://placehold.co/1920x1080/2E8B57/FFFFFF.png?text=Sanhok');
+        background-image: url('https://placehold.co/1920x1080/2E8B57/FFFFFF.png');
         background-size: cover;
         background-position: center;
     }
