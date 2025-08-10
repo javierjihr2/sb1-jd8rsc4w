@@ -22,14 +22,14 @@ import { Badge } from "@/components/ui/badge"
 const plans = [
     {
         name: "Plan Creador Básico",
-        price: "$3",
+        price: "$2.99",
         priceSuffix: "/ mes",
         features: ["Acceso al Portal del Creador", "Publica hasta 5 servicios", "Soporte estándar"],
         isPopular: false,
     },
     {
         name: "Plan Creador Pro",
-        price: "$5",
+        price: "$4.99",
         priceSuffix: "/ mes",
         features: ["Acceso al Portal del Creador", "Servicios ilimitados", "Soporte prioritario", "Insignia de Creador Destacado", "Mejor posicionamiento"],
         isPopular: true,
