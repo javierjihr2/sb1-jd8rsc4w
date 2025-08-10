@@ -18,7 +18,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { MessageSquare, Send, ArrowLeft, Info, KeyRound, UserPlus, Link as LinkIcon, Clock } from "lucide-react"
+import { MessageSquare, Send, ArrowLeft, KeyRound, UserPlus, Link as LinkIcon, Clock } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -57,7 +57,7 @@ export default function TournamentChatPage() {
         const slotsList = Array.from({ length: tournament.maxTeams || 23 }, (_, i) => {
             const team = registeredTeams[i];
             const slotNumber = (i + 1).toString().padStart(2, '0');
-            return `${slotNumber}↬${team ? `_${team.name.toUpperCase()}_` : ''}`;
+            return `${slotNumber}.- ${team ? `_${team.name.toUpperCase()}_` : ''}`;
         }).join('\n');
 
         const mapsList = tournament.maps && tournament.maps.length > 0 
@@ -65,23 +65,23 @@ export default function TournamentChatPage() {
             : 'Mapas no definidos.';
 
         const welcomeMessage = `
+══════════════════
 **${tournament.name.toUpperCase()}**
+══════════════════
+_Organizado por: ${playerProfile.name} 🥷_
 
-𝑶𝒓𝒈𝒂𝒏𝒊𝒛𝒂: ${playerProfile.name} 🥷
+🗓️ **Fecha:** ${tournament.date}
+⏰ **Comienza:** ${tournament.startTime || 'Hora no definida'} hrs 🇨🇱 
 
-**${tournament.date}**
-
-• COMIENZA: ${tournament.startTime || 'Hora no definida'} hrs 🇨🇱
-
-**𝑴𝒂𝒑𝒂𝒔:**
+🗺️ **Mapas:**
 ${mapsList}
 
-**SLOTs**
+👥 **Equipos Inscritos:**
 ${slotsList}
 
-${tournament.streamLink ? `**Transmisión:**\n${tournament.streamLink}` : ''}
+${tournament.streamLink ? `\n📺 **Transmisión:**\n${tournament.streamLink}` : ''}
 
-Por favor, mantengan una comunicación respetuosa. ¡Mucha suerte a todos!
+_Por favor, mantengan una comunicación respetuosa. ¡Mucha suerte a todos!_
 `;
         setMessages([
             { 
@@ -132,7 +132,7 @@ Por favor, mantengan una comunicación respetuosa. ¡Mucha suerte a todos!
       const slotsList = Array.from({ length: maxSlots }, (_, i) => {
           const team = registeredTeams[i];
           const slotNumber = (i + 1).toString().padStart(2, '0');
-          return `${slotNumber}↬${team ? `_${team.name.toUpperCase()}_` : ''}`;
+          return `${slotNumber}.- ${team ? `_${team.name.toUpperCase()}_` : ''}`;
       }).join('\n');
       
       const mapsList = tournament.maps && tournament.maps.length > 0
@@ -140,24 +140,23 @@ Por favor, mantengan una comunicación respetuosa. ¡Mucha suerte a todos!
         : 'Mapas no definidos.';
 
       const formattedMessage = `
-**${tournament.name.toUpperCase()}**
+══════════════════
+**SALA PRIVADA - ${tournament.name.toUpperCase()}**
+══════════════════
+_Organizado por: ${playerProfile.name} 🥷_
 
-𝑶𝒓𝒈𝒂𝒏𝒊𝒛𝒂: ${playerProfile.name} 🥷
-
-**${tournament.date}**
-
+🔑 **Detalles de la Sala:**
 • **ID:** \`${roomId}\`
 • **CONTRASEÑA:** \`${roomPassword}\`
 • **COMIENZA:** ${startTime} hrs 🇨🇱
 
-**𝑴𝒂𝒑𝒂𝒔:**
+🗺️ **Mapas:**
 ${mapsList}
 
-**SLOTs**
+👥 **Equipos Inscritos:**
 ${slotsList}
 
-**Transmisión:**
-${streamLink || "No disponible"}
+${streamLink ? `\n📺 **Transmisión:**\n${streamLink}` : ''}
 `;
       
       handleSendMessage(e, formattedMessage.trim().replace(/\n\n\n/g, '\n\n'));
