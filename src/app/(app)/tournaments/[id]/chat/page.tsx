@@ -55,7 +55,7 @@ export default function TournamentChatPage() {
   const lastMessageRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const isOrganizer = playerProfile.role === 'Admin' || playerProfile.role === 'Creator';
+  const isOrganizer = playerProfile.role === 'Admin' || playerProfile.role === 'Creador';
   
   const generateWelcomeMessage = (isUpdate = false) => {
     if (!tournament) return "";
@@ -119,6 +119,7 @@ _Por favor, mantengan una comunicación respetuosa. ¡Mucha suerte a todos!_
   
   useEffect(() => {
     const handleTournamentUpdate = () => {
+       if (isChatLocked) return; // No enviar actualizaciones si el chat está bloqueado
        const updateMessage = generateWelcomeMessage(true);
         setMessages(prev => [
             ...prev,
@@ -127,7 +128,7 @@ _Por favor, mantengan una comunicación respetuosa. ¡Mucha suerte a todos!_
     };
     window.addEventListener('tournamentUpdated', handleTournamentUpdate);
     return () => window.removeEventListener('tournamentUpdated', handleTournamentUpdate);
-  }, []);
+  }, [isChatLocked]);
 
 
    useEffect(() => {
