@@ -19,10 +19,11 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  SelectGroup
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
-import { Code, UserPlus, Newspaper, Check, X, Users, Swords, PlusCircle, Pencil, Trash2, LayoutDashboard, Settings, DollarSign, BarChart, BellRing, Wrench, Link as LinkIcon, KeyRound, RefreshCw, Briefcase, Star, CheckCircle, Banknote, Flag, Calendar as CalendarIcon, Clock } from "lucide-react"
+import { Code, UserPlus, Newspaper, Check, X, Users, Swords, PlusCircle, Pencil, Trash2, LayoutDashboard, Settings, DollarSign, BarChart, BellRing, Wrench, Link as LinkIcon, KeyRound, RefreshCw, Briefcase, Star, CheckCircle, Banknote, Flag, Calendar as CalendarIcon, Clock, Info } from "lucide-react"
 import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles, friendsForComparison as initialUsers, rechargeProviders, developers, services as initialServices, creators, bankAccounts, initialTransactions } from "@/lib/data"
 import type { RegistrationRequest, Tournament, NewsArticle, Service, UserWithRole, BankAccount, Transaction } from "@/lib/types"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -390,10 +391,15 @@ export default function AdminPage() {
                                         </div>
                                         <p className="text-sm text-muted-foreground mt-1">Para: {request.tournamentName}</p>
                                         <div className="flex items-center gap-2 mt-2">
-                                            <Avatar className="h-10 w-10 rounded-full ring-2 ring-background">
-                                                <AvatarImage src={request.players[0].avatarUrl} data-ai-hint="gaming character"/>
-                                                <AvatarFallback>{request.players[0].name.substring(0,1)}</AvatarFallback>
-                                            </Avatar>
+                                            <div className="relative h-10 w-10">
+                                                <Avatar className="h-10 w-10 rounded-full ring-2 ring-background">
+                                                    <AvatarImage src={request.players[0].avatarUrl} data-ai-hint="gaming character"/>
+                                                    <AvatarFallback>{request.players[0].name.substring(0,1)}</AvatarFallback>
+                                                </Avatar>
+                                                <div className="absolute -bottom-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                                                    +3
+                                                </div>
+                                            </div>
                                              <div className="text-sm">
                                                 <p className="font-semibold">Inscrito por:</p>
                                                 <p className="text-muted-foreground">{request.players[0].name}</p>
@@ -476,26 +482,6 @@ export default function AdminPage() {
                                         </SelectContent>
                                     </Select>
                                 </div>
-                                {(tournamentType === 'competitivo' || tournamentType === 'scrim') && (
-                                    <div className="grid grid-cols-2 gap-4 animate-in fade-in-50">
-                                        <div className="space-y-2">
-                                            <Label htmlFor="t-time">Hora de Inicio</Label>
-                                            <Input id="t-time" type="time" required />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label htmlFor="t-timezone">Zona Horaria</Label>
-                                            <Select required>
-                                                <SelectTrigger id="t-timezone"><SelectValue placeholder="País" /></SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="MX">México (CST)</SelectItem>
-                                                    <SelectItem value="CO">Colombia (COT)</SelectItem>
-                                                    <SelectItem value="US-ET">EE.UU. (ET)</SelectItem>
-                                                    <SelectItem value="AR">Argentina (ART)</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                    </div>
-                                )}
                                 <div className="space-y-2">
                                     <Label htmlFor="t-date">Fecha del Torneo</Label>
                                      <Popover>
@@ -521,9 +507,84 @@ export default function AdminPage() {
                                         </PopoverContent>
                                     </Popover>
                                 </div>
+                                {(tournamentType === 'competitivo' || tournamentType === 'scrim' || tournamentType === 'wow') && (
+                                    <>
+                                        <div className="grid grid-cols-2 gap-4 animate-in fade-in-50">
+                                            <div className="space-y-2">
+                                                <Label htmlFor="t-time">Hora de Inicio</Label>
+                                                <Input id="t-time" type="time" required />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor="t-timezone">Zona Horaria</Label>
+                                                <Select required>
+                                                    <SelectTrigger id="t-timezone"><SelectValue placeholder="País" /></SelectTrigger>
+                                                    <SelectContent className="max-h-60">
+                                                        <SelectGroup>
+                                                            <Label className="px-2 py-1.5 text-xs font-semibold">Norteamérica</Label>
+                                                            <SelectItem value="US">Estados Unidos</SelectItem>
+                                                            <SelectItem value="CA">Canadá</SelectItem>
+                                                            <SelectItem value="MX">México</SelectItem>
+                                                        </SelectGroup>
+                                                        <SelectGroup>
+                                                            <Label className="px-2 py-1.5 text-xs font-semibold">Centroamérica</Label>
+                                                            <SelectItem value="GT">Guatemala</SelectItem>
+                                                            <SelectItem value="BZ">Belice</SelectItem>
+                                                            <SelectItem value="SV">El Salvador</SelectItem>
+                                                            <SelectItem value="HN">Honduras</SelectItem>
+                                                            <SelectItem value="NI">Nicaragua</SelectItem>
+                                                            <SelectItem value="CR">Costa Rica</SelectItem>
+                                                            <SelectItem value="PA">Panamá</SelectItem>
+                                                        </SelectGroup>
+                                                        <SelectGroup>
+                                                            <Label className="px-2 py-1.5 text-xs font-semibold">Caribe</Label>
+                                                            <SelectItem value="CU">Cuba</SelectItem>
+                                                            <SelectItem value="DO">Rep. Dominicana</SelectItem>
+                                                            <SelectItem value="PR">Puerto Rico</SelectItem>
+                                                            <SelectItem value="JM">Jamaica</SelectItem>
+                                                            <SelectItem value="HT">Haití</SelectItem>
+                                                            <SelectItem value="BS">Bahamas</SelectItem>
+                                                        </SelectGroup>
+                                                         <SelectGroup>
+                                                            <Label className="px-2 py-1.5 text-xs font-semibold">Sudamérica</Label>
+                                                            <SelectItem value="CO">Colombia</SelectItem>
+                                                            <SelectItem value="VE">Venezuela</SelectItem>
+                                                            <SelectItem value="GY">Guyana</SelectItem>
+                                                            <SelectItem value="SR">Surinam</SelectItem>
+                                                            <SelectItem value="EC">Ecuador</SelectItem>
+                                                            <SelectItem value="PE">Perú</SelectItem>
+                                                            <SelectItem value="BR">Brasil</SelectItem>
+                                                            <SelectItem value="BO">Bolivia</SelectItem>
+                                                            <SelectItem value="PY">Paraguay</SelectItem>
+                                                            <SelectItem value="CL">Chile</SelectItem>
+                                                            <SelectItem value="AR">Argentina</SelectItem>
+                                                            <SelectItem value="UY">Uruguay</SelectItem>
+                                                        </SelectGroup>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-2 animate-in fade-in-50">
+                                            <Label>Horario de envío de información</Label>
+                                            <Select>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Seleccionar cuándo se envían los códigos"/>
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="7">7 minutos antes del inicio</SelectItem>
+                                                    <SelectItem value="10">10 minutos antes del inicio</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                            <p className="text-xs text-muted-foreground flex items-center gap-1"><Info className="h-3 w-3"/>El sistema notificará a los participantes con los datos de la sala en el momento elegido.</p>
+                                        </div>
+                                    </>
+                                )}
                                 <div className="space-y-2">
                                     <Label htmlFor="t-prize">Premio</Label>
                                     <Input id="t-prize" placeholder="Ej: $1,000 USD o 'Premios en UC'" required />
+                                </div>
+                                 <div className="space-y-2">
+                                    <Label htmlFor="t-max-teams">Máximo de Equipos</Label>
+                                    <Input id="t-max-teams" type="number" placeholder="Ej: 64" required />
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="t-mode">Modo</Label>
@@ -989,4 +1050,3 @@ export default function AdminPage() {
   )
 }
 
-    
