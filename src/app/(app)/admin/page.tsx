@@ -82,13 +82,11 @@ export default function AdminPage() {
   const handleCreateTournament = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    const newTournament: Tournament = {
-        id: `t${tournaments.length + 1}`,
+    const newTournamentData: Omit<Tournament, 'id' | 'status'> = {
         name: formData.get('t-name') as string,
         date: tournamentDate ? format(tournamentDate, 'yyyy-MM-dd') : 'Fecha no definida',
         prize: formData.get('t-prize') as string,
         mode: formData.get('t-mode') as 'Solo' | 'Dúo' | 'Escuadra',
-        status: 'Próximamente',
         region: formData.get('t-region') as 'N.A.' | 'S.A.',
         type: tournamentType as any,
         description: formData.get('t-description') as string,
@@ -97,7 +95,14 @@ export default function AdminPage() {
         timeZone: formData.get('t-timezone') as string,
     };
     
-    addTournament(newTournament); // This now updates the central data source
+    // Create the full tournament object, including a new ID and default status.
+    const newTournament: Tournament = {
+        id: `t${Date.now()}`,
+        ...newTournamentData,
+        status: 'Próximamente',
+    };
+    
+    addTournament(newTournament);
     setTournaments(prev => [...prev, newTournament]);
 
     toast({
