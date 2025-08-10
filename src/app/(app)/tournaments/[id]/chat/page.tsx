@@ -71,11 +71,11 @@ export default function TournamentChatPage() {
     }
 
     const mapsList = tournament.maps && tournament.maps.length > 0 
-        ? tournament.maps.map((map, i) => `${i+1}. ${map}`).join('\n')
+        ? tournament.maps.map((map) => `📍 ${map}`).join('\n')
         : 'Mapas no definidos.';
     
     const timeZone = tournament.timeZone || '🇨🇱'; // Default to Chile flag if not specified
-    const infoSendText = tournament.infoSendTime ? `• ID: ${tournament.infoSendTime} minutos antes` : '';
+    const infoSendText = tournament.infoSendTime ? `⏰ **ID:** ${tournament.infoSendTime} minutos antes` : '';
 
     const messageHeader = isUpdate 
         ? `════ **LISTA DE EQUIPOS ACTUALIZADA** ════`
@@ -173,7 +173,7 @@ _Por favor, mantengan una comunicación respetuosa. ¡Mucha suerte a todos!_
       }
       
       const mapsList = tournament.maps && tournament.maps.length > 0
-        ? tournament.maps.map((map, i) => `${i+1}. ${map}`).join('\n')
+        ? tournament.maps.map((map) => `📍 ${map}`).join('\n')
         : 'Mapas no definidos.';
 
       const timeZone = tournament.timeZone || '🇨🇱';
