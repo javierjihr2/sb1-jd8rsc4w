@@ -175,7 +175,7 @@ export default function SensitivitiesPage() {
                     <CardContent>
                         <Button onClick={() => setIsFormVisible(true)}>
                             <Sparkles className="mr-2 h-4 w-4" />
-                            Añadir y Analizar Nueva Sensibilidad
+                            Añadir Nueva Sensibilidad al Arsenal
                         </Button>
                     </CardContent>
                 )}
@@ -229,7 +229,7 @@ export default function SensitivitiesPage() {
 
             {savedSensitivities.length > 0 && (
                  <div className="space-y-4 pt-8">
-                    <h2 className="text-2xl font-bold">Mi Arsenal de Sensibilidades</h2>
+                    <h2 className="text-2xl font-bold">Mi Arsenal de Sensibilidad</h2>
                     <div className="grid md:grid-cols-2 gap-6">
                         {savedSensitivities.map(s => (
                             <Card key={s.id} className="flex flex-col">

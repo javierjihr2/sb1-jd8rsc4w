@@ -24,6 +24,7 @@ import {
   ImageIcon,
   Target,
   FileCode,
+  Briefcase,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -70,6 +71,7 @@ export default function DashboardLayout({
     { href: "/chats", label: "Chats", icon: MessageSquare, badge: recentChats.filter(c => c.unread).length },
     { href: "/matchmaking", label: "MATCH PUBGM", icon: Search, badge: 0 },
     { href: "/equipment", label: "Taller de Precisión", icon: Target, badge: 0 },
+    { href: "/services", label: "Servicios", icon: Briefcase, badge: 0 },
     { href: "/recharge", label: "Recargar UC", icon: DollarSign, badge: 0 },
     { href: "/sensitivities", label: "Mis Sensibilidades", icon: FileCode },
     { href: "/player-analysis", label: "Análisis con IA", icon: BrainCircuit },
