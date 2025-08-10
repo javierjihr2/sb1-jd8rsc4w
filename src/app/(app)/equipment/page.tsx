@@ -38,24 +38,41 @@ const deviceList = {
         Apple: [
             { value: "Apple iPhone 15 Pro Max", label: "iPhone 15 Pro Max", screenSize: 6.7 },
             { value: "Apple iPhone 15 Pro", label: "iPhone 15 Pro", screenSize: 6.1 },
+            { value: "Apple iPhone 15 Plus", label: "iPhone 15 Plus", screenSize: 6.7 },
             { value: "Apple iPhone 15", label: "iPhone 15", screenSize: 6.1 },
             { value: "Apple iPhone 14 Pro Max", label: "iPhone 14 Pro Max", screenSize: 6.7 },
+            { value: "Apple iPhone 14 Pro", label: "iPhone 14 Pro", screenSize: 6.1 },
+            { value: "Apple iPhone 14", label: "iPhone 14", screenSize: 6.1 },
         ],
         Samsung: [
             { value: "Samsung Galaxy S24 Ultra", label: "Galaxy S24 Ultra", screenSize: 6.8 },
+            { value: "Samsung Galaxy S24+", label: "Galaxy S24+", screenSize: 6.7 },
             { value: "Samsung Galaxy S24", label: "Galaxy S24", screenSize: 6.2 },
+            { value: "Samsung Galaxy S23 Ultra", label: "Galaxy S23 Ultra", screenSize: 6.8 },
             { value: "Samsung Galaxy Z Fold 5", label: "Galaxy Z Fold 5", screenSize: 7.6 },
+            { value: "Samsung Galaxy A55", label: "Galaxy A55", screenSize: 6.6 },
         ],
         Google: [
             { value: "Google Pixel 8 Pro", label: "Pixel 8 Pro", screenSize: 6.7 },
             { value: "Google Pixel 8", label: "Pixel 8", screenSize: 6.2 },
+            { value: "Google Pixel 8a", label: "Pixel 8a", screenSize: 6.1 },
+            { value: "Google Pixel 7a", label: "Pixel 7a", screenSize: 6.1 },
         ],
-        Asus: [{ value: "Asus ROG Phone 8", label: "ROG Phone 8", screenSize: 6.78 }],
+        Asus: [
+            { value: "Asus ROG Phone 8 Pro", label: "ROG Phone 8 Pro", screenSize: 6.78 },
+            { value: "Asus ROG Phone 8", label: "ROG Phone 8", screenSize: 6.78 },
+        ],
         Xiaomi: [
+            { value: "Xiaomi 14 Ultra", label: "14 Ultra", screenSize: 6.73 },
             { value: "Xiaomi 14 Pro", label: "14 Pro", screenSize: 6.73 },
             { value: "Xiaomi 14", label: "14", screenSize: 6.36 },
+            { value: "Xiaomi Redmi Note 13 Pro", label: "Redmi Note 13 Pro", screenSize: 6.67 },
         ],
-        OnePlus: [{ value: "OnePlus 12", label: "12", screenSize: 6.82 }],
+        OnePlus: [
+            { value: "OnePlus 12", label: "12", screenSize: 6.82 },
+            { value: "OnePlus 12R", label: "12R", screenSize: 6.78 },
+            { value: "OnePlus Open", label: "Open", screenSize: 7.82 },
+        ],
         Otro: [{ value: "Otro Telefono", label: "Genérico", screenSize: 6.5 }],
     },
     Tablet: {
@@ -63,13 +80,18 @@ const deviceList = {
             { value: "Apple iPad Pro 12.9", label: "iPad Pro 12.9\"", screenSize: 12.9 },
             { value: "Apple iPad Pro 11", label: "iPad Pro 11\"", screenSize: 11 },
             { value: "Apple iPad Air", label: "iPad Air", screenSize: 10.9 },
+            { value: "Apple iPad 10.9", label: "iPad 10.9\"", screenSize: 10.9 },
         ],
         Samsung: [
             { value: "Samsung Galaxy Tab S9 Ultra", label: "Galaxy Tab S9 Ultra", screenSize: 14.6 },
             { value: "Samsung Galaxy Tab S9+", label: "Galaxy Tab S9+", screenSize: 12.4 },
             { value: "Samsung Galaxy Tab S9", label: "Galaxy Tab S9", screenSize: 11 },
+            { value: "Samsung Galaxy Tab S8", label: "Galaxy Tab S8", screenSize: 11 },
         ],
-        Xiaomi: [{ value: "Xiaomi Pad 6", label: "Pad 6", screenSize: 11 }],
+        Xiaomi: [
+            { value: "Xiaomi Pad 6S Pro", label: "Pad 6S Pro", screenSize: 12.4 },
+            { value: "Xiaomi Pad 6", label: "Pad 6", screenSize: 11 },
+        ],
         Otro: [{ value: "Otro Tablet", label: "Genérico", screenSize: 10.1 }],
     },
 };
