@@ -14,7 +14,12 @@ import {
   Rss,
   Swords,
   ChevronRight,
-  ArrowRight
+  ArrowRight,
+  User,
+  Users,
+  Trophy,
+  Calendar,
+  Globe
 } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
@@ -35,15 +40,28 @@ import { useToast } from "@/hooks/use-toast"
 import type { FeedPost } from "@/lib/types"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 
+const tournamentBackgrounds = {
+    'Solo': 'bg-gradient-to-r from-blue-500/10 to-blue-900/10',
+    'Dúo': 'bg-gradient-to-r from-purple-500/10 to-purple-900/10',
+    'Escuadra': 'bg-gradient-to-r from-red-500/10 to-red-900/10',
+}
+
+const tournamentIcons = {
+    'Solo': <User className="h-8 w-8 text-blue-400"/>,
+    'Dúo': <Users className="h-8 w-8 text-purple-400"/>,
+    'Escuadra': <Swords className="h-8 w-8 text-red-400"/>,
+}
+
+
 export default function DashboardPage() {
   const { toast } = useToast()
   const [feedPosts, setFeedPosts] = useState<FeedPost[]>(initialFeedPosts.map(p => ({...p, commentsList: p.commentsList || [], liked: false })));
   const [newComments, setCommentText] = useState<{[key: string]: string}>({});
 
-  const upcomingTournaments = tournaments.filter(t => t.status === 'Abierto' || t.status === 'Próximamente').slice(0, 2);
+  const upcomingTournaments = tournaments.filter(t => t.status === 'Abierto' || t.status === 'Próximamente').slice(0, 3);
 
   const plugin = useRef(
-    Autoplay({ delay: 5000, stopOnInteraction: true, stopOnMouseEnter: true })
+    Autoplay({ delay: 3500, stopOnInteraction: true, stopOnMouseEnter: true })
   )
 
   const handleLike = (postId: string) => {
@@ -128,10 +146,40 @@ export default function DashboardPage() {
             <CarouselPrevious className="hidden sm:flex" />
             <CarouselNext className="hidden sm:flex" />
         </Carousel>
+        
+        {/* Próximos Torneos */}
+        <div className="space-y-4">
+            <h2 className="text-2xl font-bold flex items-center gap-2"><Swords className="text-primary"/> Próximos Torneos</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                 {upcomingTournaments.map(tournament => (
+                    <Card key={tournament.id} className={`overflow-hidden relative group transition-all hover:shadow-lg hover:-translate-y-1 ${tournamentBackgrounds[tournament.mode] || 'bg-muted/30'}`}>
+                       <div className="p-6 flex flex-col justify-between h-full">
+                           <div className="flex justify-between items-start">
+                                <div>
+                                    <h3 className="text-xl font-bold">{tournament.name}</h3>
+                                    <Badge variant="secondary" className="mt-1">{tournament.status}</Badge>
+                                </div>
+                                <div className="p-3 bg-card/80 rounded-full">
+                                    {tournamentIcons[tournament.mode]}
+                                </div>
+                           </div>
+                           <div className="space-y-3 mt-4 text-sm">
+                               <p className="flex items-center gap-2"><Trophy className="h-4 w-4 text-amber-400"/> <strong>Premio:</strong> {tournament.prize}</p>
+                               <p className="flex items-center gap-2"><Calendar className="h-4 w-4 text-muted-foreground"/> <strong>Fecha:</strong> {tournament.date}</p>
+                               <p className="flex items-center gap-2"><Globe className="h-4 w-4 text-muted-foreground"/> <strong>Región:</strong> {tournament.region}</p>
+                           </div>
+                           <Button asChild className="w-full mt-6">
+                               <Link href={`/tournaments/${tournament.id}`}>Ver Torneo <ChevronRight className="ml-2 h-4 w-4"/></Link>
+                           </Button>
+                       </div>
+                    </Card>
+                ))}
+            </div>
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        {/* Main Column */}
-        <div className="lg:col-span-2 space-y-8">
+
+        {/* Feed y Actividad */}
+        <div className="space-y-8">
             <Card>
             <CardHeader>
                 <CardTitle className="flex items-center gap-2"><Rss className="text-primary"/> Feed de Actividad</CardTitle>
@@ -230,31 +278,8 @@ export default function DashboardPage() {
                 ))}
             </div>
         </div>
-
-        {/* Right Sidebar */}
-        <div className="lg:col-span-1 space-y-8 lg:sticky top-20">
-            <Card>
-                <CardHeader>
-                <CardTitle className="flex items-center gap-2"><Swords className="text-primary"/> Torneos Próximos</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                {upcomingTournaments.map(tournament => (
-                    <div key={tournament.id} className="p-3 bg-muted/50 rounded-lg">
-                        <div className="flex justify-between items-center">
-                            <div>
-                            <p className="font-semibold">{tournament.name}</p>
-                            <p className="text-sm text-muted-foreground">{tournament.date} - {tournament.mode}</p>
-                            </div>
-                            <Button asChild size="sm" variant="outline">
-                            <Link href={`/tournaments/${tournament.id}`}><ChevronRight className="h-4 w-4"/></Link>
-                            </Button>
-                        </div>
-                    </div>
-                ))}
-                </CardContent>
-            </Card>
-        </div>
-        </div>
     </div>
   )
 }
+
+    
