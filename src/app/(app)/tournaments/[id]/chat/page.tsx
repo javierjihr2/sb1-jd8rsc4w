@@ -28,8 +28,8 @@ import { useToast } from "@/hooks/use-toast"
 
 const participants = registeredTeams.flatMap(team => team.players);
 
-export default function TournamentChatPage({ params }: { params: { id: string } }) {
-  const tournament = tournaments.find(t => t.id === params.id);
+export default function TournamentChatPage({ params: { id } }: { params: { id: string } }) {
+  const tournament = tournaments.find(t => t.id === id);
   const { toast } = useToast();
 
   const [messages, setMessages] = useState<Message[]>([]);
@@ -137,7 +137,7 @@ export default function TournamentChatPage({ params }: { params: { id: string } 
   return (
     <div className="space-y-4">
         <Button variant="outline" asChild>
-            <Link href={`/tournaments/${params.id}`}>
+            <Link href={`/tournaments/${id}`}>
                 <ArrowLeft className="mr-2"/>
                 Volver a Detalles del Torneo
             </Link>
@@ -185,7 +185,7 @@ export default function TournamentChatPage({ params }: { params: { id: string } 
                                         </div>
                                          <DialogFooter>
                                             <Button type="submit">Enviar Información</Button>
-                                        </DialogFooter>
+                                         </DialogFooter>
                                     </form>
                                 </DialogContent>
                             </Dialog>
