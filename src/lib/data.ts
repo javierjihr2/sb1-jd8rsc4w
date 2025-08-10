@@ -3,8 +3,8 @@
 import type { PlayerProfile, Tournament, Chat, NewsArticle, Team, RegistrationRequest, FeedPost, RechargeProvider, Developer, Service, UserWithRole } from './types';
 import type { PlayerProfileInput } from '@/ai/schemas';
 
-export const playerProfile: PlayerProfile = {
-  id: 'u1',
+export const playerProfile: PlayerProfile & { role: 'Jugador' | 'Creador' | 'Admin' } = {
+  id: 'p1',
   name: 'Player1_Pro',
   email: 'pro_player@email.com',
   avatarUrl: 'https://placehold.co/100x100.png',
@@ -18,6 +18,7 @@ export const playerProfile: PlayerProfile = {
     kdRatio: 4.8,
   },
   isAdmin: true,
+  role: 'Admin', // El admin también puede ser creador
 };
 
 export const tournaments: Tournament[] = [

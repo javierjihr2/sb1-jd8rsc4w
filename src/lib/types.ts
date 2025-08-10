@@ -17,6 +17,7 @@ export type PlayerProfile = {
     kdRatio: number;
   };
   isAdmin?: boolean;
+  role?: 'Jugador' | 'Creador' | 'Admin';
 };
 
 // Re-exporting this type for use in data.ts without circular dependency issues with AI schemas.

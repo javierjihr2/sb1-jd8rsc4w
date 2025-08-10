@@ -25,6 +25,7 @@ import {
   Target,
   FileCode,
   Briefcase,
+  Palette,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -80,6 +81,11 @@ export default function DashboardLayout({
     { href: "/support", label: "Soporte", icon: HelpCircle, badge: 0 },
   ]
   
+  const isCreatorOrAdmin = playerProfile.role === 'Creador' || playerProfile.role === 'Admin';
+  if (isCreatorOrAdmin) {
+    navItems.splice(7, 0, { href: "/creator-hub", label: "Portal del Creador", icon: Palette, badge: 0 });
+  }
+
   // Mantén la lógica condicional para el enlace de Administrador
   if (playerProfile.isAdmin) {
     navItems.push({ href: "/admin", label: "Admin", icon: ShieldCheck, badge: 0 });
