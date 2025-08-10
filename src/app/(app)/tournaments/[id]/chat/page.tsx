@@ -4,7 +4,7 @@
 import * as React from "react"
 import { useState, useEffect, useRef } from "react"
 import { useParams } from "next/navigation"
-import { tournaments, playerProfile, registeredTeams, getRegistrationStatus, updateRegistrationStatus, countryFlags, reserveTeams } from "@/lib/data"
+import { tournaments, playerProfile, registeredTeams, getRegistrationStatus, updateRegistrationStatus, countryFlags, reserveTeams, tournamentMessageTemplate } from "@/lib/data"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -90,27 +90,25 @@ export default function TournamentChatPage() {
     const reserveText = tournament.maxReserves && tournament.maxReserves > 0 
         ? `\n📋 **Reservas Disponibles:** ${tournament.maxReserves - reserveTeams.length}/${tournament.maxReserves}`
         : '';
-        
-    return `
-${messageHeader}
-_Organizado por: ${playerProfile.name} 🥷_
+    
+    const streamLinkText = tournament.streamLink ? `\n📺 **Transmisión:**\n${tournament.streamLink}` : '';
 
-🗓️ **Fecha:** ${tournament.date}
-⏰ **Comienza:** ${tournament.startTime || 'Hora no definida'} hrs ${timeZoneFlag}
-${infoSendText}
-${maxWithdrawalText}
+    let populatedTemplate = tournamentMessageTemplate
+        .replace('{{header}}', messageHeader)
+        .replace('{{organizerName}}', playerProfile.name)
+        .replace('{{date}}', tournament.date)
+        .replace('{{startTime}}', tournament.startTime || 'Hora no definida')
+        .replace('{{timeZoneFlag}}', timeZoneFlag)
+        .replace('{{infoSendText}}', infoSendText)
+        .replace('{{maxWithdrawalText}}', maxWithdrawalText)
+        .replace('{{mapsList}}', mapsList)
+        .replace('{{slotsList}}', slotsList.trim())
+        .replace('{{registeredCount}}', registeredCount.toString())
+        .replace('{{maxSlots}}', (maxSlots - 2).toString())
+        .replace('{{reserveText}}', reserveText)
+        .replace('{{streamLink}}', streamLinkText);
 
-🗺️ **Mapas:**
-${mapsList}
-
-👥 **Equipos Inscritos (${registeredCount}/${maxSlots - 2}):**
-${slotsList.trim()}
-${reserveText}
-
-${tournament.streamLink ? `\n📺 **Transmisión:**\n${tournament.streamLink}` : ''}
-
-_Por favor, mantengan una comunicación respetuosa. ¡Mucha suerte a todos!_
-`.trim().replace(/\n\n\n/g, '\n\n');
+    return populatedTemplate;
   }
 
   useEffect(() => {
@@ -429,5 +427,3 @@ const CommandItem = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDi
   <div ref={ref} onClick={onSelect} className={cn("flex items-center gap-2 p-2 rounded-sm hover:bg-accent cursor-pointer", className)} {...props} />
 ));
 CommandItem.displayName = "CommandItem";
-
-    

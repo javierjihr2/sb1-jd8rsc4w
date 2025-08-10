@@ -23,8 +23,8 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
-import { Code, UserPlus, Newspaper, Check, X, Users, Swords, PlusCircle, Pencil, Trash2, LayoutDashboard, Settings, DollarSign, BarChart, BellRing, Wrench, Link as LinkIcon, KeyRound, RefreshCw, Briefcase, Star, CheckCircle, Banknote, Flag, Calendar as CalendarIcon, Clock, Info, Map, Video, ShieldAlert } from "lucide-react"
-import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles, friendsForComparison as initialUsers, rechargeProviders, developers, services as initialServices, creators, bankAccounts, initialTransactions, addTournament, tournaments, updateTournament, mapOptions, registeredTeams, updateRegistrationStatus, addApprovedRegistration, reserveTeams, playerProfile } from "@/lib/data"
+import { Code, UserPlus, Newspaper, Check, X, Users, Swords, PlusCircle, Pencil, Trash2, LayoutDashboard, Settings, DollarSign, BarChart, BellRing, Wrench, Link as LinkIcon, KeyRound, RefreshCw, Briefcase, Star, CheckCircle, Banknote, Flag, Calendar as CalendarIcon, Clock, Info, Map, Video, ShieldAlert, FileText, Lightbulb } from "lucide-react"
+import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles, friendsForComparison as initialUsers, rechargeProviders, developers, services as initialServices, creators, bankAccounts, initialTransactions, addTournament, tournaments, updateTournament, mapOptions, registeredTeams, updateRegistrationStatus, addApprovedRegistration, reserveTeams, playerProfile, tournamentMessageTemplate } from "@/lib/data"
 import type { RegistrationRequest, Tournament, NewsArticle, Service, UserWithRole, BankAccount, Transaction, Team } from "@/lib/types"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -65,6 +65,9 @@ export default function AdminPage() {
   const [hasStream, setHasStream] = useState(false);
   const [editingTournament, setEditingTournament] = useState<Tournament | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  
+  // State for message template
+  const [messageTemplate, setMessageTemplate] = useState(tournamentMessageTemplate);
 
 
   const handleCreateProfile = (event: React.FormEvent<HTMLFormElement>) => {
@@ -214,10 +217,16 @@ export default function AdminPage() {
   }
   
   const handleSaveSettings = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
+    event.preventDefault();
+    // In a real app, this would save to a db. Here, we update the imported variable.
+    // NOTE: This is a simplified approach for demonstration. A real app would use a state management solution or API calls.
+    // For the purpose of this simulation, we will directly mutate the imported variable.
+    // This is generally not a good practice in React.
+    require('@/lib/data').tournamentMessageTemplate = messageTemplate;
+
     toast({
       title: "Ajustes Guardados",
-      description: "Las configuraciones globales de la aplicación han sido actualizadas.",
+      description: "Las configuraciones globales, incluida la plantilla de mensajes, han sido actualizadas.",
     })
   }
 
@@ -1207,6 +1216,41 @@ export default function AdminPage() {
                                 <p className="text-xs text-muted-foreground">Los jugadores por debajo de este rango no aparecerán en la búsqueda de "Buscar Equipo".</p>
                            </div>
                         </div>
+                        
+                        <div className="space-y-4 p-4 border rounded-lg">
+                            <h3 className="font-semibold flex items-center gap-2"><FileText className="h-5 w-5 text-primary"/>Plantilla de Mensaje para Torneos</h3>
+                            <div className="space-y-2">
+                                <Label htmlFor="message-template">Estructura del Mensaje Automático</Label>
+                                <Textarea 
+                                    id="message-template" 
+                                    className="min-h-[300px] font-mono text-xs"
+                                    value={messageTemplate}
+                                    onChange={(e) => setMessageTemplate(e.target.value)}
+                                />
+                            </div>
+                            <div className="p-3 bg-muted/50 rounded-lg">
+                                <h4 className="font-semibold flex items-center gap-2 mb-2 text-sm"><Lightbulb className="h-4 w-4"/>Etiquetas Disponibles</h4>
+                                <p className="text-xs text-muted-foreground">
+                                    Usa estas etiquetas en tu plantilla. Serán reemplazadas por los datos reales del torneo:
+                                </p>
+                                <code className="text-xs grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-4 gap-y-1 mt-2">
+                                    <span>{'{{header}}'}</span>
+                                    <span>{'{{organizerName}}'}</span>
+                                    <span>{'{{date}}'}</span>
+                                    <span>{'{{startTime}}'}</span>
+                                    <span>{'{{timeZoneFlag}}'}</span>
+                                    <span>{'{{infoSendText}}'}</span>
+                                    <span>{'{{maxWithdrawalText}}'}</span>
+                                    <span>{'{{mapsList}}'}</span>
+                                    <span>{'{{slotsList}}'}</span>
+                                    <span>{'{{registeredCount}}'}</span>
+                                    <span>{'{{maxSlots}}'}</span>
+                                    <span>{'{{reserveText}}'}</span>
+                                    <span>{'{{streamLink}}'}</span>
+                                </code>
+                            </div>
+                        </div>
+
 
                         <div className="space-y-4 p-4 border rounded-lg">
                            <h3 className="font-semibold flex items-center gap-2"><LinkIcon className="h-5 w-5 text-primary"/>Configuración de Afiliados</h3>

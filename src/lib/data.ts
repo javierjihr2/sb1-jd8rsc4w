@@ -97,6 +97,29 @@ export let tournaments: Tournament[] = [
   },
 ];
 
+// Variable global para la plantilla del mensaje del torneo
+export let tournamentMessageTemplate = `
+{{header}}
+_Organizado por: {{organizerName}} 🥷_
+
+🗓️ **Fecha:** {{date}}
+⏰ **Comienza:** {{startTime}} hrs {{timeZoneFlag}}
+{{infoSendText}}
+{{maxWithdrawalText}}
+
+🗺️ **Mapas:**
+{{mapsList}}
+
+👥 **Equipos Inscritos ({{registeredCount}}/{{maxSlots}}):**
+{{slotsList}}
+{{reserveText}}
+
+{{streamLink}}
+
+_Por favor, mantengan una comunicación respetuosa. ¡Mucha suerte a todos!_
+`.trim();
+
+
 // Function to add a new tournament to the list
 export const addTournament = (tournament: Tournament) => {
     tournaments.unshift(tournament);
