@@ -39,7 +39,7 @@ export function UserNav() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+        <Button variant="ghost" className="relative h-8 w-8 rounded-full user-nav-trigger">
           <Avatar className="h-9 w-9">
             <AvatarImage src={userDisplayAvatar} alt={`@${userDisplayName}`} data-ai-hint="gaming character" />
             <AvatarFallback>{userDisplayName.substring(0, 2)}</AvatarFallback>
