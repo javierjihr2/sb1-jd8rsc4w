@@ -97,9 +97,38 @@ export default function TournamentChatPage() {
   
   const handleSendRoomInfo = (e: React.FormEvent) => {
       e.preventDefault();
-      const formattedMessage = `**¡ATENCIÓN, DATOS DE LA SALA!**\n\n- **ID de la Sala:** \`${roomId}\`\n- **Contraseña:** \`${roomPassword}\`\n- **Hora de Inicio:** ${startTime || 'Según lo programado'}\n- **Transmisión:** ${streamLink || 'No disponible'}\n\n¡Preparaos, la batalla está a punto de comenzar!`;
+
+      const maxSlots = tournament?.maxTeams || 23;
+      const slotsList = Array.from({ length: maxSlots }, (_, i) => {
+          const team = registeredTeams[i];
+          const slotNumber = (i + 1).toString().padStart(2, '0');
+          return `${slotNumber}↬${team ? `_${team.name.toUpperCase()}_` : ''}`;
+      }).join('\n');
+
+      const formattedMessage = `
+**${tournament.name.toUpperCase()}**
+
+𝑶𝒓𝒈𝒂𝒏𝒊𝒛𝒂: ${playerProfile.name} 🥷
+
+**${tournament.date}**
+
+• **ID:** \`${roomId}\`
+• **CONTRASEÑA:** \`${roomPassword}\`
+• **COMIENZA:** ${startTime} hrs
+
+**𝑴𝒂𝒑𝒂𝒔:**
+1. Erangel
+2. Miramar
+3. Sanhok
+
+**SLOTs**
+${slotsList}
+
+**Transmisión:**
+${streamLink || "No disponible"}
+`;
       
-      handleSendMessage(e, formattedMessage);
+      handleSendMessage(e, formattedMessage.trim());
 
       // Reset form and close dialog
       setRoomId("");
