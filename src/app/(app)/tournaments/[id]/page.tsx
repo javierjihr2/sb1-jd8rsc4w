@@ -2,7 +2,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { notFound } from "next/navigation"
+import { notFound, useRouter } from "next/navigation"
 import { tournaments, playerProfile, teamMates, registeredTeams, getRegistrationStatus, updateRegistrationStatus } from "@/lib/data"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -10,61 +10,39 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
-import { Calendar, Users, Trophy, MessageSquare, PlusCircle, AlertCircle, Send, Flag, UserPlus, FileText, Info } from "lucide-react"
+import { Calendar, Users, Trophy, MessageSquare, PlusCircle, AlertCircle, Send, Flag, UserPlus, FileText, Info, ArrowRight } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import type { Message, RegistrationRequest } from "@/lib/types"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import Link from "next/link"
 
-export default function TournamentDetailPage({ params: { id } }: { params: { id: string } }) {
+export default function TournamentDetailPage({ params }: { params: { id: string } }) {
   const { toast } = useToast();
-  const tournament = tournaments.find(t => t.id === id)
+  const router = useRouter();
+  const tournament = tournaments.find(t => t.id === params.id)
   
   const [teamName, setTeamName] = useState("");
   const [teamTag, setTeamTag] = useState("");
   const [countryCode, setCountryCode] = useState(playerProfile.countryCode || "");
   const [registrationStatus, setRegistrationStatus] = useState<'not_registered' | 'pending' | 'approved' | 'rejected'>('not_registered');
   const [isMounted, setIsMounted] = useState(false);
-  
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [newMessage, setNewMessage] = useState("");
-  const lastMessageRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Simular la obtención del estado inicial después de que el componente se monte
-    const currentStatus = getRegistrationStatus(id);
+    const currentStatus = getRegistrationStatus(params.id);
     setRegistrationStatus(currentStatus);
     setIsMounted(true);
-    
-    // Si la inscripción está aprobada, se inicializa el chat con el mensaje del sistema
-    if (currentStatus === 'approved' && tournament) {
-       setMessages([
-          { sender: 'other', text: `¡Bienvenidos al chat del torneo "${tournament.name}"!\n\n**Detalles del Evento:**\n- **Fecha:** ${tournament.date}\n- **Premio:** ${tournament.prize}\n\n**Info Importante:**\n- Por favor, mantén una comunicación respetuosa.\n- Las reglas completas se pueden encontrar en el enlace del torneo.\n\n**Equipos Inscritos:**\n${registeredTeams.map((team, i) => `${i + 1}. ${team.name} [${team.id}]`).join('\n')}\n\n¡Mucha suerte a todos!` },
-       ]);
-    }
-  }, [id, tournament]);
+  }, [params.id]);
   
   useEffect(() => {
-    // Este efecto se ejecuta cuando otra pestaña (ej. admin) cambia el estado en localStorage
     const handleStorageChange = () => {
-      const currentStatus = getRegistrationStatus(id);
+      const currentStatus = getRegistrationStatus(params.id);
       setRegistrationStatus(currentStatus);
-      if(currentStatus === 'approved' && !messages.length && tournament){
-         setMessages([
-          { sender: 'other', text: `¡Bienvenidos al chat del torneo "${tournament.name}"!` },
-         ]);
-      }
     };
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
-  }, [id, messages.length, tournament]);
+  }, [params.id]);
   
-   useEffect(() => {
-    if (lastMessageRef.current) {
-      lastMessageRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [messages]);
-
   if (!tournament) {
     notFound()
   }
@@ -99,20 +77,6 @@ export default function TournamentDetailPage({ params: { id } }: { params: { id:
       description: `La solicitud del equipo "${teamName}" está pendiente de aprobación.`,
     })
   }
-
-  const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newMessage.trim()) return;
-
-    const message: Message = {
-      sender: 'me',
-      text: newMessage,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    };
-    
-    setMessages(prev => [...prev, message]);
-    setNewMessage("");
-  };
   
   const getButtonState = () => {
     switch (registrationStatus) {
@@ -131,14 +95,13 @@ export default function TournamentDetailPage({ params: { id } }: { params: { id:
   const buttonState = getButtonState();
 
   if (!isMounted) {
-    return null; // Evitar el desajuste de hidratación en el primer render
+    return null; 
   }
 
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         <div className="lg:col-span-2 space-y-8">
-          {/* Detalles del Torneo */}
           <Card>
             <CardHeader>
               <Badge variant="secondary" className="w-fit mb-2">{tournament.region}</Badge>
@@ -153,51 +116,18 @@ export default function TournamentDetailPage({ params: { id } }: { params: { id:
                 <p className="text-muted-foreground">
                     Prepárate para la batalla en el torneo {tournament.name}. Equipos de toda la región {tournament.region} competirán por la gloria y un premio de {tournament.prize}.
                 </p>
+                {registrationStatus === 'approved' && (
+                    <Button asChild className="mt-4 animate-in fade-in-50">
+                        <Link href={`/tournaments/${tournament.id}/chat`}>
+                            <MessageSquare className="mr-2"/>
+                            Ir a la Sala de Chat del Torneo
+                            <ArrowRight className="ml-2"/>
+                        </Link>
+                    </Button>
+                )}
              </CardContent>
           </Card>
-          
-          {registrationStatus === 'approved' && (
-            <Card className="animate-in fade-in-50">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><MessageSquare className="h-5 w-5 text-primary"/>Chat del Torneo</CardTitle>
-                    <CardDescription>Comunícate con tu equipo y otros participantes.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="h-[400px] flex flex-col">
-                        <ScrollArea className="flex-1 mb-4 border rounded-lg p-4 bg-muted/50">
-                            <div className="space-y-4 text-sm">
-                                {messages.map((msg, index) => (
-                                    <div 
-                                        key={index} 
-                                        className={`flex gap-3 items-end ${msg.sender === 'me' ? 'justify-end' : 'justify-start'}`}
-                                        ref={index === messages.length - 1 ? lastMessageRef : null}
-                                    >
-                                        {msg.sender !== 'me' && <Avatar className="h-8 w-8"><AvatarImage src="https://placehold.co/40x40.png" data-ai-hint="gaming character"/><AvatarFallback>S</AvatarFallback></Avatar>}
-                                        <div className={`p-3 rounded-xl max-w-md whitespace-pre-wrap ${msg.sender === 'me' ? 'bg-primary text-primary-foreground' : 'bg-background'}`}>
-                                            {msg.text}
-                                        </div>
-                                         {msg.sender === 'me' && <Avatar className="h-8 w-8"><AvatarImage src={playerProfile.avatarUrl} data-ai-hint="gaming character"/><AvatarFallback>Yo</AvatarFallback></Avatar>}
-                                    </div>
-                                ))}
-                            </div>
-                        </ScrollArea>
-                        <form onSubmit={handleSendMessage} className="flex items-center gap-2">
-                            <Input 
-                                placeholder="Escribe un mensaje táctico..." 
-                                className="flex-1 bg-background" 
-                                value={newMessage}
-                                onChange={(e) => setNewMessage(e.target.value)}
-                            />
-                            <Button type="submit" size="icon">
-                                <Send className="h-5 w-5" />
-                            </Button>
-                        </form>
-                    </div>
-                </CardContent>
-            </Card>
-          )}
 
-           {/* Equipos Inscritos */}
           <Card>
             <CardHeader>
               <CardTitle>Equipos Inscritos</CardTitle>
@@ -221,7 +151,6 @@ export default function TournamentDetailPage({ params: { id } }: { params: { id:
           </Card>
         </div>
         
-        {/* Panel de Inscripción */}
         <div className="lg:col-span-1">
           <Card className="sticky top-20">
             <CardHeader>
@@ -281,7 +210,7 @@ export default function TournamentDetailPage({ params: { id } }: { params: { id:
                     {buttonState.text}
                 </Button>
 
-                 {registrationStatus === 'approved' && <p className="text-sm text-center text-green-600">¡Inscripción aprobada! Ya puedes acceder al chat del torneo arriba.</p>}
+                 {registrationStatus === 'approved' && <p className="text-sm text-center text-green-600">¡Inscripción aprobada! Ya puedes acceder al chat del torneo.</p>}
                  {registrationStatus === 'rejected' && <p className="text-sm text-center text-red-600 flex items-center justify-center gap-1"><AlertCircle className="h-4 w-4"/> Tu solicitud ha sido rechazada.</p>}
                  {registrationStatus === 'pending' && <p className="text-sm text-center text-amber-600">Tu solicitud está pendiente de aprobación por un administrador.</p>}
 
