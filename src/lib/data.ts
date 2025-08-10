@@ -1,6 +1,6 @@
 
 
-import type { PlayerProfile, Tournament, Chat, NewsArticle, Team, RegistrationRequest, FeedPost, RechargeProvider, Developer, Service } from './types';
+import type { PlayerProfile, Tournament, Chat, NewsArticle, Team, RegistrationRequest, FeedPost, RechargeProvider, Developer, Service, UserWithRole } from './types';
 import type { PlayerProfileInput } from '@/ai/schemas';
 
 export const playerProfile: PlayerProfile = {
@@ -143,7 +143,7 @@ export const newsArticles: NewsArticle[] = [
   },
 ];
 
-export const friendsForComparison: (PlayerProfileInput & { favoriteMap: string, bio: string })[] = [
+const baseFriends: PlayerProfileInput[] = [
     {
       id: 'p1',
       name: 'Player1_Pro',
@@ -195,6 +195,17 @@ export const friendsForComparison: (PlayerProfileInput & { favoriteMap: string, 
      { id: 'f1', name: 'GamerX_Treme', avatarUrl: 'https://placehold.co/40x40/FF6347/FFFFFF.png', rank: 'Platino II', countryCode: 'CA', stats: { wins: 30, kills: 600, kdRatio: 2.5 }, favoriteWeapons: ['SCAR-L', 'UMP45'], playSchedule: 'Noches', favoriteMap: 'sanhok', bio: 'Mejorando cada día. Busco gente para subir de rango juntos.'},
      { id: 'f2', name: 'ProSlayer_99', avatarUrl: 'https://placehold.co/40x40/4682B4/FFFFFF.png', rank: 'Diamante V', countryCode: 'AR', stats: { wins: 55, kills: 1100, kdRatio: 2.9 }, favoriteWeapons: ['M762', 'Mini14'], playSchedule: 'Fines de semana', favoriteMap: 'miramar', bio: 'Conductor experto y buen support. ¡Vamos por esos Chicken Dinners!'},
 ];
+
+
+export const friendsForComparison: (PlayerProfileInput & { favoriteMap: string, bio: string, role: 'Jugador' | 'Creador' | 'Admin' })[] = baseFriends.map((friend, index) => {
+    let role: 'Jugador' | 'Creador' | 'Admin' = 'Jugador';
+    if (friend.id === 'p1') role = 'Admin';
+    if (['c2', 'c3'].includes(friend.id)) role = 'Creador';
+    return { ...friend, role };
+});
+
+export const initialUsers: UserWithRole[] = friendsForComparison;
+
 
 export const registeredTeams: Team[] = [
   {
@@ -360,7 +371,7 @@ export const services: Service[] = [
     },
 ];
 
-export const creators = friendsForComparison.map(f => ({ id: f.id, name: f.name }));
+export const creators = friendsForComparison.filter(f => f.role === 'Creador' || f.role === 'Admin').map(f => ({ id: f.id, name: f.name }));
     
 
     

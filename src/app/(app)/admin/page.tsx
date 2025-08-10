@@ -24,8 +24,8 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
 import { Code, UserPlus, Newspaper, Check, X, Users, Swords, PlusCircle, Pencil, Trash2, LayoutDashboard, Settings, DollarSign, BarChart, BellRing, Wrench, Link as LinkIcon, KeyRound, RefreshCw, Briefcase, Star, CheckCircle } from "lucide-react"
-import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles, friendsForComparison as users, rechargeProviders, developers, services as initialServices, creators } from "@/lib/data"
-import type { RegistrationRequest, Tournament, NewsArticle, Service } from "@/lib/types"
+import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles, friendsForComparison as initialUsers, rechargeProviders, developers, services as initialServices, creators } from "@/lib/data"
+import type { RegistrationRequest, Tournament, NewsArticle, Service, UserWithRole } from "@/lib/types"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -39,6 +39,7 @@ export default function AdminPage() {
   const [requests, setRequests] = useState<RegistrationRequest[]>(initialRegistrationRequests)
   const [tournaments, setTournaments] = useState<Tournament[]>(initialTournaments)
   const [services, setServices] = useState<Service[]>(initialServices);
+  const [users, setUsers] = useState<UserWithRole[]>(initialUsers);
   
   // State for the new service form
   const [serviceTitle, setServiceTitle] = useState("");
@@ -225,6 +226,7 @@ export default function AdminPage() {
                                     <TableRow>
                                         <TableHead>Usuario</TableHead>
                                         <TableHead>Rango</TableHead>
+                                        <TableHead>Rol</TableHead>
                                         <TableHead className="text-right">Acciones</TableHead>
                                     </TableRow>
                                 </TableHeader>
@@ -241,6 +243,11 @@ export default function AdminPage() {
                                             </div>
                                         </TableCell>
                                         <TableCell>{user.rank}</TableCell>
+                                         <TableCell>
+                                            <Badge variant={user.role === 'Admin' ? 'destructive' : user.role === 'Creador' ? 'default' : 'outline'}>
+                                                {user.role}
+                                            </Badge>
+                                        </TableCell>
                                         <TableCell className="text-right">
                                             <Button size="sm" variant="outline" className="mr-2"><Pencil className="h-4 w-4 mr-1"/>Editar</Button>
                                             <Button size="sm" variant="destructive"><Trash2 className="h-4 w-4 mr-1"/>Eliminar</Button>
@@ -280,9 +287,10 @@ export default function AdminPage() {
                                         <SelectValue placeholder="Selecciona un rol" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem key="developer" value="developer">Desarrollador</SelectItem>
-                                        <SelectItem key="creator" value="creator">Creador de Contenido</SelectItem>
-                                        <SelectItem key="admin" value="admin">Administrador</SelectItem>
+                                        <SelectItem value="player">Jugador</SelectItem>
+                                        <SelectItem value="creator">Creador de Contenido</SelectItem>
+                                        <SelectItem value="developer">Desarrollador</SelectItem>
+                                        <SelectItem value="admin">Administrador</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -751,4 +759,3 @@ export default function AdminPage() {
     
 
     
-

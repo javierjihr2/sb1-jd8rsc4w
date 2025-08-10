@@ -26,6 +26,12 @@ export type PlayerProfileInput = PlayerProfileInputSchema & {
   countryCode: string;
 };
 
+export type UserWithRole = PlayerProfileInput & {
+    favoriteMap: string;
+    bio: string;
+    role: 'Jugador' | 'Creador' | 'Admin';
+};
+
 
 export type Tournament = {
   id: string;
@@ -118,7 +124,7 @@ export type Service = {
   id: string;
   creatorId: string;
   creatorName: string;
-  avatarUrl: string;
+  avatarUrl?: string;
   uid: string;
   serviceTitle: string;
   description: string;
