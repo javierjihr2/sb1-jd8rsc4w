@@ -392,7 +392,7 @@ export default function EquipmentPage() {
                 <TabsList className="grid w-full grid-cols-3">
                     <TabsTrigger value="sensitivity"><Smartphone className="mr-2" />Sensibilidad</TabsTrigger>
                     <TabsTrigger value="controls"><Gamepad2 className="mr-2" />Controles</TabsTrigger>
-                    <TabsTrigger value="loadouts"><Wrench className="mr-2" />Equipamientos</TabsTrigger>
+                    <TabsTrigger value="loadouts"><Wrench className="mr-2" />Equipamientos y Armas</TabsTrigger>
                 </TabsList>
                 
                 {/* Sensitivity Tab */}
@@ -755,5 +755,3 @@ export default function EquipmentPage() {
         </div>
     );
 }
-
-    
