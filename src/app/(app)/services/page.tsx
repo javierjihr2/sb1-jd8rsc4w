@@ -86,14 +86,14 @@ export default function ServicesPage() {
                             <p className="text-sm text-muted-foreground mt-4 h-16 line-clamp-3">{service.description}</p>
                         </CardContent>
                         <CardFooter className="flex-col items-stretch gap-3 mt-auto p-4">
-                            <div className="text-center font-bold text-lg py-2 border-y">{service.price}</div>
+                            <div className="text-center font-bold text-lg py-2 border-y">{service.price > 0 ? `$${service.price.toFixed(2)}` : 'Gratis / Intercambio'}</div>
                             <div className="flex gap-2">
                                 <Button className="flex-1" onClick={() => handleContact(service.creatorName)}>
                                     <MessageSquare className="mr-2 h-4 w-4" />
                                     Contactar
                                 </Button>
                                 <Button asChild variant="secondary" className="flex-1">
-                                    <Link href="#">Ver Perfil</Link>
+                                    <Link href={`/profile/${service.creatorId}`}>Ver Perfil</Link>
                                 </Button>
                             </div>
                         </CardFooter>
@@ -108,5 +108,3 @@ export default function ServicesPage() {
         </div>
     )
 }
-
-    
