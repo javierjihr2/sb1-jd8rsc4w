@@ -23,9 +23,9 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
-import { Code, UserPlus, Newspaper, Check, X, Users, Swords, PlusCircle, Pencil, Trash2, LayoutDashboard, Settings, DollarSign, BarChart, BellRing, Wrench, Link as LinkIcon, KeyRound, RefreshCw, Briefcase, Star, CheckCircle } from "lucide-react"
-import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles, friendsForComparison as initialUsers, rechargeProviders, developers, services as initialServices, creators } from "@/lib/data"
-import type { RegistrationRequest, Tournament, NewsArticle, Service, UserWithRole } from "@/lib/types"
+import { Code, UserPlus, Newspaper, Check, X, Users, Swords, PlusCircle, Pencil, Trash2, LayoutDashboard, Settings, DollarSign, BarChart, BellRing, Wrench, Link as LinkIcon, KeyRound, RefreshCw, Briefcase, Star, CheckCircle, Banknote } from "lucide-react"
+import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles, friendsForComparison as initialUsers, rechargeProviders, developers, services as initialServices, creators, bankAccounts, initialTransactions } from "@/lib/data"
+import type { RegistrationRequest, Tournament, NewsArticle, Service, UserWithRole, BankAccount, Transaction } from "@/lib/types"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -40,12 +40,18 @@ export default function AdminPage() {
   const [tournaments, setTournaments] = useState<Tournament[]>(initialTournaments)
   const [services, setServices] = useState<Service[]>(initialServices);
   const [users, setUsers] = useState<UserWithRole[]>(initialUsers);
+  const [transactions, setTransactions] = useState<Transaction[]>(initialTransactions);
   
   // State for the new service form
   const [serviceTitle, setServiceTitle] = useState("");
   const [creatorId, setCreatorId] = useState("");
   const [price, setPrice] = useState<string>("");
   const [voluntaryOptions, setVoluntaryOptions] = useState<Set<string>>(new Set());
+
+  // State for finance withdrawal
+  const [withdrawalAmount, setWithdrawalAmount] = useState<number | string>('');
+  const [selectedAccount, setSelectedAccount] = useState<string>('');
+  const currentBalance = transactions.reduce((acc, t) => acc + t.amount, 0);
 
 
   const handleCreateProfile = (event: React.FormEvent<HTMLFormElement>) => {
@@ -134,7 +140,6 @@ export default function AdminPage() {
     })
   }
 
-
   const handleRequest = (requestId: string, status: "Aprobado" | "Rechazado") => {
     setRequests(prev => prev.map(req => req.id === requestId ? { ...req, status } : req))
     toast({
@@ -142,6 +147,45 @@ export default function AdminPage() {
         description: `El equipo ha sido ${status.toLowerCase()} para el torneo.`,
     })
   }
+  
+  const handleWithdrawal = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const amount = parseFloat(withdrawalAmount as string);
+
+    if (!amount || amount <= 0) {
+      toast({ variant: 'destructive', title: 'Monto Inválido', description: 'Por favor, introduce un monto válido para retirar.' });
+      return;
+    }
+    if (amount > currentBalance) {
+      toast({ variant: 'destructive', title: 'Saldo Insuficiente', description: 'No puedes retirar más de lo que tienes en tu saldo disponible.' });
+      return;
+    }
+    if (!selectedAccount) {
+      toast({ variant: 'destructive', title: 'Cuenta no Seleccionada', description: 'Por favor, selecciona una cuenta bancaria para el retiro.' });
+      return;
+    }
+
+    const accountDetails = bankAccounts.find(acc => acc.id === selectedAccount);
+
+    // Simulate withdrawal
+    const newTransaction: Transaction = {
+        id: `txn-${Date.now()}`,
+        date: new Date().toISOString().split('T')[0],
+        description: `Retiro a ${accountDetails?.bankName} (CTA: ...${accountDetails?.accountNumber.slice(-4)})`,
+        amount: -amount,
+        type: 'Retiro',
+    };
+    setTransactions(prev => [newTransaction, ...prev]);
+
+    toast({
+      title: 'Retiro Procesado',
+      description: `Se ha iniciado la transferencia de $${amount.toFixed(2)} a tu cuenta. Puede tardar de 2 a 3 días hábiles en reflejarse.`,
+    });
+    
+    // Reset form
+    setWithdrawalAmount('');
+    setSelectedAccount('');
+  };
 
 
   return (
@@ -152,11 +196,12 @@ export default function AdminPage() {
         </div>
       
        <Tabs defaultValue="dashboard" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 md:grid-cols-6">
+        <TabsList className="grid w-full grid-cols-3 md:grid-cols-7">
             <TabsTrigger value="dashboard"><LayoutDashboard className="mr-2"/>Dashboard</TabsTrigger>
             <TabsTrigger value="users"><Users className="mr-2"/>Usuarios</TabsTrigger>
             <TabsTrigger value="tournaments"><Swords className="mr-2"/>Torneos</TabsTrigger>
             <TabsTrigger value="services"><Briefcase className="mr-2"/>Servicios</TabsTrigger>
+            <TabsTrigger value="finances"><DollarSign className="mr-2"/>Finanzas</TabsTrigger>
             <TabsTrigger value="news"><Newspaper className="mr-2"/>Noticias</TabsTrigger>
             <TabsTrigger value="settings"><Settings className="mr-2"/>Ajustes</TabsTrigger>
         </TabsList>
@@ -190,12 +235,12 @@ export default function AdminPage() {
                     </Card>
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Ingresos (Estimado)</CardTitle>
+                            <CardTitle className="text-sm font-medium">Ingresos del Mes</CardTitle>
                             <DollarSign className="h-4 w-4 text-muted-foreground" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">$1,250.00</div>
-                             <p className="text-xs text-muted-foreground">Basado en Recargas UC</p>
+                            <div className="text-2xl font-bold">${currentBalance.toFixed(2)}</div>
+                             <p className="text-xs text-muted-foreground">Basado en Suscripciones</p>
                         </CardContent>
                     </Card>
                     <Card>
@@ -568,6 +613,110 @@ export default function AdminPage() {
             </div>
         </TabsContent>
 
+        <TabsContent value="finances" className="mt-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+                <div className="lg:col-span-2 space-y-8">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Historial de Transacciones</CardTitle>
+                            <CardDescription>Un registro de todos los ingresos y retiros de la plataforma.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                             <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Fecha</TableHead>
+                                        <TableHead>Descripción</TableHead>
+                                        <TableHead>Tipo</TableHead>
+                                        <TableHead className="text-right">Monto</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {transactions.map(t => (
+                                         <TableRow key={t.id}>
+                                            <TableCell>{t.date}</TableCell>
+                                            <TableCell>{t.description}</TableCell>
+                                            <TableCell><Badge variant={t.type === 'Ingreso' ? 'secondary' : 'destructive'}>{t.type}</Badge></TableCell>
+                                            <TableCell className={`text-right font-medium ${t.amount > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                                {t.amount > 0 ? '+' : ''}${t.amount.toFixed(2)}
+                                            </TableCell>
+                                         </TableRow>
+                                    ))}
+                                </TableBody>
+                             </Table>
+                        </CardContent>
+                    </Card>
+                </div>
+                <div className="lg:col-span-1 space-y-8">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Resumen Financiero</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="p-4 rounded-lg border bg-card flex justify-between items-center">
+                                <div>
+                                    <p className="text-sm text-muted-foreground">Saldo Disponible</p>
+                                    <p className="text-2xl font-bold">${currentBalance.toFixed(2)}</p>
+                                </div>
+                                <Banknote className="h-8 w-8 text-primary"/>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <Card className="p-3">
+                                    <p className="text-xs text-muted-foreground">Ingresos (Mes)</p>
+                                    <p className="text-lg font-bold">${transactions.filter(t=>t.amount > 0).reduce((acc, t) => acc + t.amount, 0).toFixed(2)}</p>
+                                </Card>
+                                 <Card className="p-3">
+                                    <p className="text-xs text-muted-foreground">Suscripciones Activas</p>
+                                    <p className="text-lg font-bold">{creators.length}</p>
+                                </Card>
+                            </div>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Retirar Fondos</CardTitle>
+                            <CardDescription>Transfiere tu saldo disponible a tu cuenta bancaria.</CardDescription>
+                        </CardHeader>
+                        <form onSubmit={handleWithdrawal}>
+                            <CardContent className="space-y-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="withdrawal-amount">Monto a Retirar (USD)</Label>
+                                    <Input 
+                                        id="withdrawal-amount" 
+                                        type="number"
+                                        step="0.01"
+                                        placeholder="0.00"
+                                        value={withdrawalAmount}
+                                        onChange={e => setWithdrawalAmount(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="bank-account">Cuenta de Destino</Label>
+                                    <Select onValueChange={setSelectedAccount} value={selectedAccount}>
+                                        <SelectTrigger id="bank-account">
+                                            <SelectValue placeholder="Selecciona una cuenta" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {bankAccounts.map(account => (
+                                                <SelectItem key={account.id} value={account.id}>
+                                                    {account.bankName} - (...{account.accountNumber.slice(-4)})
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </CardContent>
+                            <CardFooter>
+                                <Button type="submit" className="w-full">Iniciar Transferencia</Button>
+                            </CardFooter>
+                        </form>
+                    </Card>
+                </div>
+            </div>
+        </TabsContent>
+
+
          <TabsContent value="news" className="mt-6">
              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
                 <div className="lg:col-span-2 space-y-8">
@@ -755,7 +904,3 @@ export default function AdminPage() {
     </div>
   )
 }
-
-    
-
-    

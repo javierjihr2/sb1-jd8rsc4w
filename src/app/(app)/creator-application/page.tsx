@@ -21,24 +21,24 @@ import { Badge } from "@/components/ui/badge"
 
 const plans = [
     {
-        name: "Suscripción Mensual",
-        price: "$4.99",
+        name: "Plan Creador Básico",
+        price: "$3",
         priceSuffix: "/ mes",
-        features: ["Acceso al Portal del Creador", "Publica hasta 5 servicios", "Soporte prioritario"],
+        features: ["Acceso al Portal del Creador", "Publica hasta 5 servicios", "Soporte estándar"],
         isPopular: false,
     },
     {
-        name: "Suscripción Anual",
-        price: "$49.99",
-        priceSuffix: "/ año",
-        features: ["Acceso al Portal del Creador", "Publica servicios ilimitados", "Soporte prioritario", "Insignia de Creador Destacado"],
+        name: "Plan Creador Pro",
+        price: "$5",
+        priceSuffix: "/ mes",
+        features: ["Acceso al Portal del Creador", "Servicios ilimitados", "Soporte prioritario", "Insignia de Creador Destacado", "Mejor posicionamiento"],
         isPopular: true,
     }
 ]
 
 export default function CreatorApplicationPage() {
     const { toast } = useToast()
-    const [selectedPlan, setSelectedPlan] = useState("Suscripción Anual")
+    const [selectedPlan, setSelectedPlan] = useState("Plan Creador Pro")
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()

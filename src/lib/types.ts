@@ -136,6 +136,17 @@ export type Service = {
   isVerified: boolean;
   isFeatured: boolean;
 };
-    
 
-    
+export type BankAccount = {
+    id: string;
+    bankName: string;
+    accountNumber: string;
+}
+
+export type Transaction = {
+    id: string;
+    date: string;
+    description: string;
+    amount: number;
+    type: 'Ingreso' | 'Retiro';
+}
