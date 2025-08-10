@@ -19,7 +19,7 @@ export const playerProfile: PlayerProfile = {
   role: 'Admin', // El admin también puede ser creador
 };
 
-export const tournaments: Tournament[] = [
+export let tournaments: Tournament[] = [
   {
     id: 't1',
     name: 'Copa Verano 2024',
@@ -70,6 +70,12 @@ export const tournaments: Tournament[] = [
     type: 'Por Puntos',
   },
 ];
+
+// Function to add a new tournament to the list
+export const addTournament = (tournament: Tournament) => {
+    tournaments.push(tournament);
+};
+
 
 export const recentChats: Chat[] = [
   {
@@ -404,4 +410,3 @@ export const initialTransactions: Transaction[] = [
     { id: 'txn3', date: '2024-07-25', description: 'Suscripción Creador Básico - Phoenix_Queen', amount: 2.99, type: 'Ingreso' },
 ];
 
-    

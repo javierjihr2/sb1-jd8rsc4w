@@ -24,7 +24,7 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
 import { Code, UserPlus, Newspaper, Check, X, Users, Swords, PlusCircle, Pencil, Trash2, LayoutDashboard, Settings, DollarSign, BarChart, BellRing, Wrench, Link as LinkIcon, KeyRound, RefreshCw, Briefcase, Star, CheckCircle, Banknote, Flag, Calendar as CalendarIcon, Clock, Info } from "lucide-react"
-import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles, friendsForComparison as initialUsers, rechargeProviders, developers, services as initialServices, creators, bankAccounts, initialTransactions } from "@/lib/data"
+import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles, friendsForComparison as initialUsers, rechargeProviders, developers, services as initialServices, creators, bankAccounts, initialTransactions, addTournament } from "@/lib/data"
 import type { RegistrationRequest, Tournament, NewsArticle, Service, UserWithRole, BankAccount, Transaction } from "@/lib/types"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -80,11 +80,34 @@ export default function AdminPage() {
   }
   
   const handleCreateTournament = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const newTournament: Tournament = {
+        id: `t${tournaments.length + 1}`,
+        name: formData.get('t-name') as string,
+        date: tournamentDate ? format(tournamentDate, 'yyyy-MM-dd') : 'Fecha no definida',
+        prize: formData.get('t-prize') as string,
+        mode: formData.get('t-mode') as 'Solo' | 'Dúo' | 'Escuadra',
+        status: 'Próximamente',
+        region: formData.get('t-region') as 'N.A.' | 'S.A.',
+        type: tournamentType as any,
+        description: formData.get('t-description') as string,
+        maxTeams: parseInt(formData.get('t-max-teams') as string),
+        startTime: formData.get('t-time') as string,
+        timeZone: formData.get('t-timezone') as string,
+    };
+    
+    addTournament(newTournament); // This now updates the central data source
+    setTournaments(prev => [...prev, newTournament]);
+
     toast({
       title: "Torneo Creado",
-      description: "El nuevo torneo ha sido añadido a la lista.",
-    })
+      description: `El torneo "${newTournament.name}" ha sido añadido a la lista.`,
+    });
+    // Reset form
+    (event.target as HTMLFormElement).reset();
+    setTournamentDate(undefined);
+    setTournamentType('');
   }
 
   const handleCreateService = (event: React.FormEvent<HTMLFormElement>) => {
@@ -467,11 +490,11 @@ export default function AdminPage() {
                             <CardContent className="grid gap-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="t-name">Nombre del Torneo</Label>
-                                    <Input id="t-name" placeholder="Ej: Copa de Verano" required />
+                                    <Input id="t-name" name="t-name" placeholder="Ej: Copa de Verano" required />
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="t-type">Tipo de Torneo</Label>
-                                    <Select onValueChange={setTournamentType} required>
+                                    <Select name="t-type" onValueChange={setTournamentType} required>
                                         <SelectTrigger id="t-type"><SelectValue placeholder="Selecciona un tipo" /></SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="competitivo">Competitivo</SelectItem>
@@ -512,11 +535,11 @@ export default function AdminPage() {
                                         <div className="grid grid-cols-2 gap-4 animate-in fade-in-50">
                                             <div className="space-y-2">
                                                 <Label htmlFor="t-time">Hora de Inicio</Label>
-                                                <Input id="t-time" type="time" required />
+                                                <Input id="t-time" name="t-time" type="time" required />
                                             </div>
                                             <div className="space-y-2">
                                                 <Label htmlFor="t-timezone">Zona Horaria</Label>
-                                                <Select required>
+                                                <Select name="t-timezone" required>
                                                     <SelectTrigger id="t-timezone"><SelectValue placeholder="País" /></SelectTrigger>
                                                     <SelectContent className="max-h-60">
                                                         <SelectGroup>
@@ -565,7 +588,7 @@ export default function AdminPage() {
                                         </div>
                                         <div className="space-y-2 animate-in fade-in-50">
                                             <Label>Horario de envío de información</Label>
-                                            <Select>
+                                            <Select name="t-info-send-time">
                                                 <SelectTrigger>
                                                     <SelectValue placeholder="Seleccionar cuándo se envían los códigos"/>
                                                 </SelectTrigger>
@@ -580,15 +603,15 @@ export default function AdminPage() {
                                 )}
                                 <div className="space-y-2">
                                     <Label htmlFor="t-prize">Premio</Label>
-                                    <Input id="t-prize" placeholder="Ej: $1,000 USD o 'Premios en UC'" required />
+                                    <Input id="t-prize" name="t-prize" placeholder="Ej: $1,000 USD o 'Premios en UC'" required />
                                 </div>
                                  <div className="space-y-2">
                                     <Label htmlFor="t-max-teams">Máximo de Equipos</Label>
-                                    <Input id="t-max-teams" type="number" placeholder="Ej: 64" required />
+                                    <Input id="t-max-teams" name="t-max-teams" type="number" placeholder="Ej: 64" required />
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="t-mode">Modo</Label>
-                                    <Select required>
+                                    <Select name="t-mode" required>
                                         <SelectTrigger id="t-mode"><SelectValue placeholder="Selecciona un modo" /></SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="Solo">Solo</SelectItem>
@@ -599,7 +622,7 @@ export default function AdminPage() {
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="t-region">Región</Label>
-                                    <Select required>
+                                    <Select name="t-region" required>
                                         <SelectTrigger id="t-region"><SelectValue placeholder="Selecciona una región" /></SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="N.A.">Norteamérica</SelectItem>
@@ -609,7 +632,7 @@ export default function AdminPage() {
                                 </div>
                                  <div className="space-y-2">
                                     <Label htmlFor="t-description">Reglas y Descripción</Label>
-                                    <Textarea id="t-description" placeholder="Describe el formato del torneo, sistema de puntos, reglas de conducta, etc." />
+                                    <Textarea id="t-description" name="t-description" placeholder="Describe el formato del torneo, sistema de puntos, reglas de conducta, etc." />
                                 </div>
                             </CardContent>
                             <CardFooter>
@@ -1049,4 +1072,3 @@ export default function AdminPage() {
     </div>
   )
 }
-
