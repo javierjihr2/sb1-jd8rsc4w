@@ -75,7 +75,7 @@ export default function TournamentChatPage() {
         : 'Mapas no definidos.';
     
     const timeZone = tournament.timeZone || '🇨🇱'; // Default to Chile flag if not specified
-    const infoSendText = tournament.infoSendTime ? `• DATOS DE LA SALA: Se envían ${tournament.infoSendTime} minutos antes del inicio.` : '';
+    const infoSendText = tournament.infoSendTime ? `• ID: ${tournament.infoSendTime} minutos antes` : '';
 
     const messageHeader = isUpdate 
         ? `════ **LISTA DE EQUIPOS ACTUALIZADA** ════`
