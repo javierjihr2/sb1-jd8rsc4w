@@ -18,7 +18,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { MessageSquare, Send, ArrowLeft, KeyRound, UserPlus, Link as LinkIcon, Clock, Lock } from "lucide-react"
+import { MessageSquare, Send, ArrowLeft, KeyRound, UserPlus, Link as LinkIcon, Clock, Lock, Pencil, Bot, PauseCircle } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -28,6 +28,7 @@ import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
 import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
 
 const participants = registeredTeams.flatMap(team => team.players);
 
@@ -41,8 +42,11 @@ export default function TournamentChatPage() {
   const [newMessage, setNewMessage] = useState("");
   const [isRoomInfoDialogOpen, setRoomInfoDialogOpen] = useState(false);
   const [isAddUserDialogOpen, setAddUserDialogOpen] = useState(false);
+  const [isEditListDialogOpen, setIsEditListDialogOpen] = useState(false);
+  const [listContent, setListContent] = useState("");
   const [showMentionPopover, setShowMentionPopover] = useState(false);
   const [isChatLocked, setIsChatLocked] = useState(false);
+  const [autoUpdatesPaused, setAutoUpdatesPaused] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
   // Form state for room info
@@ -119,7 +123,7 @@ _Por favor, mantengan una comunicación respetuosa. ¡Mucha suerte a todos!_
   
   useEffect(() => {
     const handleTournamentUpdate = () => {
-       if (isChatLocked) return; // No enviar actualizaciones si el chat está bloqueado
+       if (isChatLocked || autoUpdatesPaused) return; // No enviar actualizaciones si el chat está bloqueado o las actualizaciones pausadas
        const updateMessage = generateWelcomeMessage(true);
         setMessages(prev => [
             ...prev,
@@ -128,7 +132,7 @@ _Por favor, mantengan una comunicación respetuosa. ¡Mucha suerte a todos!_
     };
     window.addEventListener('tournamentUpdated', handleTournamentUpdate);
     return () => window.removeEventListener('tournamentUpdated', handleTournamentUpdate);
-  }, [isChatLocked]);
+  }, [isChatLocked, autoUpdatesPaused]);
 
 
    useEffect(() => {
@@ -215,6 +219,17 @@ ${streamLink ? `\n📺 **Transmisión:**\n${streamLink}` : ''}
       inputRef.current?.focus();
   }
 
+  const handleOpenEditList = () => {
+      setListContent(generateWelcomeMessage(true));
+      setIsEditListDialogOpen(true);
+  }
+
+  const handleSendEditedList = (e: React.FormEvent) => {
+      e.preventDefault();
+      handleSendMessage(e, listContent);
+      setIsEditListDialogOpen(false);
+  }
+
   const renderMessageText = (text: string) => {
     const mentionRegex = /@([a-zA-Z0-9_]+)/g;
     const parts = text.split(mentionRegex);
@@ -244,7 +259,7 @@ ${streamLink ? `\n📺 **Transmisión:**\n${streamLink}` : ''}
                 <Card className="mb-4 bg-muted/50 border-dashed">
                     <CardHeader>
                         <CardTitle className="text-lg">Panel del Organizador</CardTitle>
-                        {!isOrganizer && (
+                         {!isOrganizer && (
                             <CardDescription className="text-xs italic flex items-center gap-1"><Lock className="h-3 w-3"/>Estos controles son exclusivos para los organizadores del torneo.</CardDescription>
                         )}
                     </CardHeader>
@@ -318,9 +333,35 @@ ${streamLink ? `\n📺 **Transmisión:**\n${streamLink}` : ''}
                                     </form>
                             </DialogContent>
                         </Dialog>
-                            <div className="flex items-center space-x-2">
+                        
+                        <Dialog open={isEditListDialogOpen} onOpenChange={setIsEditListDialogOpen}>
+                            <DialogTrigger asChild>
+                                <Button variant="outline" disabled={!isOrganizer} onClick={handleOpenEditList}>
+                                    <Pencil className="mr-2 h-4 w-4" />
+                                    Editar y Publicar Lista
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-2xl">
+                                <DialogHeader>
+                                    <DialogTitle>Editar Lista de Equipos</DialogTitle>
+                                    <DialogDescription>Modifica el mensaje de la lista y publícalo en el chat. Las actualizaciones automáticas se pausarán mientras editas.</DialogDescription>
+                                </DialogHeader>
+                                <form onSubmit={handleSendEditedList}>
+                                    <Textarea value={listContent} onChange={e => setListContent(e.target.value)} className="min-h-[400px] my-4" />
+                                    <DialogFooter>
+                                        <Button type="submit">Publicar Lista Editada</Button>
+                                    </DialogFooter>
+                                </form>
+                            </DialogContent>
+                        </Dialog>
+
+                        <div className="flex items-center space-x-2">
+                            <Switch id="pause-updates" checked={autoUpdatesPaused} onCheckedChange={setAutoUpdatesPaused} disabled={!isOrganizer} />
+                            <Label htmlFor="pause-updates" className="flex items-center gap-1"><Bot className="h-4 w-4"/>Pausar Updates</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
                             <Switch id="lock-chat" checked={isChatLocked} onCheckedChange={setIsChatLocked} disabled={!isOrganizer} />
-                            <Label htmlFor="lock-chat">Cerrar Inscripciones y Chat</Label>
+                            <Label htmlFor="lock-chat" className="flex items-center gap-1"><Lock className="h-4 w-4"/>Cerrar Chat</Label>
                         </div>
                     </CardContent>
                 </Card>
@@ -388,3 +429,5 @@ const CommandItem = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDi
   <div ref={ref} onClick={onSelect} className={cn("flex items-center gap-2 p-2 rounded-sm hover:bg-accent cursor-pointer", className)} {...props} />
 ));
 CommandItem.displayName = "CommandItem";
+
+    
