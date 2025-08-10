@@ -2,7 +2,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { notFound, useRouter } from "next/navigation"
+import { notFound, useRouter, useParams } from "next/navigation"
 import { tournaments, playerProfile, teamMates, registeredTeams, getRegistrationStatus, updateRegistrationStatus } from "@/lib/data"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -17,9 +17,10 @@ import type { Message, RegistrationRequest } from "@/lib/types"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import Link from "next/link"
 
-export default function TournamentDetailPage({ params }: { params: { id: string } }) {
+export default function TournamentDetailPage() {
   const { toast } = useToast();
   const router = useRouter();
+  const params = useParams() as { id: string };
   const tournament = tournaments.find(t => t.id === params.id)
   
   const [teamName, setTeamName] = useState("");
