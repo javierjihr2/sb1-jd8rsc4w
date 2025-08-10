@@ -27,6 +27,7 @@ import Link from "next/link"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
 import { Switch } from "@/components/ui/switch"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 const participants = registeredTeams.flatMap(team => team.players);
 
@@ -49,6 +50,7 @@ export default function TournamentChatPage() {
   const [roomPassword, setRoomPassword] = useState("");
   const [startTime, setStartTime] = useState("");
   const [streamLink, setStreamLink] = useState(tournament?.streamLink || "");
+  const [selectedMapForInfo, setSelectedMapForInfo] = useState("");
 
   const lastMessageRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -59,12 +61,12 @@ export default function TournamentChatPage() {
     if (!tournament) return "";
     
     const maxSlots = tournament.maxTeams || 23;
-    const registeredCount = registeredTeams.length;
+    let registeredCount = registeredTeams.length;
     
     let slotsList = `01.- ENTRADA\n02.- ENTRADA\n`;
     
     for (let i = 3; i <= maxSlots; i++) {
-        const teamIndex = i - 3; // Start filling from the first registered team
+        const teamIndex = i - 3;
         const slotNumber = i.toString().padStart(2, '0');
         const team = registeredTeams[teamIndex];
         slotsList += `${slotNumber}.- ${team ? `_${team.name.toUpperCase()}_` : ''}\n`;
@@ -74,7 +76,7 @@ export default function TournamentChatPage() {
         ? tournament.maps.map((map) => `📍 ${map}`).join('\n')
         : 'Mapas no definidos.';
     
-    const timeZone = tournament.timeZone || '🇨🇱'; // Default to Chile flag if not specified
+    const timeZone = tournament.timeZone || '🇨🇱';
     const infoSendText = tournament.infoSendTime ? `⏰ **ID:** ${tournament.infoSendTime} minutos antes` : '';
 
     const messageHeader = isUpdate 
@@ -111,11 +113,9 @@ _Por favor, mantengan una comunicación respetuosa. ¡Mucha suerte a todos!_
     }
   }, [tournament?.id]);
   
-  // Effect to re-send the message when registered teams change
   useEffect(() => {
     if (!isMounted) return;
     const teamCount = registeredTeams.length;
-    // To avoid re-sending on initial load, we check if there are already messages
     if (messages.length > 0 && teamCount > 0) {
         const updateMessage = generateWelcomeMessage(true);
          setMessages(prev => [
@@ -124,6 +124,18 @@ _Por favor, mantengan una comunicación respetuosa. ¡Mucha suerte a todos!_
         ]);
     }
   }, [registeredTeams.length]);
+
+  useEffect(() => {
+    const handleTournamentUpdate = () => {
+       const updateMessage = generateWelcomeMessage(true);
+        setMessages(prev => [
+            ...prev,
+            { sender: 'other', text: updateMessage },
+        ]);
+    };
+    window.addEventListener('tournamentUpdated', handleTournamentUpdate);
+    return () => window.removeEventListener('tournamentUpdated', handleTournamentUpdate);
+  }, []);
 
 
    useEffect(() => {
@@ -141,7 +153,7 @@ _Por favor, mantengan una comunicación respetuosa. ¡Mucha suerte a todos!_
 
 
   if (!tournament) {
-    return null; // or a loading state
+    return null;
   }
 
   const handleSendMessage = (e: React.FormEvent, textOverride?: string) => {
@@ -162,25 +174,16 @@ _Por favor, mantengan una comunicación respetuosa. ¡Mucha suerte a todos!_
   const handleSendRoomInfo = (e: React.FormEvent) => {
       e.preventDefault();
 
-      const maxSlots = tournament?.maxTeams || 23;
-      
-      let slotsList = `01.- ENTRADA\n02.- ENTRADA\n`;
-      for (let i = 3; i <= maxSlots; i++) {
-        const teamIndex = i - 3;
-        const slotNumber = i.toString().padStart(2, '0');
-        const team = registeredTeams[teamIndex];
-        slotsList += `${slotNumber}.- ${team ? `_${team.name.toUpperCase()}_` : ''}\n`;
+      if (!selectedMapForInfo) {
+          toast({ variant: 'destructive', title: "Error", description: "Por favor, selecciona el mapa para el cual estás enviando la información." });
+          return;
       }
       
-      const mapsList = tournament.maps && tournament.maps.length > 0
-        ? tournament.maps.map((map) => `📍 ${map}`).join('\n')
-        : 'Mapas no definidos.';
-
       const timeZone = tournament.timeZone || '🇨🇱';
 
       const formattedMessage = `
 ══════════════════
-**SALA PRIVADA - ${tournament.name.toUpperCase()}**
+**SALA PRIVADA - MAPA: ${selectedMapForInfo.toUpperCase()}**
 ══════════════════
 _Organizado por: ${playerProfile.name} 🥷_
 
@@ -188,12 +191,6 @@ _Organizado por: ${playerProfile.name} 🥷_
 • **ID:** \`${roomId}\`
 • **CONTRASEÑA:** \`${roomPassword}\`
 • **COMIENZA:** ${startTime} hrs ${timeZone}
-
-🗺️ **Mapas:**
-${mapsList}
-
-👥 **Equipos Inscritos:**
-${slotsList.trim()}
 
 ${streamLink ? `\n📺 **Transmisión:**\n${streamLink}` : ''}
 `;
@@ -205,6 +202,7 @@ ${streamLink ? `\n📺 **Transmisión:**\n${streamLink}` : ''}
       setRoomPassword("");
       setStartTime("");
       setStreamLink(tournament.streamLink || "");
+      setSelectedMapForInfo("");
       setRoomInfoDialogOpen(false);
       toast({ title: "Datos de la Sala Enviados", description: "La información ha sido publicada en el chat del torneo." });
   }
@@ -268,6 +266,17 @@ ${streamLink ? `\n📺 **Transmisión:**\n${streamLink}` : ''}
                                         <DialogDescription>Rellena los campos para notificar a los participantes.</DialogDescription>
                                     </DialogHeader>
                                     <form onSubmit={handleSendRoomInfo} className="space-y-4 py-4">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="map-select">Mapa Correspondiente</Label>
+                                            <Select onValueChange={setSelectedMapForInfo} value={selectedMapForInfo} required>
+                                                <SelectTrigger id="map-select">
+                                                    <SelectValue placeholder="Selecciona el mapa"/>
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {tournament.maps?.map(map => <SelectItem key={map} value={map}>{map}</SelectItem>)}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
                                         <div className="space-y-2">
                                             <Label htmlFor="room-id">ID de la Sala</Label>
                                             <Input id="room-id" value={roomId} onChange={e => setRoomId(e.target.value)} placeholder="Ej: 1234567" required/>
