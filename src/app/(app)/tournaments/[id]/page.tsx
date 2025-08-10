@@ -28,7 +28,8 @@ const initialTournamentMessages: Message[] = [
 
 export default function TournamentDetailPage({ params }: { params: { id: string } }) {
   const { toast } = useToast();
-  const tournament = tournaments.find(t => t.id === params.id)
+  const { id } = params;
+  const tournament = tournaments.find(t => t.id === id)
   
   const [teamName, setTeamName] = useState("");
   const [teamTag, setTeamTag] = useState("");
