@@ -23,9 +23,9 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
-import { Code, UserPlus, Newspaper, Check, X, Users, Swords, PlusCircle, Pencil, Trash2, LayoutDashboard, Settings, DollarSign, BarChart, BellRing, Wrench, Link as LinkIcon, KeyRound, RefreshCw, Briefcase, Star, CheckCircle, Banknote, Flag, Calendar as CalendarIcon, Clock, Info, Map, Video } from "lucide-react"
-import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles, friendsForComparison as initialUsers, rechargeProviders, developers, services as initialServices, creators, bankAccounts, initialTransactions, addTournament, tournaments, updateTournament, mapOptions, registeredTeams, updateRegistrationStatus, addApprovedRegistration } from "@/lib/data"
-import type { RegistrationRequest, Tournament, NewsArticle, Service, UserWithRole, BankAccount, Transaction } from "@/lib/types"
+import { Code, UserPlus, Newspaper, Check, X, Users, Swords, PlusCircle, Pencil, Trash2, LayoutDashboard, Settings, DollarSign, BarChart, BellRing, Wrench, Link as LinkIcon, KeyRound, RefreshCw, Briefcase, Star, CheckCircle, Banknote, Flag, Calendar as CalendarIcon, Clock, Info, Map, Video, ShieldAlert } from "lucide-react"
+import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles, friendsForComparison as initialUsers, rechargeProviders, developers, services as initialServices, creators, bankAccounts, initialTransactions, addTournament, tournaments, updateTournament, mapOptions, registeredTeams, updateRegistrationStatus, addApprovedRegistration, reserveTeams, playerProfile } from "@/lib/data"
+import type { RegistrationRequest, Tournament, NewsArticle, Service, UserWithRole, BankAccount, Transaction, Team } from "@/lib/types"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -221,43 +221,51 @@ export default function AdminPage() {
     })
   }
 
-  const handleRequest = (requestId: string, status: "Aprobado" | "Rechazado") => {
+  const handleRequest = (requestId: string, action: "Aprobado" | "Rechazado") => {
     const request = requests.find(req => req.id === requestId);
     if (!request) return;
 
-    setRequests(prev => prev.map(req => req.id === requestId ? { ...req, status } : req));
-    toast({
-        title: `Solicitud ${status}`,
-        description: `El equipo ${request.teamName} ha sido ${status.toLowerCase()}.`,
-    });
-
-    // Assume the first player in the request is the user who registered.
+    const tournament = tournaments.find(t => t.id === request.tournamentId);
+    if (!tournament) {
+        toast({ variant: "destructive", title: "Error", description: "No se encontró el torneo asociado." });
+        return;
+    }
+    
     const registeringUserId = request.players[0]?.id;
+    if (!registeringUserId) return;
 
-    if (status === 'Aprobado' && registeringUserId) {
-        // Add the team to the main registered list
-        const newTeam = {
-            id: `team-${Date.now()}`,
-            name: request.teamName,
-            players: request.players,
-        };
-        registeredTeams.push(newTeam);
+    const newTeam: Team = {
+      id: `team-${Date.now()}`,
+      name: request.teamName,
+      players: request.players,
+    };
 
-        // Update the registration status for the user who made the request
-        updateRegistrationStatus(request.tournamentId, 'approved', registeringUserId);
-        
-        // Add to the approved list for chat access
-        addApprovedRegistration({ userId: registeringUserId, tournamentId: request.tournamentId, status: 'approved' });
+    if (action === 'Aprobado') {
+        const mainSlotsFull = registeredTeams.length >= (tournament.maxTeams || 25);
+        const reserveSlotsAvailable = reserveTeams.length < (tournament.maxReserves || 0);
 
-
-        // Notify other components (like the chat) to update
+        if (!mainSlotsFull) {
+            registeredTeams.push(newTeam);
+            updateRegistrationStatus(tournament.id, 'approved', registeringUserId);
+            addApprovedRegistration({ userId: registeringUserId, tournamentId: tournament.id, status: 'approved' });
+            setRequests(prev => prev.map(req => req.id === requestId ? { ...req, status: 'Aprobado' } : req));
+            toast({ title: `Solicitud Aprobada`, description: `El equipo ${request.teamName} ha sido añadido al torneo.` });
+        } else if (reserveSlotsAvailable) {
+            reserveTeams.push(newTeam);
+            updateRegistrationStatus(tournament.id, 'reserve', registeringUserId);
+            setRequests(prev => prev.map(req => req.id === requestId ? { ...req, status: 'Reserva' } : req));
+            toast({ title: `Inscrito como Reserva`, description: `El equipo ${request.teamName} ha sido añadido a la lista de reserva.` });
+        } else {
+            toast({ variant: "destructive", title: "Torneo Lleno", description: "No hay más slots disponibles, ni principales ni de reserva." });
+            return; // No se hace nada si no hay espacio
+        }
+        // Notificar al chat para que se actualice la lista
         window.dispatchEvent(new Event('tournamentUpdated'));
-        toast({
-            title: "Notificación Enviada",
-            description: `Se envió un mensaje de actualización al chat del torneo con el nuevo equipo.`,
-        });
-    } else if (status === 'Rechazado' && registeringUserId) {
-        updateRegistrationStatus(request.tournamentId, 'rejected', registeringUserId);
+
+    } else { // Rechazado
+        updateRegistrationStatus(tournament.id, 'rejected', registeringUserId);
+        setRequests(prev => prev.map(req => req.id === requestId ? { ...req, status: 'Rechazado' } : req));
+        toast({ title: `Solicitud Rechazada`, description: `El equipo ${request.teamName} ha sido rechazado.` });
     }
   }
   
@@ -524,6 +532,29 @@ export default function AdminPage() {
     </form>
   )
 
+  if (playerProfile.role !== 'Admin') {
+      return (
+          <div className="flex items-center justify-center h-[calc(100vh-200px)]">
+              <Card className="max-w-md w-full text-center">
+                  <CardHeader>
+                      <div className="mx-auto bg-destructive/10 p-3 rounded-full w-fit">
+                         <ShieldAlert className="h-10 w-10 text-destructive"/>
+                      </div>
+                      <CardTitle className="mt-4">Acceso Denegado</CardTitle>
+                      <CardDescription>
+                          Lo sentimos, solo los administradores pueden acceder a esta página.
+                      </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                      <Button asChild>
+                          <a href="/dashboard">Volver al Inicio</a>
+                      </Button>
+                  </CardContent>
+              </Card>
+          </div>
+      )
+  }
+
   return (
     <div className="space-y-8">
        <div>
@@ -745,7 +776,7 @@ export default function AdminPage() {
                                                 </Button>
                                             </div>
                                         ) : (
-                                            <p className={`font-semibold ${request.status === 'Aprobado' ? 'text-green-600' : 'text-red-600'}`}>
+                                            <p className={`font-semibold ${request.status === 'Aprobado' ? 'text-green-600' : request.status === 'Reserva' ? 'text-amber-600' : 'text-red-600'}`}>
                                                 Estado: {request.status}
                                             </p>
                                         )}
