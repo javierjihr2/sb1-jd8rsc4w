@@ -60,10 +60,9 @@ export default function TournamentChatPage() {
   const generateWelcomeMessage = (isUpdate = false) => {
     if (!tournament) return "";
     
-    const maxSlots = tournament.maxTeams || 23;
     let registeredCount = registeredTeams.length;
-    
-    let slotsList = `01.- _ENTRADA_\n02.- _ENTRADA_\n`;
+    let slotsList = `01.- ENTRADA\n02.- ENTRADA\n`;
+    const maxSlots = tournament.maxTeams || 25; // Defaulting to 25 if not set
     
     for (let i = 3; i <= maxSlots; i++) {
         const teamIndex = i - 3;
@@ -77,7 +76,7 @@ export default function TournamentChatPage() {
         : 'Mapas no definidos.';
     
     const timeZoneFlag = tournament.timeZone ? countryFlags[tournament.timeZone] || '' : '';
-    const infoSendText = tournament.infoSendTime ? `⏰ **ID:** Se envía ${tournament.infoSendTime} minutos antes` : '';
+    const infoSendText = tournament.infoSendTime ? `⏰ ID: ${tournament.infoSendTime} minutos antes` : '';
 
     const messageHeader = isUpdate 
         ? `════ **LISTA DE EQUIPOS ACTUALIZADA** ════`
@@ -105,13 +104,11 @@ _Por favor, mantengan una comunicación respetuosa. ¡Mucha suerte a todos!_
 
   useEffect(() => {
     setIsMounted(true);
-    const welcomeMessage = generateWelcomeMessage();
-    if(welcomeMessage && messages.length === 0) {
-        setMessages([
-            { sender: 'other', text: welcomeMessage },
-        ]);
+    if (tournament && messages.length === 0) {
+      const welcomeMessage = generateWelcomeMessage();
+      setMessages([{ sender: 'other', text: welcomeMessage }]);
     }
-  }, [tournament?.id]);
+  }, [tournament?.id, isMounted]);
   
   useEffect(() => {
     const handleTournamentUpdate = () => {
@@ -176,6 +173,7 @@ _Por favor, mantengan una comunicación respetuosa. ¡Mucha suerte a todos!_
 _Organizado por: ${playerProfile.name} 🥷_
 
 🔑 **Detalles de la Sala:**
+• **Mapa:** ${selectedMapForInfo}
 • **ID:** \`${roomId}\`
 • **CONTRASEÑA:** \`${roomPassword}\`
 • **COMIENZA:** ${startTime} hrs ${timeZoneFlag}
@@ -297,12 +295,12 @@ ${streamLink ? `\n📺 **Transmisión:**\n${streamLink}` : ''}
                                 <DialogContent>
                                     <DialogHeader>
                                         <DialogTitle>Añadir Participante Manualmente</DialogTitle>
-                                        <DialogDescription>Busca a un jugador por su ID para añadirlo al torneo.</DialogDescription>
+                                        <DialogDescription>Busca a un jugador por su ID o nombre para añadirlo al torneo.</DialogDescription>
                                     </DialogHeader>
                                      <form onSubmit={handleAddUser} className="space-y-4 py-4">
                                         <div className="space-y-2">
-                                            <Label htmlFor="user-name">ID del Jugador</Label>
-                                            <Input id="user-name" name="user-name" placeholder="Ej: 5123456789" required />
+                                            <Label htmlFor="user-name">ID o Nombre del Jugador</Label>
+                                            <Input id="user-name" name="user-name" placeholder="Ej: 5123456789 o Player1_Pro" required />
                                         </div>
                                         <DialogFooter>
                                             <Button type="submit">Añadir</Button>
