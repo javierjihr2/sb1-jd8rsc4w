@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { playerProfile } from "@/lib/data"
-import { BrainCircuit, Loader2, Sparkles, Terminal, Users2, Heart, Image as ImageIcon, Download, Send, Paperclip } from "lucide-react"
+import { BrainCircuit, Loader2, Sparkles, Terminal, Users2, Heart, Image as ImageIcon, Download, Send, Paperclip, X } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import type { PlayerAnalysis, PlayerAnalysisInput, ImageGenOutput, AvatarInput } from "@/ai/schemas"
 import { getPlayerAnalysis } from "@/ai/flows/playerAnalysisFlow"
@@ -107,6 +107,8 @@ export default function PlayerAnalysisPage() {
             };
             reader.readAsDataURL(file);
         }
+        // Reset file input to allow selecting the same file again
+        e.target.value = '';
     };
 
 
@@ -218,7 +220,7 @@ export default function PlayerAnalysisPage() {
                 <div id="avatar" className="lg:col-span-1">
                      <Card className="sticky top-20 h-[calc(100vh-180px)] flex flex-col">
                         <CardHeader>
-                            <CardTitle className="flex items-center gap-2"><ImageIcon className="h-5 w-5 text-primary" />Estudio de Diseño IA</CardTitle>
+                            <CardTitle className="flex items-center gap-2"><ImageIcon className="h-5 w-5 text-primary" />Asistente de Diseño IA</CardTitle>
                             <CardDescription>Chatea con la IA para crear y refinar tus diseños. Puedes adjuntar imágenes.</CardDescription>
                         </CardHeader>
                         <CardContent className="flex-1 overflow-hidden p-0">
