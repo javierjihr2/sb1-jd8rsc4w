@@ -1,31 +1,37 @@
 
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { playerProfile } from "@/lib/data"
-import { BrainCircuit, Loader2, Sparkles, Terminal, Users2, Heart, Image as ImageIcon, Download } from "lucide-react"
+import { BrainCircuit, Loader2, Sparkles, Terminal, Users2, Heart, Image as ImageIcon, Download, Send } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import type { PlayerAnalysis, PlayerAnalysisInput, ImageGenOutput } from "@/ai/schemas"
 import { getPlayerAnalysis } from "@/ai/flows/playerAnalysisFlow"
 import { generateDesigns } from "@/ai/flows/avatarFlow"
 import { Avatar as AvatarComponent, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
+type ChatMessage = {
+  role: 'user' | 'model';
+  text?: string;
+  images?: string[];
+}
 
 export default function PlayerAnalysisPage() {
     const [analysis, setAnalysis] = useState<PlayerAnalysis | null>(null);
     const [isAnalysisLoading, setIsAnalysisLoading] = useState(false);
     const [analysisError, setAnalysisError] = useState<string | null>(null);
     
-    const [userIdea, setUserIdea] = useState("");
-    const [generatedImages, setGeneratedImages] = useState<string[]>([]);
+    const [conversation, setConversation] = useState<ChatMessage[]>([]);
+    const [userInput, setUserInput] = useState("");
     const [isImageLoading, setIsImageLoading] = useState(false);
     const [imageError, setImageError] = useState<string | null>(null);
+    const scrollAreaRef = useRef<HTMLDivElement>(null);
 
 
     const handleAnalysis = async () => {
@@ -52,15 +58,25 @@ export default function PlayerAnalysisPage() {
 
     const handleImageGeneration = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (!userIdea.trim() || isImageLoading) return;
-
+        if (!userInput.trim() || isImageLoading) return;
+        
+        const newUserMessage: ChatMessage = { role: 'user', text: userInput };
+        const newConversation = [...conversation, newUserMessage];
+        setConversation(newConversation);
+        setUserInput("");
         setIsImageLoading(true);
         setImageError(null);
-        setGeneratedImages([]);
 
         try {
-            const result: ImageGenOutput = await generateDesigns({ idea: userIdea });
-            setGeneratedImages(result.imageUrls);
+            const historyForApi = newConversation
+                .filter(msg => msg.text) // Only include messages with text for the history
+                .map(msg => ({ role: msg.role, text: msg.text! }));
+
+            const result: ImageGenOutput = await generateDesigns({ history: historyForApi });
+            
+            const newModelMessage: ChatMessage = { role: 'model', images: result.imageUrls };
+            setConversation(prev => [...prev, newModelMessage]);
+
         } catch (e: any) {
             setImageError("Error al generar las imágenes. El servicio puede estar ocupado. Inténtalo de nuevo.");
             console.error(e);
@@ -68,6 +84,12 @@ export default function PlayerAnalysisPage() {
             setIsImageLoading(false);
         }
     }
+
+     useEffect(() => {
+        if (scrollAreaRef.current) {
+            scrollAreaRef.current.scrollTo({ top: scrollAreaRef.current.scrollHeight, behavior: 'smooth' });
+        }
+    }, [conversation]);
 
     const handleDownload = (imageUrl: string) => {
         const link = document.createElement('a');
@@ -175,61 +197,78 @@ export default function PlayerAnalysisPage() {
                     </Card>
                 </div>
                 <div id="avatar" className="lg:col-span-1">
-                     <Card className="sticky top-20">
+                     <Card className="sticky top-20 h-[calc(100vh-180px)] flex flex-col">
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2"><ImageIcon className="h-5 w-5 text-primary" />Estudio de Diseño IA</CardTitle>
-                            <CardDescription>Describe tu idea para un avatar, logo o emblema, y la IA lo creará para ti.</CardDescription>
+                            <CardDescription>Chatea con la IA para crear y refinar tus diseños.</CardDescription>
                         </CardHeader>
-                        <form onSubmit={handleImageGeneration}>
-                            <CardContent className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="design-idea">Tu Idea</Label>
-                                    <Textarea 
-                                        id="design-idea"
-                                        placeholder="Ej: Un logo para mi equipo 'LOBOS NOCTURNOS' con estilo neón."
-                                        value={userIdea}
-                                        onChange={(e) => setUserIdea(e.target.value)}
-                                        rows={4}
-                                        disabled={isImageLoading}
-                                    />
-                                </div>
-                                
-                                {imageError && (
-                                    <Alert variant="destructive"><Terminal className="h-4 w-4" /><AlertDescription>{imageError}</AlertDescription></Alert>
-                                )}
-
-                                {isImageLoading && (
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <Skeleton className="aspect-square w-full rounded-lg"/>
-                                        <Skeleton className="aspect-square w-full rounded-lg"/>
-                                    </div>
-                                )}
-
-                                {generatedImages.length > 0 && !isImageLoading && (
-                                    <div className="grid grid-cols-2 gap-4 animate-in fade-in-50">
-                                        {generatedImages.map((url, i) => (
-                                            <div key={i} className="space-y-2">
-                                                <Image src={url} alt={`Diseño generado ${i + 1}`} width={256} height={256} className="object-cover rounded-lg aspect-square border" />
-                                                <Button variant="outline" size="sm" className="w-full" onClick={() => handleDownload(url)}>
-                                                    <Download className="mr-2 h-4 w-4" />
-                                                    Descargar
-                                                </Button>
+                        <CardContent className="flex-1 overflow-hidden p-0">
+                             <ScrollArea className="h-full" ref={scrollAreaRef}>
+                                <div className="p-6 space-y-4">
+                                    {conversation.length === 0 && (
+                                         <div className="text-center text-muted-foreground text-sm py-8">
+                                            <ImageIcon className="mx-auto h-10 w-10 mb-2"/>
+                                            <p>Comienza escribiendo tu idea.</p>
+                                            <p className="text-xs">Ej: "Un logo para mi equipo 'LOBOS NOCTURNOS' con estilo neón."</p>
+                                        </div>
+                                    )}
+                                    {conversation.map((msg, index) => (
+                                        <div key={index} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                            {msg.role === 'user' && (
+                                                <div className="bg-primary text-primary-foreground p-3 rounded-lg max-w-xs break-words">
+                                                    {msg.text}
+                                                </div>
+                                            )}
+                                            {msg.role === 'model' && (
+                                                 <div className="bg-muted p-3 rounded-lg">
+                                                     {msg.images && (
+                                                        <div className="grid grid-cols-2 gap-2">
+                                                        {msg.images.map((url, i) => (
+                                                            <div key={i} className="space-y-2">
+                                                                <Image src={url} alt={`Diseño generado ${i + 1}`} width={256} height={256} className="object-cover rounded-lg aspect-square border" />
+                                                                <Button variant="outline" size="sm" className="w-full" onClick={() => handleDownload(url)}>
+                                                                    <Download className="mr-2 h-4 w-4" />
+                                                                    Descargar
+                                                                </Button>
+                                                            </div>
+                                                        ))}
+                                                        </div>
+                                                     )}
+                                                 </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                    {isImageLoading && (
+                                         <div className="flex justify-start">
+                                            <div className="bg-muted p-3 rounded-lg">
+                                                <div className="flex items-center gap-2 text-muted-foreground">
+                                                    <Loader2 className="h-5 w-5 animate-spin"/>
+                                                    <span>Generando...</span>
+                                                </div>
                                             </div>
-                                        ))}
-                                    </div>
-                                )}
-                                
-                            </CardContent>
-                            <CardFooter className="flex flex-col gap-2">
-                                <Button type="submit" className="w-full" disabled={isImageLoading || !userIdea.trim()}>
-                                    {isImageLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Sparkles className="mr-2 h-4 w-4" />}
-                                    {isImageLoading ? "Generando..." : "Generar Diseños"}
+                                         </div>
+                                    )}
+                                    {imageError && (
+                                         <div className="flex justify-start">
+                                            <Alert variant="destructive"><Terminal className="h-4 w-4" /><AlertDescription>{imageError}</AlertDescription></Alert>
+                                         </div>
+                                    )}
+                                </div>
+                            </ScrollArea>
+                        </CardContent>
+                        <CardFooter className="pt-4 border-t">
+                            <form onSubmit={handleImageGeneration} className="w-full flex items-center gap-2">
+                               <Input 
+                                    placeholder="Describe tu idea o pide un cambio..."
+                                    value={userInput}
+                                    onChange={(e) => setUserInput(e.target.value)}
+                                    disabled={isImageLoading}
+                                />
+                                <Button type="submit" size="icon" disabled={isImageLoading || !userInput.trim()}>
+                                    <Send className="h-4 w-4"/>
                                 </Button>
-                                {generatedImages.length > 0 && (
-                                     <Button variant="ghost" className="w-full" onClick={() => { setGeneratedImages([]); setUserIdea("") }}>Limpiar</Button>
-                                )}
-                            </CardFooter>
-                        </form>
+                            </form>
+                        </CardFooter>
                     </Card>
                 </div>
             </div>

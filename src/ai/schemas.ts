@@ -172,8 +172,13 @@ export const PlayerComparisonSchema = z.object({
 });
 export type PlayerComparison = z.infer<typeof PlayerComparisonSchema>;
 
+const ChatMessageSchema = z.object({
+  role: z.enum(['user', 'model']),
+  text: z.string(),
+});
+
 export const AvatarInputSchema = z.object({
-  idea: z.string().describe("The user's idea for a design, e.g., 'a logo for my team Night Wolves' or 'an avatar of a soldier with a tiger helmet'"),
+  history: z.array(ChatMessageSchema).describe("The entire conversation history between the user and the model."),
 });
 export type AvatarInput = z.infer<typeof AvatarInputSchema>;
 
