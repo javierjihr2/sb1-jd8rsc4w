@@ -26,6 +26,7 @@ import {
   FileCode,
   Briefcase,
   Palette,
+  Rocket,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -84,6 +85,9 @@ export default function DashboardLayout({
   const isCreatorOrAdmin = playerProfile.role === 'Creador' || playerProfile.role === 'Admin';
   if (isCreatorOrAdmin) {
     navItems.splice(7, 0, { href: "/creator-hub", label: "Portal del Creador", icon: Palette, badge: 0 });
+  } else {
+    // Si no es creador, mostrar la opción para convertirse en uno
+    navItems.splice(7, 0, { href: "/creator-application", label: "Conviértete en Creador", icon: Rocket, badge: 0 });
   }
 
   // Mantén la lógica condicional para el enlace de Administrador
