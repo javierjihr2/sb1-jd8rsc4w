@@ -51,6 +51,7 @@ import { recentChats, playerProfile } from "@/lib/data"
 import { useAuth } from "../auth-provider"
 import { useEffect } from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { AppTour } from "@/components/app-tour"
 
 export default function DashboardLayout({
   children,
@@ -68,21 +69,21 @@ export default function DashboardLayout({
   }, [user, loading, router]);
 
   const navItems = [
-    { href: "/dashboard", label: "Inicio", icon: Home, badge: 0 },
-    { href: "/tournaments", label: "Torneos", icon: Swords, badge: 0 },
-    { href: "/chats", label: "Chats", icon: MessageSquare, badge: recentChats.filter(c => c.unread).length },
-    { href: "/matchmaking", label: "MATCH PUBGM", icon: Search, badge: 0 },
-    { href: "/equipment", label: "Taller de Precisión", icon: Target, badge: 0 },
-    { href: "/services", label: "Servicios", icon: Briefcase, badge: 0 },
-    { href: "/creator-hub", label: "Portal del Creador", icon: Palette, badge: 0 },
-    { href: "/creator-application", label: "Conviértete en Creador", icon: Rocket, badge: 0 },
-    { href: "/recharge", label: "Recargar UC", icon: DollarSign, badge: 0 },
-    { href: "/sensitivities", label: "Mis Sensibilidades", icon: FileCode },
-    { href: "/player-analysis", label: "Análisis con IA", icon: BrainCircuit },
-    { href: "/play-map", label: "Estrategias de Mapas", icon: Map },
-    { href: "/compare", label: "Comparador de Dúos", icon: Users },
-    { href: "/support", label: "Soporte", icon: HelpCircle, badge: 0 },
-    { href: "/admin", label: "Admin", icon: ShieldCheck, badge: 0 },
+    { href: "/dashboard", label: "Inicio", icon: Home, badge: 0, id: 'nav-dashboard' },
+    { href: "/tournaments", label: "Torneos", icon: Swords, badge: 0, id: 'nav-tournaments' },
+    { href: "/chats", label: "Chats", icon: MessageSquare, badge: recentChats.filter(c => c.unread).length, id: 'nav-chats' },
+    { href: "/matchmaking", label: "MATCH PUBGM", icon: Search, badge: 0, id: 'nav-matchmaking' },
+    { href: "/equipment", label: "Taller de Precisión", icon: Target, badge: 0, id: 'nav-equipment' },
+    { href: "/services", label: "Servicios", icon: Briefcase, badge: 0, id: 'nav-services' },
+    { href: "/creator-hub", label: "Portal del Creador", icon: Palette, badge: 0, id: 'nav-creator-hub' },
+    { href: "/creator-application", label: "Conviértete en Creador", icon: Rocket, badge: 0, id: 'nav-creator-app' },
+    { href: "/recharge", label: "Recargar UC", icon: DollarSign, badge: 0, id: 'nav-recharge' },
+    { href: "/sensitivities", label: "Mis Sensibilidades", icon: FileCode, id: 'nav-sensitivities' },
+    { href: "/player-analysis", label: "Análisis con IA", icon: BrainCircuit, id: 'nav-player-analysis' },
+    { href: "/play-map", label: "Estrategias de Mapas", icon: Map, id: 'nav-play-map' },
+    { href: "/compare", label: "Comparador de Dúos", icon: Users, id: 'nav-compare' },
+    { href: "/support", label: "Soporte", icon: HelpCircle, badge: 0, id: 'nav-support' },
+    { href: "/admin", label: "Admin", icon: ShieldCheck, badge: 0, id: 'nav-admin' },
   ]
   
   if (loading) {
@@ -94,11 +95,13 @@ export default function DashboardLayout({
   }
 
   return (
+    <>
+    <AppTour />
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
       <div className="hidden border-r bg-sidebar text-sidebar-foreground md:block">
         <div className="flex h-full max-h-screen flex-col gap-4 pt-4">
           <div className="flex h-14 items-center justify-center border-b border-sidebar-border px-4 lg:h-[60px] lg:px-6">
-            <Link href="/" className="flex items-center gap-2 font-semibold text-sidebar-primary">
+            <Link href="/" className="flex items-center gap-2 font-semibold text-sidebar-primary" id="app-logo">
               <Icons.logo className="h-8 w-8" />
               <span className="text-2xl">SquadUp</span>
             </Link>
@@ -109,6 +112,7 @@ export default function DashboardLayout({
                 <Link
                   key={item.label}
                   href={item.href}
+                  id={item.id}
                   className={cn(
                     "flex items-center gap-3 rounded-lg px-3 py-2 text-sidebar-foreground transition-all hover:text-white hover:bg-sidebar-accent/20",
                     pathname === item.href ? "bg-sidebar-accent/10 text-sidebar-primary font-bold" : ""
@@ -185,6 +189,7 @@ export default function DashboardLayout({
                   type="search"
                   placeholder="Buscar jugadores..."
                   className="w-full appearance-none bg-background pl-8 shadow-none md:w-2/3 lg:w-1/3"
+                  id="search-bar"
                 />
               </div>
             </form>
@@ -223,5 +228,6 @@ export default function DashboardLayout({
         </div>
       </div>
     </div>
+    </>
   );
 }

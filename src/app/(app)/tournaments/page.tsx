@@ -48,7 +48,7 @@ export default function TournamentsPage() {
                 Filtrar
             </Button>
             {canCreate && (
-              <Button asChild>
+              <Button asChild id="create-tournament-button">
                   <Link href="/admin">
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Crear Torneo
