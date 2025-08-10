@@ -37,6 +37,8 @@ export default function AdminPage() {
   const [requests, setRequests] = useState<RegistrationRequest[]>(initialRegistrationRequests)
   const [tournaments, setTournaments] = useState<Tournament[]>(initialTournaments)
   const [services, setServices] = useState<Service[]>(initialServices);
+  const [serviceTitle, setServiceTitle] = useState("");
+
 
   const handleCreateProfile = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -69,7 +71,7 @@ export default function AdminPage() {
         id: `s${services.length + 1}`,
         creatorName: formData.get('s-creatorName') as string,
         avatarUrl: formData.get('s-avatarUrl') as string,
-        serviceTitle: formData.get('s-serviceTitle') as string,
+        serviceTitle: serviceTitle,
         description: formData.get('s-description') as string,
         price: formData.get('s-price') as string,
         rating: 0,
@@ -83,6 +85,7 @@ export default function AdminPage() {
       description: `El servicio "${newService.serviceTitle}" ha sido añadido.`,
     });
     (event.target as HTMLFormElement).reset();
+    setServiceTitle("");
   }
   
   const handleSaveSettings = (event: React.FormEvent<HTMLFormElement>) => {
@@ -444,11 +447,23 @@ export default function AdminPage() {
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="s-serviceTitle">Título del Servicio</Label>
-                                    <Input id="s-serviceTitle" name="s-serviceTitle" required />
+                                     <Select onValueChange={setServiceTitle} value={serviceTitle} required>
+                                        <SelectTrigger id="s-serviceTitle">
+                                            <SelectValue placeholder="Selecciona un tipo de servicio" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="Coaching de Puntería y Estrategia">Coaching de Puntería y Estrategia</SelectItem>
+                                            <SelectItem value="Compañero Profesional para Dúos/Squads">Compañero Profesional para Dúos/Squads</SelectItem>
+                                            <SelectItem value="Análisis de Partidas de Torneo">Análisis de Partidas de Torneo</SelectItem>
+                                            <SelectItem value="IGL (In-Game Leader) para tu Squad">IGL (In-Game Leader) para tu Squad</SelectItem>
+                                            <SelectItem value="Entrenamiento de Control de Retroceso (Recoil)">Entrenamiento de Control de Retroceso (Recoil)</SelectItem>
+                                            <SelectItem value="Optimización de Sensibilidad y Controles (HUD)">Optimización de Sensibilidad y Controles (HUD)</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="s-description">Descripción</Label>
-                                    <Textarea id="s-description" name="s-description" required />
+                                    <Textarea id="s-description" name="s-description" placeholder="Describe el servicio en detalle..." required />
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="s-price">Precio (Regalo del juego)</Label>
