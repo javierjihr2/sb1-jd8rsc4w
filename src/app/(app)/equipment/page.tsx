@@ -166,7 +166,7 @@ export default function EquipmentPage() {
 
 
     const handleGenerateSensitivity = async () => {
-        if (!sensitivityInput.deviceType || !sensitivityInput.screenSize || !sensitivityInput.gyroscope || !sensitivityInput.playStyle) {
+        if (!sensitivityInput.deviceType || !sensitivityInput.deviceBrand || !sensitivityInput.device || !sensitivityInput.screenSize || !sensitivityInput.gyroscope || !sensitivityInput.playStyle) {
             setSensitivityError("Por favor, completa todos los campos para generar una configuración.");
             return;
         }
@@ -216,8 +216,9 @@ export default function EquipmentPage() {
     };
 
     const handleGenerateWeaponSensitivity = async () => {
-        if (!sensitivityInput.deviceType || !sensitivityInput.playStyle || !sensitivityInput.gyroscope || !weaponCategory || !weaponName) {
-            setWeaponSensitivityError("Por favor, configura tu perfil de sensibilidad y selecciona un arma para generar.");
+        const fullSensitivityProfile = sensitivityInput as SensitivityInput;
+        if (!fullSensitivityProfile.deviceType || !fullSensitivityProfile.deviceBrand || !fullSensitivityProfile.device || !fullSensitivityProfile.screenSize || !fullSensitivityProfile.playStyle || !fullSensitivityProfile.gyroscope || !weaponCategory || !weaponName) {
+            setWeaponSensitivityError("Por favor, configura tu perfil de sensibilidad completo en la pestaña 'Sensibilidad' y selecciona un arma para continuar.");
             return;
         }
 
@@ -227,7 +228,7 @@ export default function EquipmentPage() {
 
         try {
             const result = await getWeaponSensitivity({
-                ...sensitivityInput as SensitivityInput,
+                ...fullSensitivityProfile,
                 weaponCategory: weaponCategory!,
                 weaponName: weaponName!
             });
@@ -241,7 +242,7 @@ export default function EquipmentPage() {
     };
 
 
-    const handleDeviceTypeChange = (value: "Telefono" | "Tablet") => {
+    const handleDeviceTypeChange = (value: keyof typeof deviceList) => {
         setSensitivityInput({ 
             deviceType: value,
             deviceBrand: undefined,
@@ -406,7 +407,7 @@ export default function EquipmentPage() {
                                 <CardContent className="space-y-6">
                                     <div className="space-y-2">
                                         <Label htmlFor="device-type-sens">Tipo de Dispositivo</Label>
-                                        <Select onValueChange={handleDeviceTypeChange} value={sensitivityInput.deviceType}>
+                                        <Select onValueChange={(v) => handleDeviceTypeChange(v as keyof typeof deviceList)} value={sensitivityInput.deviceType}>
                                             <SelectTrigger id="device-type-sens"><SelectValue placeholder="Selecciona tu dispositivo" /></SelectTrigger>
                                             <SelectContent><SelectItem value="Telefono">Teléfono</SelectItem><SelectItem value="Tablet">Tablet</SelectItem></SelectContent>
                                         </Select>
@@ -754,3 +755,5 @@ export default function EquipmentPage() {
         </div>
     );
 }
+
+    
