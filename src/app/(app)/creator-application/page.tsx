@@ -15,10 +15,10 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
-import { Rocket, Check, DollarSign, Crown, Eye, Send, Gamepad2, User, Mic } from "lucide-react"
+import { Rocket, Check, DollarSign, Crown, Eye, Send, Gamepad2, User, Mic, Twitch, Youtube, Instagram } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/checkbox"
 
 const plans = [
     {
@@ -35,6 +35,15 @@ const plans = [
         features: ["Acceso al Portal del Creador", "Servicios ilimitados", "Soporte prioritario", "Insignia de Creador Destacado", "Mejor posicionamiento"],
         isPopular: true,
     }
+]
+
+const specialities = [
+    { id: "aim", label: "Puntería y Control de Recoil" },
+    { id: "strategy", label: "Estrategia y Rotaciones" },
+    { id: "igl", label: "Liderazgo (IGL)" },
+    { id: "coaching", label: "Coaching Personalizado" },
+    { id: "sniper", label: "Rol de Francotirador" },
+    { id: "rusher", label: "Rol de Rusher / Asalto" },
 ]
 
 export default function CreatorApplicationPage() {
@@ -98,44 +107,61 @@ export default function CreatorApplicationPage() {
                     <CardContent className="space-y-8">
                         {/* Player Information Section */}
                         <div className="space-y-6 p-6 border rounded-lg">
-                            <h3 className="text-lg font-semibold flex items-center gap-2"><User className="text-primary"/>Información del Jugador</h3>
+                            <h3 className="text-lg font-semibold flex items-center gap-2"><User className="text-primary"/>Identidad Digital y Redes</h3>
                             <div className="grid md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <Label htmlFor="creator-name">Nombre de Creador / Marca</Label>
+                                    <Input id="creator-name" placeholder="Ej: ProSlayer_TV" required />
+                                </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="game-id">ID de Usuario en el Juego</Label>
                                     <Input id="game-id" placeholder="Ej: 5123456789" required />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="game-name">Nombre de Usuario en el Juego</Label>
-                                    <Input id="game-name" placeholder="Ej: TuNombreDePro" required />
+                                    <Label htmlFor="twitch-url">Canal de Twitch</Label>
+                                    <div className="relative">
+                                         <Twitch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                        <Input id="twitch-url" placeholder="twitch.tv/tunombre" className="pl-9"/>
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="youtube-url">Canal de YouTube</Label>
+                                     <div className="relative">
+                                        <Youtube className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                        <Input id="youtube-url" placeholder="youtube.com/@tucanal" className="pl-9"/>
+                                    </div>
                                 </div>
                                 <div className="space-y-2 md:col-span-2">
-                                    <Label htmlFor="highest-rank">Rango más alto alcanzado</Label>
-                                    <Select required>
-                                        <SelectTrigger id="highest-rank">
-                                            <SelectValue placeholder="Selecciona tu rango" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="conquistador">Conquistador</SelectItem>
-                                            <SelectItem value="as-maestro">As Maestro</SelectItem>
-                                            <SelectItem value="as-dominador">As Dominador</SelectItem>
-                                            <SelectItem value="as">As</SelectItem>
-                                            <SelectItem value="corona">Corona</SelectItem>
-                                            <SelectItem value="diamante">Diamante</SelectItem>
-                                            <SelectItem value="platino">Platino o inferior</SelectItem>
-                                        </SelectContent>
-                                    </Select>
+                                    <Label htmlFor="social-url">TikTok / Instagram</Label>
+                                     <div className="relative">
+                                         <Instagram className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                        <Input id="social-url" placeholder="@tuusuario" className="pl-9"/>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
                         {/* Services Section */}
                         <div className="space-y-6 p-6 border rounded-lg">
-                            <h3 className="text-lg font-semibold flex items-center gap-2"><Mic className="text-primary"/>Sobre Tus Servicios</h3>
+                            <h3 className="text-lg font-semibold flex items-center gap-2"><Mic className="text-primary"/>Tu Experiencia y Especialidad</h3>
+                             <div className="space-y-3">
+                                <Label>Selecciona tus áreas de especialización (máx. 3)</Label>
+                                <div className="grid md:grid-cols-2 gap-3">
+                                    {specialities.map(spec => (
+                                         <div key={spec.id} className="flex items-center space-x-2 p-2 bg-muted/50 rounded-md">
+                                            <Checkbox id={spec.id} />
+                                            <label htmlFor={spec.id} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                            {spec.label}
+                                            </label>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
                              <div className="space-y-2">
-                                <Label htmlFor="service-idea">Describe los servicios que planeas ofrecer</Label>
+                                <Label htmlFor="service-idea">Biografía del Creador y Servicios Ofrecidos</Label>
                                  <Textarea 
                                     id="service-idea"
-                                    placeholder="Ej: Me especializo en el control de recoil de la M762 y puedo enseñar a otros jugadores a dominarla. También soy un buen IGL para equipos que buscan mejorar su estrategia de rotación y posicionamiento en Erangel."
+                                    placeholder="Describe tu experiencia en el juego, tus logros más importantes y qué tipo de servicios únicos puedes ofrecer a la comunidad de SquadUp..."
                                     required
                                     className="min-h-[120px]"
                                 />
@@ -184,5 +210,3 @@ export default function CreatorApplicationPage() {
         </div>
     )
 }
-
-    
