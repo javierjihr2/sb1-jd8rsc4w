@@ -202,11 +202,11 @@ export default function EquipmentPage() {
                 <p className="text-muted-foreground">Prepara tus armas, sensibilidad y controles para la batalla.</p>
             </div>
 
-            <Tabs defaultValue="loadouts" className="w-full">
+            <Tabs defaultValue="sensitivity" className="w-full">
                 <TabsList className="grid w-full grid-cols-3">
-                    <TabsTrigger value="loadouts"><Wrench className="mr-2" />Equipamientos</TabsTrigger>
                     <TabsTrigger value="sensitivity"><Smartphone className="mr-2" />Sensibilidad</TabsTrigger>
                     <TabsTrigger value="controls"><Gamepad2 className="mr-2" />Controles</TabsTrigger>
+                    <TabsTrigger value="loadouts"><Wrench className="mr-2" />Equipamientos</TabsTrigger>
                 </TabsList>
 
                 {/* Loadouts Tab */}
@@ -496,5 +496,7 @@ export default function EquipmentPage() {
         </div>
     );
 }
+
+    
 
     
