@@ -7,12 +7,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { FileCode, PlusCircle, Sparkles, Loader2, Terminal, ClipboardCopy, QrCode, Trash2, Edit, Save, X, Bot, Gamepad2, Crosshair, Brain, AlertTriangle } from 'lucide-react';
+import { FileCode, Sparkles, Loader2, Terminal, ClipboardCopy, QrCode, Trash2, Save, X, Bot, Gamepad2, Crosshair, Brain, AlertTriangle } from 'lucide-react';
 import { decodeSensitivity } from '@/ai/flows/decodeSensitivityFlow';
 import type { DecodedSensitivity, Sensitivity, DecodeSensitivityInput } from '@/ai/schemas';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Skeleton } from '@/components/ui/skeleton';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+
 
 interface SavedSensitivity extends DecodedSensitivity {
   id: string;
@@ -26,6 +28,18 @@ const emptySettings: Sensitivity = {
     gyroscope: { ...emptyScope },
     code: ''
 };
+
+const scopeLabels: { [key: string]: string } = {
+    tpp: "3ra Persona (TPP)",
+    fpp: "1ra Persona (FPP)",
+    redDot: "Punto Rojo, Holo",
+    scope2x: "Mira 2x",
+    scope3x: "Mira 3x",
+    scope4x: "Mira 4x",
+    scope6x: "Mira 6x",
+    scope8x: "Mira 8x",
+};
+
 
 const AnalysisResult = ({ analysisData, onSave, onCancel }: { analysisData: DecodedSensitivity, onSave: (data: SavedSensitivity) => void, onCancel: () => void }) => {
     const [editableData, setEditableData] = useState<DecodedSensitivity>(analysisData);
@@ -46,23 +60,34 @@ const AnalysisResult = ({ analysisData, onSave, onCancel }: { analysisData: Deco
         }));
     };
     
-    const renderScopeInputs = (title: string, category: 'camera' | 'ads' | 'gyroscope') => (
-        <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-primary">{title}</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {Object.keys(emptyScope).map(scope => (
-                    <div key={`${category}-${scope}`} className="space-y-1">
-                        <Label htmlFor={`${category}-${scope}`} className="text-xs capitalize">{scope.replace('scope', 'x')}</Label>
-                        <Input 
-                            id={`${category}-${scope}`} 
-                            type="number" 
-                            className="h-8"
-                            // @ts-ignore
-                            value={editableData.settings[category]?.[scope] || ''}
-                            onChange={(e) => handleValueChange(category, scope, e.target.value)}
-                        />
-                    </div>
-                ))}
+    const renderEditableScopeTable = (title: string, category: 'camera' | 'ads' | 'gyroscope', data: any) => (
+        <div>
+            <h3 className="text-lg font-semibold text-primary mb-2">{title}</h3>
+            <div className="border rounded-lg">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Mira</TableHead>
+                            <TableHead className="text-right w-[120px]">Sensibilidad</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {Object.entries(data).map(([scope, value]) => (
+                             <TableRow key={`${category}-${scope}`}>
+                                <TableCell>{scopeLabels[scope] || scope}</TableCell>
+                                <TableCell className="text-right">
+                                     <Input 
+                                        id={`${category}-${scope}`} 
+                                        type="number" 
+                                        className="h-8 text-right"
+                                        value={value as number || ''}
+                                        onChange={(e) => handleValueChange(category, scope, e.target.value)}
+                                    />
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
             </div>
         </div>
     );
@@ -95,13 +120,19 @@ const AnalysisResult = ({ analysisData, onSave, onCancel }: { analysisData: Deco
                     <Label htmlFor="sensitivity-name">Nombre de la Configuración</Label>
                     <Input id="sensitivity-name" value={name} onChange={(e) => setName(e.target.value)} />
                 </div>
-
-                {renderScopeInputs('Sensibilidad de Cámara', 'camera')}
-                {renderScopeInputs('Sensibilidad de ADS', 'ads')}
-                {editableData.settings.gyroscope && renderScopeInputs('Sensibilidad de Giroscopio', 'gyroscope')}
+                
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {renderEditableScopeTable('Sensibilidad de Cámara', 'camera', editableData.settings.camera)}
+                    {renderEditableScopeTable('Sensibilidad de ADS', 'ads', editableData.settings.ads)}
+                    {editableData.settings.gyroscope && renderEditableScopeTable('Sensibilidad de Giroscopio', 'gyroscope', editableData.settings.gyroscope)}
+                </div>
                 
                  <Collapsible>
-                    <CollapsibleTrigger className="text-lg font-semibold text-primary w-full text-left flex items-center gap-2"><Bot className="h-5 w-5"/>Ver Análisis Táctico de IA</CollapsibleTrigger>
+                    <CollapsibleTrigger asChild>
+                         <Button variant="link" className="text-lg font-semibold text-primary w-full text-left flex items-center gap-2 p-0 h-auto">
+                            <Bot className="h-5 w-5"/>Ver Análisis Táctico de IA
+                        </Button>
+                    </CollapsibleTrigger>
                     <CollapsibleContent className="pt-4 space-y-4">
                          <div>
                             <h4 className="font-semibold flex items-center gap-2 mb-2"><Gamepad2 className="h-4 w-4"/>Estilo de Juego Sugerido</h4>
@@ -232,7 +263,7 @@ export default function SensitivitiesPage() {
                 <AnalysisResult 
                     analysisData={analysisResult} 
                     onSave={handleSaveAnalysis}
-                    onCancel={() => setAnalysisResult(null)}
+                    onCancel={() => { setAnalysisResult(null); setSensitivityCode(''); }}
                 />
             )}
             
@@ -287,7 +318,7 @@ export default function SensitivitiesPage() {
                     </div>
                 </div>
             )}
-             {savedSensitivities.length === 0 && !analysisResult && (
+             {savedSensitivities.length === 0 && !analysisResult && !isLoading && (
                  <Card className="h-full flex flex-col items-center justify-center text-center p-8 border-dashed min-h-[300px]">
                     <div className="p-4 bg-primary/10 rounded-full mb-4">
                         <FileCode className="h-12 w-12 text-primary" />
@@ -301,5 +332,3 @@ export default function SensitivitiesPage() {
         </div>
     );
 }
-
-    
