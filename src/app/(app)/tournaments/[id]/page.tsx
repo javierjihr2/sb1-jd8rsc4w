@@ -11,7 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
-import { Calendar, Users, Trophy, MessageSquare, PlusCircle, AlertCircle, Send, Flag } from "lucide-react"
+import { Calendar, Users, Trophy, MessageSquare, PlusCircle, AlertCircle, Send, Flag, UserPlus } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import type { Message, RegistrationRequest } from "@/lib/types"
@@ -33,7 +33,6 @@ export default function TournamentDetailPage({ params }: { params: { id: string 
   const [teamName, setTeamName] = useState("");
   const [teamTag, setTeamTag] = useState("");
   const [countryCode, setCountryCode] = useState(playerProfile.countryCode || "");
-  const [selectedTeammates, setSelectedTeammates] = useState<Set<string>>(new Set())
   const [registrationStatus, setRegistrationStatus] = useState<'not_registered' | 'pending' | 'approved' | 'rejected'>('not_registered');
   const [isMounted, setIsMounted] = useState(false);
   const [showChat, setShowChat] = useState(false);
@@ -74,39 +73,10 @@ export default function TournamentDetailPage({ params }: { params: { id: string 
   if (!tournament) {
     notFound()
   }
-
-  const handleSelectTeammate = (teammateId: string) => {
-    const newSelection = new Set(selectedTeammates);
-    if (newSelection.has(teammateId)) {
-      newSelection.delete(teammateId);
-    } else {
-      const requiredPlayers = tournament.mode === 'Dúo' ? 1 : 3;
-      if (newSelection.size < requiredPlayers) {
-        newSelection.add(teammateId);
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Equipo Completo",
-          description: `Solo puedes seleccionar ${requiredPlayers} compañero(s) para el modo ${tournament.mode}.`,
-        });
-      }
-    }
-    setSelectedTeammates(newSelection);
-  }
   
   const handleRegisterTeam = () => {
     if (!teamName || !teamTag) {
         toast({ variant: "destructive", title: "Campos Incompletos", description: "Por favor, completa el nombre y el tag del equipo." });
-        return;
-    }
-
-    const requiredPlayers = tournament.mode === 'Dúo' ? 1 : 3;
-    if (selectedTeammates.size !== requiredPlayers && tournament.mode !== 'Solo') {
-       toast({
-          variant: "destructive",
-          title: "Compañeros Faltantes",
-          description: `Debes seleccionar ${requiredPlayers} compañero(s) para inscribirte.`,
-        });
         return;
     }
     
@@ -119,9 +89,9 @@ export default function TournamentDetailPage({ params }: { params: { id: string 
         tournamentId: tournament.id,
         tournamentName: tournament.name,
         status: 'Pendiente',
+        // El array de jugadores ahora solo contiene al representante que inscribe.
         players: [
-            playerProfile, 
-            ...teamMates.filter(tm => selectedTeammates.has(tm.id))
+            { id: playerProfile.id, name: playerProfile.name, avatarUrl: playerProfile.avatarUrl }
         ]
     };
     
@@ -315,51 +285,12 @@ export default function TournamentDetailPage({ params }: { params: { id: string 
                         </SelectContent>
                     </Select>
                 </div>
-
+                
                 {tournament.mode !== 'Solo' && (
-                    <div>
-                        <h4 className="font-semibold mb-2">Tu Escuadra</h4>
-                        <div className="space-y-3">
-                           {/* Jugador Principal */}
-                            <div className="flex items-center justify-between p-2 bg-muted rounded-lg">
-                                <div className="flex items-center gap-3">
-                                    <Avatar className="h-10 w-10">
-                                        <AvatarImage src={playerProfile.avatarUrl} data-ai-hint="gaming character"/>
-                                        <AvatarFallback>{playerProfile.name.substring(0,2)}</AvatarFallback>
-                                    </Avatar>
-                                    <div>
-                                        <p className="font-semibold">{playerProfile.name} (Tú)</p>
-                                        <p className="text-xs text-muted-foreground">{playerProfile.rank}</p>
-                                    </div>
-                                </div>
-                                 <Badge variant="default">Líder</Badge>
-                            </div>
-                            
-                            <h4 className="font-semibold pt-4">Selecciona tus Compañeros</h4>
-                             <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
-                               {teamMates.map(teammate => (
-                                 <div key={teammate.id} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-muted">
-                                    <Checkbox 
-                                        id={`teammate-${teammate.id}`} 
-                                        onCheckedChange={() => handleSelectTeammate(teammate.id)}
-                                        checked={selectedTeammates.has(teammate.id)}
-                                        disabled={registrationStatus !== 'not_registered'}
-                                    />
-                                    <Label htmlFor={`teammate-${teammate.id}`} className="flex items-center gap-2 cursor-pointer w-full">
-                                        <Avatar className="h-8 w-8">
-                                            <AvatarImage src={teammate.avatarUrl} data-ai-hint="gaming character"/>
-                                            <AvatarFallback>{teammate.name.substring(0,2)}</AvatarFallback>
-                                        </Avatar>
-                                        <div>
-                                            <p className="font-medium">{teammate.name}</p>
-                                            <p className="text-xs text-muted-foreground">{teammate.rank}</p>
-                                        </div>
-                                    </Label>
-                                </div>
-                               ))}
-                            </div>
-                        </div>
-                    </div>
+                  <div className="p-4 bg-muted rounded-lg text-center">
+                      <p className="font-semibold text-sm">Tú estás registrando a tu equipo.</p>
+                      <p className="text-xs text-muted-foreground">Una vez que la solicitud sea aprobada, podrás invitar a tus compañeros desde el chat del torneo.</p>
+                  </div>
                 )}
               
                 <Button onClick={handleRegisterTeam} className="w-full" disabled={buttonState.disabled}>
@@ -378,5 +309,3 @@ export default function TournamentDetailPage({ params }: { params: { id: string 
     </div>
   )
 }
-
-    

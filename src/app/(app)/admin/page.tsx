@@ -381,13 +381,15 @@ export default function AdminPage() {
                                             <p className="font-bold text-lg">{request.teamName} <span className="text-sm text-muted-foreground font-normal">[{request.teamTag}]</span></p>
                                         </div>
                                         <p className="text-sm text-muted-foreground mt-1">Para: {request.tournamentName}</p>
-                                        <div className="flex -space-x-2 overflow-hidden mt-2">
-                                            {request.players.map(player => (
-                                            <Avatar key={player.id} className="inline-block h-10 w-10 rounded-full ring-2 ring-background">
-                                                <AvatarImage src={player.avatarUrl} data-ai-hint="gaming character"/>
-                                                <AvatarFallback>{player.name.substring(0,1)}</AvatarFallback>
+                                        <div className="flex items-center gap-2 mt-2">
+                                            <Avatar className="h-10 w-10 rounded-full ring-2 ring-background">
+                                                <AvatarImage src={request.players[0].avatarUrl} data-ai-hint="gaming character"/>
+                                                <AvatarFallback>{request.players[0].name.substring(0,1)}</AvatarFallback>
                                             </Avatar>
-                                            ))}
+                                             <div className="text-sm">
+                                                <p className="font-semibold">Inscrito por:</p>
+                                                <p className="text-muted-foreground">{request.players[0].name}</p>
+                                            </div>
                                         </div>
                                     </div>
                                     
@@ -915,5 +917,3 @@ export default function AdminPage() {
     </div>
   )
 }
-
-    
