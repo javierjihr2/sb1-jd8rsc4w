@@ -34,23 +34,45 @@ const initialLoadouts = [
 ];
 
 const deviceList = {
-    Telefono: [
-        { value: "Apple iPhone 15 Pro Max", label: "Apple iPhone 15 Pro Max" },
-        { value: "Samsung Galaxy S24 Ultra", label: "Samsung Galaxy S24 Ultra" },
-        { value: "Google Pixel 8 Pro", label: "Google Pixel 8 Pro" },
-        { value: "Asus ROG Phone 8", label: "Asus ROG Phone 8" },
-        { value: "Xiaomi 14 Pro", label: "Xiaomi 14 Pro" },
-        { value: "OnePlus 12", label: "OnePlus 12" },
-        { value: "Otro Telefono", label: "Otro Teléfono (Genérico)" },
-    ],
-    Tablet: [
-        { value: "Apple iPad Pro 12.9", label: "Apple iPad Pro 12.9" },
-        { value: "Samsung Galaxy Tab S9 Ultra", label: "Samsung Galaxy Tab S9 Ultra" },
-        { value: "Apple iPad Air", label: "Apple iPad Air" },
-        { value: "Xiaomi Pad 6", label: "Xiaomi Pad 6" },
-        { value: "Otro Tablet", label: "Otro Tablet (Genérico)" },
-    ]
-}
+    Telefono: {
+        Apple: [
+            { value: "Apple iPhone 15 Pro Max", label: "iPhone 15 Pro Max", screenSize: 6.7 },
+            { value: "Apple iPhone 15 Pro", label: "iPhone 15 Pro", screenSize: 6.1 },
+            { value: "Apple iPhone 15", label: "iPhone 15", screenSize: 6.1 },
+            { value: "Apple iPhone 14 Pro Max", label: "iPhone 14 Pro Max", screenSize: 6.7 },
+        ],
+        Samsung: [
+            { value: "Samsung Galaxy S24 Ultra", label: "Galaxy S24 Ultra", screenSize: 6.8 },
+            { value: "Samsung Galaxy S24", label: "Galaxy S24", screenSize: 6.2 },
+            { value: "Samsung Galaxy Z Fold 5", label: "Galaxy Z Fold 5", screenSize: 7.6 },
+        ],
+        Google: [
+            { value: "Google Pixel 8 Pro", label: "Pixel 8 Pro", screenSize: 6.7 },
+            { value: "Google Pixel 8", label: "Pixel 8", screenSize: 6.2 },
+        ],
+        Asus: [{ value: "Asus ROG Phone 8", label: "ROG Phone 8", screenSize: 6.78 }],
+        Xiaomi: [
+            { value: "Xiaomi 14 Pro", label: "14 Pro", screenSize: 6.73 },
+            { value: "Xiaomi 14", label: "14", screenSize: 6.36 },
+        ],
+        OnePlus: [{ value: "OnePlus 12", label: "12", screenSize: 6.82 }],
+        Otro: [{ value: "Otro Telefono", label: "Genérico", screenSize: 6.5 }],
+    },
+    Tablet: {
+        Apple: [
+            { value: "Apple iPad Pro 12.9", label: "iPad Pro 12.9\"", screenSize: 12.9 },
+            { value: "Apple iPad Pro 11", label: "iPad Pro 11\"", screenSize: 11 },
+            { value: "Apple iPad Air", label: "iPad Air", screenSize: 10.9 },
+        ],
+        Samsung: [
+            { value: "Samsung Galaxy Tab S9 Ultra", label: "Galaxy Tab S9 Ultra", screenSize: 14.6 },
+            { value: "Samsung Galaxy Tab S9+", label: "Galaxy Tab S9+", screenSize: 12.4 },
+            { value: "Samsung Galaxy Tab S9", label: "Galaxy Tab S9", screenSize: 11 },
+        ],
+        Xiaomi: [{ value: "Xiaomi Pad 6", label: "Pad 6", screenSize: 11 }],
+        Otro: [{ value: "Otro Tablet", label: "Genérico", screenSize: 10.1 }],
+    },
+};
 
 
 export default function EquipmentPage() {
@@ -130,6 +152,38 @@ export default function EquipmentPage() {
             setIsControlsLoading(false);
         }
     };
+
+    const handleDeviceTypeChange = (value: "Telefono" | "Tablet") => {
+        setSensitivityInput({ 
+            deviceType: value,
+            deviceBrand: undefined,
+            device: undefined,
+            screenSize: undefined,
+            playStyle: sensitivityInput.playStyle,
+            gyroscope: sensitivityInput.gyroscope,
+        });
+    }
+
+    const handleDeviceBrandChange = (value: string) => {
+        setSensitivityInput(prev => ({
+            ...prev,
+            deviceBrand: value,
+            device: undefined,
+            screenSize: undefined,
+        }));
+    }
+
+    const handleDeviceModelChange = (value: string) => {
+        const type = sensitivityInput.deviceType as keyof typeof deviceList;
+        const brand = sensitivityInput.deviceBrand as keyof typeof deviceList[typeof type];
+        const modelData = deviceList[type][brand].find(d => d.value === value);
+
+        setSensitivityInput(prev => ({
+            ...prev,
+            device: value,
+            screenSize: modelData?.screenSize,
+        }));
+    }
 
     const SensitivityTable = ({ title, data }: { title: string, data: any }) => (
         <div>
@@ -241,29 +295,46 @@ export default function EquipmentPage() {
                                 <CardContent className="space-y-6">
                                     <div className="space-y-2">
                                         <Label htmlFor="device-type-sens">Tipo de Dispositivo</Label>
-                                        <Select onValueChange={(value: "Telefono" | "Tablet") => setSensitivityInput(prev => ({ ...prev, deviceType: value, device: undefined }))} value={sensitivityInput.deviceType}>
+                                        <Select onValueChange={handleDeviceTypeChange} value={sensitivityInput.deviceType}>
                                             <SelectTrigger id="device-type-sens"><SelectValue placeholder="Selecciona tu dispositivo" /></SelectTrigger>
                                             <SelectContent><SelectItem value="Telefono">Teléfono</SelectItem><SelectItem value="Tablet">Tablet</SelectItem></SelectContent>
                                         </Select>
                                     </div>
-                                     <div className="space-y-2">
-                                        <Label htmlFor="device-model">Dispositivo</Label>
+                                    <div className="space-y-2">
+                                        <Label>Marca</Label>
                                         <Select 
-                                            onValueChange={(value) => setSensitivityInput(prev => ({ ...prev, device: value }))} 
-                                            value={sensitivityInput.device}
+                                            onValueChange={handleDeviceBrandChange} 
+                                            value={sensitivityInput.deviceBrand}
                                             disabled={!sensitivityInput.deviceType}
                                         >
-                                            <SelectTrigger id="device-model"><SelectValue placeholder={!sensitivityInput.deviceType ? "Primero elige un tipo" : "Selecciona tu dispositivo"} /></SelectTrigger>
+                                            <SelectTrigger><SelectValue placeholder={!sensitivityInput.deviceType ? "Primero elige un tipo" : "Selecciona una marca"} /></SelectTrigger>
                                             <SelectContent>
-                                                {sensitivityInput.deviceType && deviceList[sensitivityInput.deviceType].map(device => (
-                                                     <SelectItem key={device.value} value={device.value}>{device.label}</SelectItem>
+                                                {sensitivityInput.deviceType && Object.keys(deviceList[sensitivityInput.deviceType as keyof typeof deviceList]).map(brand => (
+                                                     <SelectItem key={brand} value={brand}>{brand}</SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>
                                     </div>
                                     <div className="space-y-2">
+                                        <Label>Modelo</Label>
+                                        <Select 
+                                            onValueChange={handleDeviceModelChange} 
+                                            value={sensitivityInput.device}
+                                            disabled={!sensitivityInput.deviceBrand}
+                                        >
+                                            <SelectTrigger><SelectValue placeholder={!sensitivityInput.deviceBrand ? "Primero elige una marca" : "Selecciona un modelo"} /></SelectTrigger>
+                                            <SelectContent>
+                                                {sensitivityInput.deviceType && sensitivityInput.deviceBrand && 
+                                                    deviceList[sensitivityInput.deviceType as keyof typeof deviceList][sensitivityInput.deviceBrand as keyof typeof deviceList[keyof typeof deviceList]].map(device => (
+                                                        <SelectItem key={device.value} value={device.value}>{device.label}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+
+                                    <div className="space-y-2">
                                         <Label htmlFor="screen-size">Tamaño de Pantalla (Pulgadas)</Label>
-                                        <Input id="screen-size" type="number" placeholder="Ej: 6.7" value={sensitivityInput.screenSize || ''} onChange={(e) => setSensitivityInput(prev => ({ ...prev, screenSize: parseFloat(e.target.value) || undefined }))} />
+                                        <Input id="screen-size" type="number" placeholder="Se autocompletará" value={sensitivityInput.screenSize || ''} readOnly />
                                     </div>
                                     <div className="space-y-2">
                                         <Label htmlFor="playstyle">Estilo de Juego Preferido</Label>

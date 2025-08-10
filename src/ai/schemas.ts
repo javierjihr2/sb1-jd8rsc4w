@@ -88,6 +88,7 @@ export type MapPlanner = z.infer<typeof MapPlannerSchema>;
 
 export const SensitivityInputSchema = z.object({
     deviceType: z.string().describe("El tipo de dispositivo del jugador (ej. 'Teléfono' o 'Tablet')."),
+    deviceBrand: z.string().optional().describe("La marca del dispositivo del jugador (ej. 'Apple', 'Samsung')."),
     device: z.string().optional().describe("El dispositivo específico del jugador (ej. 'Apple iPhone 15 Pro Max', 'Samsung Galaxy Tab S9 Ultra')."),
     screenSize: z.number().describe("El tamaño de la pantalla en pulgadas."),
     playStyle: z.string().describe("El estilo de juego preferido del jugador (ej. 'cercano', 'larga', 'versatil')."),
