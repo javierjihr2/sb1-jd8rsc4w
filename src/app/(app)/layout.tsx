@@ -23,6 +23,7 @@ import {
   Rss,
   ImageIcon,
   Target,
+  FileCode,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -70,6 +71,7 @@ export default function DashboardLayout({
     { href: "/matchmaking", label: "MATCH PUBGM", icon: Search, badge: 0 },
     { href: "/equipment", label: "Taller de Precisión", icon: Target, badge: 0 },
     { href: "/recharge", label: "Recargar UC", icon: DollarSign, badge: 0 },
+    { href: "/sensitivities", label: "Arsenal de Sensibilidad", icon: FileCode },
     { href: "/player-analysis", label: "Análisis de Jugador", icon: BrainCircuit },
     { href: "/play-map", label: "Estrategias de Mapas", icon: Map },
     { href: "/compare", label: "Comparador de Dúos", icon: Users },

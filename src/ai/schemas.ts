@@ -221,3 +221,22 @@ export const WeaponSensitivitySchema = z.object({
     code: z.string().describe("Un código de sensibilidad de ejemplo para el arma específica."),
 });
 export type WeaponSensitivity = z.infer<typeof WeaponSensitivitySchema>;
+
+
+// Schema for decoding sensitivity codes
+export const DecodeSensitivityInputSchema = z.object({
+  code: z.string().describe("El código de sensibilidad del juego proporcionado por el usuario."),
+});
+export type DecodeSensitivityInput = z.infer<typeof DecodeSensitivityInputSchema>;
+
+export const DecodedSensitivitySchema = z.object({
+  settings: SensitivitySchema.describe("Los valores de sensibilidad plausibles generados a partir del código."),
+  analysis: z.object({
+    suggestedName: z.string().describe("Un nombre atractivo y descriptivo para esta configuración de sensibilidad."),
+    playStyle: z.string().describe("El estilo de juego principal asociado con esta sensibilidad (ej. Agresivo, Preciso)."),
+    tacticalAnalysis: z.string().describe("Un breve análisis táctico de las fortalezas y debilidades de la configuración."),
+    recommendedWeapons: z.array(z.string()).describe("Una lista de 2-3 armas que funcionarían bien con esta configuración."),
+  }),
+  code: z.string().describe("El código de sensibilidad original proporcionado por el usuario."),
+});
+export type DecodedSensitivity = z.infer<typeof DecodedSensitivitySchema>;
