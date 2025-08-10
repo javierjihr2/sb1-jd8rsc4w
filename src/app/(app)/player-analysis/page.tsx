@@ -7,9 +7,9 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { playerProfile } from "@/lib/data"
-import { BrainCircuit, Loader2, Sparkles, Terminal, Users2, Heart, Image as ImageIcon, Download, Send } from "lucide-react"
+import { BrainCircuit, Loader2, Sparkles, Terminal, Users2, Heart, Image as ImageIcon, Download, Send, Paperclip } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
-import type { PlayerAnalysis, PlayerAnalysisInput, ImageGenOutput } from "@/ai/schemas"
+import type { PlayerAnalysis, PlayerAnalysisInput, ImageGenOutput, AvatarInput } from "@/ai/schemas"
 import { getPlayerAnalysis } from "@/ai/flows/playerAnalysisFlow"
 import { generateDesigns } from "@/ai/flows/avatarFlow"
 import { Avatar as AvatarComponent, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -19,7 +19,8 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 type ChatMessage = {
   role: 'user' | 'model';
   text?: string;
-  images?: string[];
+  image?: string; // For user uploads
+  images?: string[]; // For model generations
 }
 
 export default function PlayerAnalysisPage() {
@@ -29,9 +30,11 @@ export default function PlayerAnalysisPage() {
     
     const [conversation, setConversation] = useState<ChatMessage[]>([]);
     const [userInput, setUserInput] = useState("");
+    const [attachedImage, setAttachedImage] = useState<string | null>(null);
     const [isImageLoading, setIsImageLoading] = useState(false);
     const [imageError, setImageError] = useState<string | null>(null);
     const scrollAreaRef = useRef<HTMLDivElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
 
     const handleAnalysis = async () => {
@@ -58,19 +61,23 @@ export default function PlayerAnalysisPage() {
 
     const handleImageGeneration = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (!userInput.trim() || isImageLoading) return;
+        if ((!userInput.trim() && !attachedImage) || isImageLoading) return;
         
-        const newUserMessage: ChatMessage = { role: 'user', text: userInput };
+        const newUserMessage: ChatMessage = { role: 'user', text: userInput, image: attachedImage || undefined };
         const newConversation = [...conversation, newUserMessage];
         setConversation(newConversation);
         setUserInput("");
+        setAttachedImage(null);
         setIsImageLoading(true);
         setImageError(null);
 
         try {
-            const historyForApi = newConversation
-                .filter(msg => msg.text) // Only include messages with text for the history
-                .map(msg => ({ role: msg.role, text: msg.text! }));
+            const historyForApi: AvatarInput['history'] = newConversation
+                .map(msg => ({
+                    role: msg.role,
+                    text: msg.text,
+                    image: msg.image, // User images
+                 }));
 
             const result: ImageGenOutput = await generateDesigns({ history: historyForApi });
             
@@ -90,6 +97,18 @@ export default function PlayerAnalysisPage() {
             scrollAreaRef.current.scrollTo({ top: scrollAreaRef.current.scrollHeight, behavior: 'smooth' });
         }
     }, [conversation]);
+    
+    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (loadEvent) => {
+                setAttachedImage(loadEvent.target?.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
 
     const handleDownload = (imageUrl: string) => {
         const link = document.createElement('a');
@@ -200,7 +219,7 @@ export default function PlayerAnalysisPage() {
                      <Card className="sticky top-20 h-[calc(100vh-180px)] flex flex-col">
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2"><ImageIcon className="h-5 w-5 text-primary" />Estudio de Diseño IA</CardTitle>
-                            <CardDescription>Chatea con la IA para crear y refinar tus diseños.</CardDescription>
+                            <CardDescription>Chatea con la IA para crear y refinar tus diseños. Puedes adjuntar imágenes.</CardDescription>
                         </CardHeader>
                         <CardContent className="flex-1 overflow-hidden p-0">
                              <ScrollArea className="h-full" ref={scrollAreaRef}>
@@ -213,14 +232,15 @@ export default function PlayerAnalysisPage() {
                                         </div>
                                     )}
                                     {conversation.map((msg, index) => (
-                                        <div key={index} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                        <div key={index} className={`flex flex-col gap-2 ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
                                             {msg.role === 'user' && (
                                                 <div className="bg-primary text-primary-foreground p-3 rounded-lg max-w-xs break-words">
+                                                    {msg.image && <Image src={msg.image} alt="Referencia de usuario" width={200} height={200} className="rounded-md mb-2"/>}
                                                     {msg.text}
                                                 </div>
                                             )}
                                             {msg.role === 'model' && (
-                                                 <div className="bg-muted p-3 rounded-lg">
+                                                 <div className="bg-muted p-3 rounded-lg self-start">
                                                      {msg.images && (
                                                         <div className="grid grid-cols-2 gap-2">
                                                         {msg.images.map((url, i) => (
@@ -256,15 +276,27 @@ export default function PlayerAnalysisPage() {
                                 </div>
                             </ScrollArea>
                         </CardContent>
-                        <CardFooter className="pt-4 border-t">
+                        <CardFooter className="pt-4 border-t flex flex-col items-start gap-2">
+                             {attachedImage && (
+                                <div className="relative p-2 border rounded-md">
+                                    <Image src={attachedImage} alt="Preview" width={64} height={64} className="rounded-md" />
+                                    <Button variant="destructive" size="icon" className="absolute -top-2 -right-2 h-6 w-6 rounded-full" onClick={() => setAttachedImage(null)}>
+                                        <X className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            )}
                             <form onSubmit={handleImageGeneration} className="w-full flex items-center gap-2">
+                               <input type="file" accept="image/*" ref={fileInputRef} onChange={handleFileSelect} className="hidden" />
+                               <Button type="button" variant="outline" size="icon" onClick={() => fileInputRef.current?.click()} disabled={isImageLoading}>
+                                    <Paperclip className="h-4 w-4" />
+                               </Button>
                                <Input 
                                     placeholder="Describe tu idea o pide un cambio..."
                                     value={userInput}
                                     onChange={(e) => setUserInput(e.target.value)}
                                     disabled={isImageLoading}
                                 />
-                                <Button type="submit" size="icon" disabled={isImageLoading || !userInput.trim()}>
+                                <Button type="submit" size="icon" disabled={isImageLoading || (!userInput.trim() && !attachedImage)}>
                                     <Send className="h-4 w-4"/>
                                 </Button>
                             </form>

@@ -174,7 +174,8 @@ export type PlayerComparison = z.infer<typeof PlayerComparisonSchema>;
 
 const ChatMessageSchema = z.object({
   role: z.enum(['user', 'model']),
-  text: z.string(),
+  text: z.string().optional(),
+  image: z.string().optional().describe("An optional image provided by the user, as a data URI."),
 });
 
 export const AvatarInputSchema = z.object({
