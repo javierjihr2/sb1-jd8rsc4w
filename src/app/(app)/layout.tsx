@@ -74,6 +74,8 @@ export default function DashboardLayout({
     { href: "/matchmaking", label: "MATCH PUBGM", icon: Search, badge: 0 },
     { href: "/equipment", label: "Taller de Precisión", icon: Target, badge: 0 },
     { href: "/services", label: "Servicios", icon: Briefcase, badge: 0 },
+    { href: "/creator-hub", label: "Portal del Creador", icon: Palette, badge: 0 },
+    { href: "/creator-application", label: "Conviértete en Creador", icon: Rocket, badge: 0 },
     { href: "/recharge", label: "Recargar UC", icon: DollarSign, badge: 0 },
     { href: "/sensitivities", label: "Mis Sensibilidades", icon: FileCode },
     { href: "/player-analysis", label: "Análisis con IA", icon: BrainCircuit },
@@ -82,15 +84,6 @@ export default function DashboardLayout({
     { href: "/support", label: "Soporte", icon: HelpCircle, badge: 0 },
   ]
   
-  const isCreatorOrAdmin = playerProfile.role === 'Creador' || playerProfile.role === 'Admin';
-  if (isCreatorOrAdmin) {
-    navItems.splice(7, 0, { href: "/creator-hub", label: "Portal del Creador", icon: Palette, badge: 0 });
-  } else {
-    // Si no es creador, mostrar la opción para convertirse en uno
-    navItems.splice(7, 0, { href: "/creator-application", label: "Conviértete en Creador", icon: Rocket, badge: 0 });
-  }
-
-  // Mantén la lógica condicional para el enlace de Administrador
   if (playerProfile.isAdmin) {
     navItems.push({ href: "/admin", label: "Admin", icon: ShieldCheck, badge: 0 });
   }
