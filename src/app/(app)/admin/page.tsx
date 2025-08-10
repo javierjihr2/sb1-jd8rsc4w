@@ -548,11 +548,11 @@ export default function AdminPage() {
                       id="t-message-template"
                       name="t-message-template"
                       className="min-h-[200px] font-mono text-xs"
-                      placeholder="Deja en blanco para usar la plantilla global de Ajustes."
-                      defaultValue={defaultValues?.messageTemplate}
+                      placeholder="Edita esta plantilla para este torneo o déjala para usar la versión global guardada en Ajustes."
+                      defaultValue={defaultValues?.messageTemplate || globalTournamentMessageTemplate}
                     />
                     <p className="text-xs text-muted-foreground">
-                      Si rellenas este campo, este torneo usará esta plantilla en lugar de la global. Puedes usar las mismas etiquetas (ej: {'{{header}}'}).
+                      Si editas este campo, este torneo usará esta plantilla en lugar de la global. Puedes usar las mismas etiquetas (ej: {'{{header}}'}).
                     </p>
                   </div>
               </CollapsibleContent>
@@ -1336,5 +1336,3 @@ export default function AdminPage() {
     </div>
   )
 }
-
-    
