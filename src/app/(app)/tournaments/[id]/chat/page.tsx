@@ -3,8 +3,8 @@
 
 import * as React from "react"
 import { useState, useEffect, useRef } from "react"
-import { notFound, useParams } from "next/navigation"
-import { tournaments, playerProfile, registeredTeams } from "@/lib/data"
+import { useParams } from "next/navigation"
+import { tournaments, playerProfile, registeredTeams, getRegistrationStatus, updateRegistrationStatus } from "@/lib/data"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -42,7 +42,7 @@ export default function TournamentChatPage() {
   const [isAddUserDialogOpen, setAddUserDialogOpen] = useState(false);
   const [showMentionPopover, setShowMentionPopover] = useState(false);
   const [isChatLocked, setIsChatLocked] = useState(false);
-
+  const [isMounted, setIsMounted] = useState(false);
 
   // Form state for room info
   const [roomId, setRoomId] = useState("");
@@ -73,6 +73,9 @@ export default function TournamentChatPage() {
     const mapsList = tournament.maps && tournament.maps.length > 0 
         ? tournament.maps.map((map, i) => `${i+1}. ${map}`).join('\n')
         : 'Mapas no definidos.';
+    
+    const timeZone = tournament.timeZone || '🇨🇱'; // Default to Chile flag if not specified
+    const infoSendText = tournament.infoSendTime ? `• DATOS DE LA SALA: Se envían ${tournament.infoSendTime} minutos antes del inicio.` : '';
 
     const messageHeader = isUpdate 
         ? `════ **LISTA DE EQUIPOS ACTUALIZADA** ════`
@@ -83,7 +86,8 @@ ${messageHeader}
 _Organizado por: ${playerProfile.name} 🥷_
 
 🗓️ **Fecha:** ${tournament.date}
-⏰ **Comienza:** ${tournament.startTime || 'Hora no definida'} hrs 🇨🇱 
+⏰ **Comienza:** ${tournament.startTime || 'Hora no definida'} hrs ${timeZone}
+${infoSendText}
 
 🗺️ **Mapas:**
 ${mapsList}
@@ -98,8 +102,9 @@ _Por favor, mantengan una comunicación respetuosa. ¡Mucha suerte a todos!_
   }
 
   useEffect(() => {
+    setIsMounted(true);
     const welcomeMessage = generateWelcomeMessage();
-    if(welcomeMessage) {
+    if(welcomeMessage && messages.length === 0) {
         setMessages([
             { sender: 'other', text: welcomeMessage },
         ]);
@@ -108,7 +113,7 @@ _Por favor, mantengan una comunicación respetuosa. ¡Mucha suerte a todos!_
   
   // Effect to re-send the message when registered teams change
   useEffect(() => {
-    // This is a simulation. In a real app, this would be triggered by a websocket or Firestore listener
+    if (!isMounted) return;
     const teamCount = registeredTeams.length;
     // To avoid re-sending on initial load, we check if there are already messages
     if (messages.length > 0 && teamCount > 0) {
@@ -136,7 +141,7 @@ _Por favor, mantengan una comunicación respetuosa. ¡Mucha suerte a todos!_
 
 
   if (!tournament) {
-    notFound();
+    return null; // or a loading state
   }
 
   const handleSendMessage = (e: React.FormEvent, textOverride?: string) => {
@@ -171,6 +176,8 @@ _Por favor, mantengan una comunicación respetuosa. ¡Mucha suerte a todos!_
         ? tournament.maps.map((map, i) => `${i+1}. ${map}`).join('\n')
         : 'Mapas no definidos.';
 
+      const timeZone = tournament.timeZone || '🇨🇱';
+
       const formattedMessage = `
 ══════════════════
 **SALA PRIVADA - ${tournament.name.toUpperCase()}**
@@ -180,7 +187,7 @@ _Organizado por: ${playerProfile.name} 🥷_
 🔑 **Detalles de la Sala:**
 • **ID:** \`${roomId}\`
 • **CONTRASEÑA:** \`${roomPassword}\`
-• **COMIENZA:** ${startTime} hrs 🇨🇱
+• **COMIENZA:** ${startTime} hrs ${timeZone}
 
 🗺️ **Mapas:**
 ${mapsList}

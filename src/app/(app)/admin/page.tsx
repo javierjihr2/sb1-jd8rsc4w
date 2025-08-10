@@ -104,6 +104,7 @@ export default function AdminPage() {
         maxTeams: parseInt(formData.get('t-max-teams') as string),
         startTime: formData.get('t-time') as string,
         timeZone: formData.get('t-timezone') as string,
+        infoSendTime: formData.get('t-info-send-time') as string,
         maps: maps,
         streamLink: hasStream ? (formData.get('t-stream-link') as string) : undefined,
     };
@@ -373,7 +374,7 @@ export default function AdminPage() {
                     </div>
                     <div className="space-y-2 animate-in fade-in-50">
                         <Label>Horario de envío de información</Label>
-                        <Select name="t-info-send-time">
+                        <Select name="t-info-send-time" defaultValue={defaultValues?.infoSendTime}>
                             <SelectTrigger>
                                 <SelectValue placeholder="Seleccionar cuándo se envían los códigos"/>
                             </SelectTrigger>
