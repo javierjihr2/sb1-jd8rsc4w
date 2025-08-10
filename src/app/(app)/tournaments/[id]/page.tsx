@@ -8,27 +8,16 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
-import { Calendar, Users, Trophy, MessageSquare, PlusCircle, AlertCircle, Send, Flag, UserPlus } from "lucide-react"
+import { Calendar, Users, Trophy, MessageSquare, PlusCircle, AlertCircle, Send, Flag, UserPlus, FileText, Info } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import type { Message, RegistrationRequest } from "@/lib/types"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import Image from "next/image"
 
-// Datos de ejemplo para el chat del torneo
-const initialTournamentMessages: Message[] = [
-    { sender: 'other', text: '¡Equipo, listos! La primera partida empieza en 30 minutos. ¿Todos conectados?' },
-    { sender: 'other', text: 'Confirmado. ¿Cuál es la estrategia para el primer mapa? ¿Caemos en Georgopol?' },
-    { sender: 'me', text: 'Sí, caigamos en Georgopol Sur, en los contenedores. Aseguremos el loot rápido y controlemos el puente.' },
-    { sender: 'other', text: 'Entendido. Yo me encargo de la cobertura con el francotirador si lo encuentro.' },
-];
-
-export default function TournamentDetailPage({ params }: { params: { id: string } }) {
+export default function TournamentDetailPage({ params: { id } }: { params: { id: string } }) {
   const { toast } = useToast();
-  const { id } = params;
   const tournament = tournaments.find(t => t.id === id)
   
   const [teamName, setTeamName] = useState("");
@@ -36,34 +25,39 @@ export default function TournamentDetailPage({ params }: { params: { id: string 
   const [countryCode, setCountryCode] = useState(playerProfile.countryCode || "");
   const [registrationStatus, setRegistrationStatus] = useState<'not_registered' | 'pending' | 'approved' | 'rejected'>('not_registered');
   const [isMounted, setIsMounted] = useState(false);
-  const [showChat, setShowChat] = useState(false);
   
-  const [messages, setMessages] = useState<Message[]>(initialTournamentMessages);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const lastMessageRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Simular la obtención del estado inicial después de que el componente se monte
-    const currentStatus = getRegistrationStatus(tournament?.id || '');
+    const currentStatus = getRegistrationStatus(id);
     setRegistrationStatus(currentStatus);
-    if(currentStatus === 'approved'){
-        setShowChat(true); // Mostrar chat si ya está aprobado
+    setIsMounted(true);
+    
+    // Si la inscripción está aprobada, se inicializa el chat con el mensaje del sistema
+    if (currentStatus === 'approved' && tournament) {
+       setMessages([
+          { sender: 'other', text: `¡Bienvenidos al chat del torneo "${tournament.name}"!\n\n**Detalles del Evento:**\n- **Fecha:** ${tournament.date}\n- **Premio:** ${tournament.prize}\n\n**Info Importante:**\n- Por favor, mantén una comunicación respetuosa.\n- Las reglas completas se pueden encontrar en el enlace del torneo.\n\n**Equipos Inscritos:**\n${registeredTeams.map((team, i) => `${i + 1}. ${team.name} [${team.id}]`).join('\n')}\n\n¡Mucha suerte a todos!` },
+       ]);
     }
-    setIsMounted(true); // Asegurar que la re-hidratación coincida con el estado del servidor
-  }, [tournament?.id]);
+  }, [id, tournament]);
   
   useEffect(() => {
-    // Este efecto se ejecuta cuando otra pestaña del navegador (por ejemplo, admin) cambia el estado
+    // Este efecto se ejecuta cuando otra pestaña (ej. admin) cambia el estado en localStorage
     const handleStorageChange = () => {
-      const currentStatus = getRegistrationStatus(tournament?.id || '');
+      const currentStatus = getRegistrationStatus(id);
       setRegistrationStatus(currentStatus);
-       if(currentStatus === 'approved'){
-        setShowChat(true);
+      if(currentStatus === 'approved' && !messages.length && tournament){
+         setMessages([
+          { sender: 'other', text: `¡Bienvenidos al chat del torneo "${tournament.name}"!` },
+         ]);
       }
     };
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
-  }, [tournament?.id]);
+  }, [id, messages.length, tournament]);
   
    useEffect(() => {
     if (lastMessageRef.current) {
@@ -81,7 +75,6 @@ export default function TournamentDetailPage({ params }: { params: { id: string 
         return;
     }
     
-    // Simular la creación de una nueva solicitud de registro
     const newRequest: RegistrationRequest = {
         id: `req-${Date.now()}`,
         teamName,
@@ -90,13 +83,11 @@ export default function TournamentDetailPage({ params }: { params: { id: string 
         tournamentId: tournament.id,
         tournamentName: tournament.name,
         status: 'Pendiente',
-        // El array de jugadores ahora solo contiene al representante que inscribe.
         players: [
             { id: playerProfile.id, name: playerProfile.name, avatarUrl: playerProfile.avatarUrl }
         ]
     };
     
-    // En una app real, esto se enviaría al backend. Aquí lo guardamos en localStorage.
     const existingRequests = JSON.parse(localStorage.getItem('tournament_requests') || '[]');
     localStorage.setItem('tournament_requests', JSON.stringify([...existingRequests, newRequest]));
 
@@ -140,7 +131,7 @@ export default function TournamentDetailPage({ params }: { params: { id: string 
   const buttonState = getButtonState();
 
   if (!isMounted) {
-    return null; // Evitar el desajuste de hidratación
+    return null; // Evitar el desajuste de hidratación en el primer render
   }
 
   return (
@@ -162,35 +153,27 @@ export default function TournamentDetailPage({ params }: { params: { id: string 
                 <p className="text-muted-foreground">
                     Prepárate para la batalla en el torneo {tournament.name}. Equipos de toda la región {tournament.region} competirán por la gloria y un premio de {tournament.prize}.
                 </p>
-                {registrationStatus === 'approved' && !showChat && (
-                    <div className="mt-4 flex gap-2">
-                        <Button onClick={() => setShowChat(true)}>
-                            <MessageSquare className="mr-2 h-4 w-4"/>
-                            Acceder al Chat del Torneo
-                        </Button>
-                    </div>
-                 )}
              </CardContent>
           </Card>
           
-          {showChat && (
-            <Card>
+          {registrationStatus === 'approved' && (
+            <Card className="animate-in fade-in-50">
                 <CardHeader>
-                    <CardTitle>Chat del Torneo</CardTitle>
-                    <CardDescription>Comunícate con tu equipo y planea tu estrategia.</CardDescription>
+                    <CardTitle className="flex items-center gap-2"><MessageSquare className="h-5 w-5 text-primary"/>Chat del Torneo</CardTitle>
+                    <CardDescription>Comunícate con tu equipo y otros participantes.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="h-[400px] flex flex-col">
-                        <ScrollArea className="flex-1 mb-4">
-                            <div className="p-4 space-y-4 text-sm">
+                        <ScrollArea className="flex-1 mb-4 border rounded-lg p-4 bg-muted/50">
+                            <div className="space-y-4 text-sm">
                                 {messages.map((msg, index) => (
                                     <div 
                                         key={index} 
                                         className={`flex gap-3 items-end ${msg.sender === 'me' ? 'justify-end' : 'justify-start'}`}
                                         ref={index === messages.length - 1 ? lastMessageRef : null}
                                     >
-                                        {msg.sender !== 'me' && <Avatar className="h-8 w-8"><AvatarImage src="https://placehold.co/40x40.png" data-ai-hint="gaming character"/><AvatarFallback>T</AvatarFallback></Avatar>}
-                                        <div className={`p-3 rounded-xl max-w-md ${msg.sender === 'me' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
+                                        {msg.sender !== 'me' && <Avatar className="h-8 w-8"><AvatarImage src="https://placehold.co/40x40.png" data-ai-hint="gaming character"/><AvatarFallback>S</AvatarFallback></Avatar>}
+                                        <div className={`p-3 rounded-xl max-w-md whitespace-pre-wrap ${msg.sender === 'me' ? 'bg-primary text-primary-foreground' : 'bg-background'}`}>
                                             {msg.text}
                                         </div>
                                          {msg.sender === 'me' && <Avatar className="h-8 w-8"><AvatarImage src={playerProfile.avatarUrl} data-ai-hint="gaming character"/><AvatarFallback>Yo</AvatarFallback></Avatar>}
@@ -298,7 +281,7 @@ export default function TournamentDetailPage({ params }: { params: { id: string 
                     {buttonState.text}
                 </Button>
 
-                 {registrationStatus === 'approved' && <p className="text-sm text-center text-green-600">¡Inscripción aprobada! Ya puedes acceder al chat del torneo.</p>}
+                 {registrationStatus === 'approved' && <p className="text-sm text-center text-green-600">¡Inscripción aprobada! Ya puedes acceder al chat del torneo arriba.</p>}
                  {registrationStatus === 'rejected' && <p className="text-sm text-center text-red-600 flex items-center justify-center gap-1"><AlertCircle className="h-4 w-4"/> Tu solicitud ha sido rechazada.</p>}
                  {registrationStatus === 'pending' && <p className="text-sm text-center text-amber-600">Tu solicitud está pendiente de aprobación por un administrador.</p>}
 
