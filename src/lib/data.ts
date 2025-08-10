@@ -238,7 +238,6 @@ export const initialRegistrationRequests: RegistrationRequest[] = [
     status: 'Pendiente',
     players: [
         { id: 'p1', name: 'Player1_Pro', avatarUrl: 'https://placehold.co/100x100.png'},
-        { id: 'c2', name: 'Ninja_Dude', avatarUrl: 'https://placehold.co/40x40/32CD32/FFFFFF.png'},
     ]
   }
 ];
@@ -386,5 +385,3 @@ export const initialTransactions: Transaction[] = [
     { id: 'txn2', date: '2024-07-27', description: 'Suscripción Creador Pro - ShadowStriker', amount: 5.00, type: 'Ingreso' },
     { id: 'txn3', date: '2024-07-25', description: 'Suscripción Creador Básico - Phoenix_Queen', amount: 3.00, type: 'Ingreso' },
 ];
-
-    
