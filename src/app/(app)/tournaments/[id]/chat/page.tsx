@@ -241,88 +241,89 @@ ${streamLink ? `\n📺 **Transmisión:**\n${streamLink}` : ''}
                 <CardDescription>Comunícate con tu equipo y otros participantes.</CardDescription>
             </CardHeader>
             <CardContent>
-                 {isOrganizer && (
-                    <Card className="mb-4 bg-muted/50 border-dashed">
-                        <CardHeader>
-                            <CardTitle className="text-lg">Panel del Organizador</CardTitle>
-                        </CardHeader>
-                        <CardContent className="flex flex-wrap gap-4 items-center">
-                            <Dialog open={isRoomInfoDialogOpen} onOpenChange={setRoomInfoDialogOpen}>
-                                <DialogTrigger asChild>
-                                    <Button variant="outline">
-                                        <KeyRound className="mr-2 h-4 w-4" />
-                                        Enviar Datos de Sala
-                                    </Button>
-                                </DialogTrigger>
-                                <DialogContent>
-                                    <DialogHeader>
-                                        <DialogTitle>Enviar Información de la Sala</DialogTitle>
-                                        <DialogDescription>Rellena los campos para notificar a los participantes.</DialogDescription>
-                                    </DialogHeader>
-                                    <form onSubmit={handleSendRoomInfo} className="space-y-4 py-4">
+                <Card className="mb-4 bg-muted/50 border-dashed">
+                    <CardHeader>
+                        <CardTitle className="text-lg">Panel del Organizador</CardTitle>
+                        {!isOrganizer && (
+                            <CardDescription className="text-xs italic flex items-center gap-1"><Lock className="h-3 w-3"/>Estos controles son exclusivos para los organizadores del torneo.</CardDescription>
+                        )}
+                    </CardHeader>
+                    <CardContent className="flex flex-wrap gap-4 items-center">
+                        <Dialog open={isRoomInfoDialogOpen} onOpenChange={setRoomInfoDialogOpen}>
+                            <DialogTrigger asChild>
+                                <Button variant="outline" disabled={!isOrganizer}>
+                                    <KeyRound className="mr-2 h-4 w-4" />
+                                    Enviar Datos de Sala
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>Enviar Información de la Sala</DialogTitle>
+                                    <DialogDescription>Rellena los campos para notificar a los participantes.</DialogDescription>
+                                </DialogHeader>
+                                <form onSubmit={handleSendRoomInfo} className="space-y-4 py-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="map-select">Mapa Correspondiente</Label>
+                                        <Select onValueChange={setSelectedMapForInfo} value={selectedMapForInfo} required>
+                                            <SelectTrigger id="map-select">
+                                                <SelectValue placeholder="Selecciona el mapa"/>
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {tournament.maps?.map(map => <SelectItem key={map} value={map}>{map}</SelectItem>)}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="room-id">ID de la Sala</Label>
+                                        <Input id="room-id" value={roomId} onChange={e => setRoomId(e.target.value)} placeholder="Ej: 1234567" required/>
+                                    </div>
                                         <div className="space-y-2">
-                                            <Label htmlFor="map-select">Mapa Correspondiente</Label>
-                                            <Select onValueChange={setSelectedMapForInfo} value={selectedMapForInfo} required>
-                                                <SelectTrigger id="map-select">
-                                                    <SelectValue placeholder="Selecciona el mapa"/>
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {tournament.maps?.map(map => <SelectItem key={map} value={map}>{map}</SelectItem>)}
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
+                                        <Label htmlFor="room-password">Contraseña</Label>
+                                        <Input id="room-password" value={roomPassword} onChange={e => setRoomPassword(e.target.value)} placeholder="Ej: 1234" required/>
+                                    </div>
                                         <div className="space-y-2">
-                                            <Label htmlFor="room-id">ID de la Sala</Label>
-                                            <Input id="room-id" value={roomId} onChange={e => setRoomId(e.target.value)} placeholder="Ej: 1234567" required/>
-                                        </div>
-                                         <div className="space-y-2">
-                                            <Label htmlFor="room-password">Contraseña</Label>
-                                            <Input id="room-password" value={roomPassword} onChange={e => setRoomPassword(e.target.value)} placeholder="Ej: 1234" required/>
-                                        </div>
-                                         <div className="space-y-2">
-                                            <Label htmlFor="start-time">Hora de Inicio</Label>
-                                            <Input id="start-time" type="time" value={startTime} onChange={e => setStartTime(e.target.value)} />
-                                        </div>
-                                         <div className="space-y-2">
-                                            <Label htmlFor="stream-link">Enlace de Transmisión (Opcional)</Label>
-                                            <Input id="stream-link" value={streamLink} onChange={e => setStreamLink(e.target.value)} placeholder="https://twitch.tv/..." />
-                                        </div>
-                                         <DialogFooter>
-                                            <Button type="submit">Enviar Información</Button>
-                                         </DialogFooter>
-                                    </form>
-                                </DialogContent>
-                            </Dialog>
-                             <Dialog open={isAddUserDialogOpen} onOpenChange={setAddUserDialogOpen}>
-                                <DialogTrigger asChild>
-                                     <Button variant="outline">
-                                        <UserPlus className="mr-2 h-4 w-4" />
-                                        Añadir Participante
-                                    </Button>
-                                </DialogTrigger>
-                                <DialogContent>
-                                    <DialogHeader>
-                                        <DialogTitle>Añadir Participante Manualmente</DialogTitle>
-                                        <DialogDescription>Busca a un jugador por su ID o nombre para añadirlo al torneo.</DialogDescription>
-                                    </DialogHeader>
-                                     <form onSubmit={handleAddUser} className="space-y-4 py-4">
+                                        <Label htmlFor="start-time">Hora de Inicio</Label>
+                                        <Input id="start-time" type="time" value={startTime} onChange={e => setStartTime(e.target.value)} />
+                                    </div>
                                         <div className="space-y-2">
-                                            <Label htmlFor="user-name">ID o Nombre del Jugador</Label>
-                                            <Input id="user-name" name="user-name" placeholder="Ej: 5123456789 o Player1_Pro" required />
-                                        </div>
+                                        <Label htmlFor="stream-link">Enlace de Transmisión (Opcional)</Label>
+                                        <Input id="stream-link" value={streamLink} onChange={e => setStreamLink(e.target.value)} placeholder="https://twitch.tv/..." />
+                                    </div>
                                         <DialogFooter>
-                                            <Button type="submit">Añadir</Button>
+                                        <Button type="submit">Enviar Información</Button>
                                         </DialogFooter>
-                                     </form>
-                                </DialogContent>
-                            </Dialog>
-                             <div className="flex items-center space-x-2">
-                                <Switch id="lock-chat" checked={isChatLocked} onCheckedChange={setIsChatLocked} />
-                                <Label htmlFor="lock-chat">Cerrar Inscripciones y Chat</Label>
-                            </div>
-                        </CardContent>
-                    </Card>
-                )}
+                                </form>
+                            </DialogContent>
+                        </Dialog>
+                            <Dialog open={isAddUserDialogOpen} onOpenChange={setAddUserDialogOpen}>
+                            <DialogTrigger asChild>
+                                    <Button variant="outline" disabled={!isOrganizer}>
+                                    <UserPlus className="mr-2 h-4 w-4" />
+                                    Añadir Participante
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>Añadir Participante Manualmente</DialogTitle>
+                                    <DialogDescription>Busca a un jugador por su ID o nombre para añadirlo al torneo.</DialogDescription>
+                                </DialogHeader>
+                                    <form onSubmit={handleAddUser} className="space-y-4 py-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="user-name">ID o Nombre del Jugador</Label>
+                                        <Input id="user-name" name="user-name" placeholder="Ej: 5123456789 o Player1_Pro" required />
+                                    </div>
+                                    <DialogFooter>
+                                        <Button type="submit">Añadir</Button>
+                                    </DialogFooter>
+                                    </form>
+                            </DialogContent>
+                        </Dialog>
+                            <div className="flex items-center space-x-2">
+                            <Switch id="lock-chat" checked={isChatLocked} onCheckedChange={setIsChatLocked} disabled={!isOrganizer} />
+                            <Label htmlFor="lock-chat">Cerrar Inscripciones y Chat</Label>
+                        </div>
+                    </CardContent>
+                </Card>
                 <div className="h-[800px] flex flex-col">
                     <ScrollArea className="flex-1 mb-4 border rounded-lg p-4 bg-muted/50">
                         <div className="space-y-4 text-sm">
@@ -336,15 +337,15 @@ ${streamLink ? `\n📺 **Transmisión:**\n${streamLink}` : ''}
                                     <div className={`p-3 rounded-xl max-w-md whitespace-pre-wrap ${msg.sender === 'me' ? 'bg-primary text-primary-foreground' : 'bg-background'}`}>
                                         {renderMessageText(msg.text)}
                                     </div>
-                                     {msg.sender === 'me' && <Avatar className="h-8 w-8"><AvatarImage src={playerProfile.avatarUrl} data-ai-hint="gaming character"/><AvatarFallback>Yo</AvatarFallback></Avatar>}
+                                        {msg.sender === 'me' && <Avatar className="h-8 w-8"><AvatarImage src={playerProfile.avatarUrl} data-ai-hint="gaming character"/><AvatarFallback>Yo</AvatarFallback></Avatar>}
                                 </div>
                             ))}
                         </div>
                     </ScrollArea>
                     <form onSubmit={handleSendMessage} className="flex items-center gap-2">
-                         <Popover open={showMentionPopover} onOpenChange={setShowMentionPopover}>
+                            <Popover open={showMentionPopover} onOpenChange={setShowMentionPopover}>
                             <PopoverTrigger asChild>
-                               <Input 
+                                <Input 
                                     ref={inputRef}
                                     placeholder={isChatLocked && !isOrganizer ? "El chat está cerrado por el organizador." : "Escribe un mensaje táctico o usa @ para mencionar..."}
                                     className="flex-1 bg-background" 
@@ -358,7 +359,7 @@ ${streamLink ? `\n📺 **Transmisión:**\n${streamLink}` : ''}
                                     <ScrollArea className="h-48">
                                     {participants.map(p => (
                                         <CommandItem key={p.id} onSelect={() => handleMentionSelect(p.name)} className="flex items-center gap-2 cursor-pointer">
-                                             <Avatar className="h-6 w-6"><AvatarImage src={p.avatarUrl}/><AvatarFallback>{p.name.substring(0,1)}</AvatarFallback></Avatar>
+                                                <Avatar className="h-6 w-6"><AvatarImage src={p.avatarUrl}/><AvatarFallback>{p.name.substring(0,1)}</AvatarFallback></Avatar>
                                             <span>{p.name}</span>
                                         </CommandItem>
                                     ))}
