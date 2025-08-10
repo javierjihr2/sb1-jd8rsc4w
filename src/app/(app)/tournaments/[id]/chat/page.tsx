@@ -2,33 +2,58 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { notFound, useRouter } from "next/navigation"
+import { notFound } from "next/navigation"
 import { tournaments, playerProfile, registeredTeams } from "@/lib/data"
 import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { MessageSquare, Send, ArrowLeft } from "lucide-react"
+import { MessageSquare, Send, ArrowLeft, Info, KeyRound, UserPlus, Link as LinkIcon, Clock } from "lucide-react"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import type { Message } from "@/lib/types"
 import Link from "next/link"
+import { useToast } from "@/hooks/use-toast"
+
+const participants = registeredTeams.flatMap(team => team.players);
 
 export default function TournamentChatPage({ params }: { params: { id: string } }) {
-  const router = useRouter();
   const tournament = tournaments.find(t => t.id === params.id);
-  
+  const { toast } = useToast();
+
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
+  const [isRoomInfoDialogOpen, setRoomInfoDialogOpen] = useState(false);
+  const [isAddUserDialogOpen, setAddUserDialogOpen] = useState(false);
+  const [showMentionPopover, setShowMentionPopover] = useState(false);
+
+  // Form state for room info
+  const [roomId, setRoomId] = useState("");
+  const [roomPassword, setRoomPassword] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const [streamLink, setStreamLink] = useState("");
+
   const lastMessageRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const isOrganizer = playerProfile.role === 'Admin' || playerProfile.role === 'Creator';
 
   useEffect(() => {
-    // This effect runs once to initialize the chat with a system message.
-    // The restriction logic has been removed for demonstration purposes.
     if (tournament) {
         setMessages([
             { 
                 sender: 'other', 
-                text: `¡Bienvenidos al chat del torneo "${tournament.name}"!\n\n**Detalles del Evento:**\n- **Fecha y Hora:** ${tournament.date}\n- **Premio Total:** ${tournament.prize}\n- **Modo:** ${tournament.mode}\n\n**Info Importante:**\n- Por favor, mantén una comunicación respetuosa.\n- Las reglas completas se pueden encontrar en la página del torneo.\n\n**Equipos Inscritos (hasta ahora):**\n${registeredTeams.map((team, i) => `${i + 1}. ${team.name} [${team.id}]`).join('\n')}\n\n¡Mucha suerte a todos los participantes!` 
+                text: `¡Bienvenidos al chat del torneo "${tournament.name}"!\n\n**Detalles del Evento:**\n- **Fecha y Hora:** ${tournament.date}\n- **Premio Total:** ${tournament.prize}\n- **Modo:** ${tournament.mode}\n\n**Info Importante:**\n- Por favor, mantén una comunicación respetuosa.\n- Las reglas completas se pueden encontrar en la página del torneo.\n\n**Equipos Inscritos:**\n${registeredTeams.map((team, i) => `${i + 1}. ${team.name}`).join('\n')}\n\n¡Mucha suerte a todos los participantes!` 
             },
         ]);
     }
@@ -39,24 +64,74 @@ export default function TournamentChatPage({ params }: { params: { id: string } 
       lastMessageRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
+  
+   useEffect(() => {
+    if (inputRef.current) {
+        const lastChar = newMessage.slice(-1);
+        setShowMentionPopover(lastChar === '@');
+    }
+   }, [newMessage]);
+
 
   if (!tournament) {
     notFound();
   }
 
-  const handleSendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = (e: React.FormEvent, textOverride?: string) => {
     e.preventDefault();
-    if (!newMessage.trim()) return;
+    const messageText = textOverride || newMessage;
+    if (!messageText.trim()) return;
 
     const message: Message = {
       sender: 'me',
-      text: newMessage,
+      text: messageText,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     };
     
     setMessages(prev => [...prev, message]);
-    setNewMessage("");
+    if (!textOverride) setNewMessage("");
   };
+  
+  const handleSendRoomInfo = (e: React.FormEvent) => {
+      e.preventDefault();
+      const formattedMessage = `**¡ATENCIÓN, DATOS DE LA SALA!**\n\n- **ID de la Sala:** \`${roomId}\`\n- **Contraseña:** \`${roomPassword}\`\n- **Hora de Inicio:** ${startTime || 'Según lo programado'}\n- **Transmisión:** ${streamLink || 'No disponible'}\n\n¡Preparaos, la batalla está a punto de comenzar!`;
+      
+      handleSendMessage(e, formattedMessage);
+
+      // Reset form and close dialog
+      setRoomId("");
+      setRoomPassword("");
+      setStartTime("");
+      setStreamLink("");
+      setRoomInfoDialogOpen(false);
+      toast({ title: "Datos de la Sala Enviados", description: "La información ha sido publicada en el chat del torneo." });
+  }
+
+  const handleAddUser = (e: React.FormEvent) => {
+      e.preventDefault();
+      const formData = new FormData(e.currentTarget as HTMLFormElement);
+      const userName = formData.get('user-name');
+      toast({ title: "Usuario Añadido", description: `${userName} ha sido añadido a la sala.` });
+      setAddUserDialogOpen(false);
+  }
+
+  const handleMentionSelect = (name: string) => {
+      setNewMessage(prev => `${prev}${name.replace(/\s/g, '_')} `);
+      setShowMentionPopover(false);
+      inputRef.current?.focus();
+  }
+
+  const renderMessageText = (text: string) => {
+    const mentionRegex = /@([a-zA-Z0-9_]+)/g;
+    const parts = text.split(mentionRegex);
+    return parts.map((part, i) => {
+      if (i % 2 !== 0) { // It's a mention
+        return <strong key={i} className="bg-primary/20 text-primary px-1 rounded-sm">@{part}</strong>;
+      }
+      return part;
+    });
+  }
+
 
   return (
     <div className="space-y-4">
@@ -72,7 +147,74 @@ export default function TournamentChatPage({ params }: { params: { id: string } 
                 <CardDescription>Comunícate con tu equipo y otros participantes.</CardDescription>
             </CardHeader>
             <CardContent>
-                <div className="h-[calc(100vh-300px)] flex flex-col">
+                 {isOrganizer && (
+                    <Card className="mb-4 bg-muted/50 border-dashed">
+                        <CardHeader>
+                            <CardTitle className="text-lg">Panel del Organizador</CardTitle>
+                        </CardHeader>
+                        <CardContent className="flex flex-wrap gap-2">
+                            <Dialog open={isRoomInfoDialogOpen} onOpenChange={setRoomInfoDialogOpen}>
+                                <DialogTrigger asChild>
+                                    <Button variant="outline">
+                                        <KeyRound className="mr-2 h-4 w-4" />
+                                        Enviar Datos de Sala
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                    <DialogHeader>
+                                        <DialogTitle>Enviar Información de la Sala</DialogTitle>
+                                        <DialogDescription>Rellena los campos para notificar a los participantes.</DialogDescription>
+                                    </DialogHeader>
+                                    <form onSubmit={handleSendRoomInfo} className="space-y-4 py-4">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="room-id">ID de la Sala</Label>
+                                            <Input id="room-id" value={roomId} onChange={e => setRoomId(e.target.value)} placeholder="Ej: 1234567" required/>
+                                        </div>
+                                         <div className="space-y-2">
+                                            <Label htmlFor="room-password">Contraseña</Label>
+                                            <Input id="room-password" value={roomPassword} onChange={e => setRoomPassword(e.target.value)} placeholder="Ej: 1234" required/>
+                                        </div>
+                                         <div className="space-y-2">
+                                            <Label htmlFor="start-time">Hora de Inicio</Label>
+                                            <Input id="start-time" type="time" value={startTime} onChange={e => setStartTime(e.target.value)} />
+                                        </div>
+                                         <div className="space-y-2">
+                                            <Label htmlFor="stream-link">Enlace de Transmisión (Opcional)</Label>
+                                            <Input id="stream-link" value={streamLink} onChange={e => setStreamLink(e.target.value)} placeholder="https://twitch.tv/..." />
+                                        </div>
+                                         <DialogFooter>
+                                            <Button type="submit">Enviar Información</Button>
+                                        </DialogFooter>
+                                    </form>
+                                </DialogContent>
+                            </Dialog>
+                             <Dialog open={isAddUserDialogOpen} onOpenChange={setAddUserDialogOpen}>
+                                <DialogTrigger asChild>
+                                     <Button variant="outline">
+                                        <UserPlus className="mr-2 h-4 w-4" />
+                                        Añadir Participante
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                    <DialogHeader>
+                                        <DialogTitle>Añadir Participante Manualmente</DialogTitle>
+                                        <DialogDescription>Busca a un jugador por su ID para añadirlo al torneo.</DialogDescription>
+                                    </DialogHeader>
+                                     <form onSubmit={handleAddUser} className="space-y-4 py-4">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="user-name">ID del Jugador</Label>
+                                            <Input id="user-name" name="user-name" placeholder="Ej: 5123456789" required />
+                                        </div>
+                                        <DialogFooter>
+                                            <Button type="submit">Añadir</Button>
+                                        </DialogFooter>
+                                     </form>
+                                </DialogContent>
+                            </Dialog>
+                        </CardContent>
+                    </Card>
+                )}
+                <div className="h-[calc(100vh-420px)] flex flex-col">
                     <ScrollArea className="flex-1 mb-4 border rounded-lg p-4 bg-muted/50">
                         <div className="space-y-4 text-sm">
                             {messages.map((msg, index) => (
@@ -83,7 +225,7 @@ export default function TournamentChatPage({ params }: { params: { id: string } 
                                 >
                                     {msg.sender !== 'me' && <Avatar className="h-8 w-8"><AvatarImage src="https://placehold.co/40x40.png" data-ai-hint="gaming character"/><AvatarFallback>S</AvatarFallback></Avatar>}
                                     <div className={`p-3 rounded-xl max-w-md whitespace-pre-wrap ${msg.sender === 'me' ? 'bg-primary text-primary-foreground' : 'bg-background'}`}>
-                                        {msg.text}
+                                        {renderMessageText(msg.text)}
                                     </div>
                                      {msg.sender === 'me' && <Avatar className="h-8 w-8"><AvatarImage src={playerProfile.avatarUrl} data-ai-hint="gaming character"/><AvatarFallback>Yo</AvatarFallback></Avatar>}
                                 </div>
@@ -91,12 +233,29 @@ export default function TournamentChatPage({ params }: { params: { id: string } 
                         </div>
                     </ScrollArea>
                     <form onSubmit={handleSendMessage} className="flex items-center gap-2">
-                        <Input 
-                            placeholder="Escribe un mensaje táctico..." 
-                            className="flex-1 bg-background" 
-                            value={newMessage}
-                            onChange={(e) => setNewMessage(e.target.value)}
-                        />
+                         <Popover open={showMentionPopover} onOpenChange={setShowMentionPopover}>
+                            <PopoverTrigger asChild>
+                               <Input 
+                                    ref={inputRef}
+                                    placeholder="Escribe un mensaje táctico o usa @ para mencionar..." 
+                                    className="flex-1 bg-background" 
+                                    value={newMessage}
+                                    onChange={(e) => setNewMessage(e.target.value)}
+                                />
+                            </PopoverTrigger>
+                            <PopoverContent className="w-64 p-1">
+                                <CommandList>
+                                    <ScrollArea className="h-48">
+                                    {participants.map(p => (
+                                        <CommandItem key={p.id} onSelect={() => handleMentionSelect(p.name)} className="flex items-center gap-2 cursor-pointer">
+                                             <Avatar className="h-6 w-6"><AvatarImage src={p.avatarUrl}/><AvatarFallback>{p.name.substring(0,1)}</AvatarFallback></Avatar>
+                                            <span>{p.name}</span>
+                                        </CommandItem>
+                                    ))}
+                                    </ScrollArea>
+                                </CommandList>
+                            </PopoverContent>
+                        </Popover>
                         <Button type="submit" size="icon">
                             <Send className="h-5 w-5" />
                         </Button>
@@ -107,3 +266,14 @@ export default function TournamentChatPage({ params }: { params: { id: string } 
     </div>
   )
 }
+
+// Minimal Command components for the popover
+const CommandList = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ className, ...props }, ref) => (
+  <div ref={ref} className={className} {...props} />
+));
+CommandList.displayName = "CommandList";
+
+const CommandItem = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement> & { onSelect: () => void }>(({ className, onSelect, ...props }, ref) => (
+  <div ref={ref} onClick={onSelect} className={className} {...props} />
+));
+CommandItem.displayName = "CommandItem";
