@@ -97,6 +97,12 @@
     .bg-chat-default {
         @apply bg-muted;
     }
+    .bg-chat-light {
+        @apply bg-background;
+    }
+    .bg-chat-dark {
+        background-color: hsl(var(--sidebar-background));
+    }
     .bg-chat-erangel {
         background-image: url('https://placehold.co/1920x1080/556B2F/FFFFFF.png');
         background-size: cover;
@@ -109,6 +115,26 @@
     }
     .bg-chat-sanhok {
         background-image: url('https://placehold.co/1920x1080/2E8B57/FFFFFF.png');
+        background-size: cover;
+        background-position: center;
+    }
+    .bg-chat-vikendi {
+        background-image: url('https://placehold.co/1920x1080/ADD8E6/000000.png');
+        background-size: cover;
+        background-position: center;
+    }
+    .bg-chat-livik {
+        background-image: url('https://placehold.co/1920x1080/6B8E23/FFFFFF.png');
+        background-size: cover;
+        background-position: center;
+    }
+    .bg-chat-skin-mosaic {
+        background-image: url('https://placehold.co/1920x1080/2F4F4F/FFFFFF.png');
+        background-size: cover;
+        background-position: center;
+    }
+    .bg-chat-camo {
+        background-image: url('https://placehold.co/1920x1080/556B2F/FFFFFF.png');
         background-size: cover;
         background-position: center;
     }
