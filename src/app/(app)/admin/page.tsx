@@ -24,7 +24,7 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
 import { Code, UserPlus, Newspaper, Check, X, Users, Swords, PlusCircle, Pencil, Trash2, LayoutDashboard, Settings, DollarSign, BarChart, BellRing, Wrench, Link as LinkIcon, KeyRound, RefreshCw, Briefcase, Star, CheckCircle, Banknote, Flag, Calendar as CalendarIcon, Clock, Info, Map, Video } from "lucide-react"
-import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles, friendsForComparison as initialUsers, rechargeProviders, developers, services as initialServices, creators, bankAccounts, initialTransactions, addTournament, tournaments, updateTournament, mapOptions } from "@/lib/data"
+import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles, friendsForComparison as initialUsers, rechargeProviders, developers, services as initialServices, creators, bankAccounts, initialTransactions, addTournament, tournaments, updateTournament, mapOptions, registeredTeams, updateRegistrationStatus } from "@/lib/data"
 import type { RegistrationRequest, Tournament, NewsArticle, Service, UserWithRole, BankAccount, Transaction } from "@/lib/types"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -91,7 +91,7 @@ export default function AdminPage() {
         formData.get('t-map-2') as string,
         formData.get('t-map-3') as string,
         formData.get('t-map-4') as string,
-    ].filter(Boolean);
+    ].filter(Boolean).map(val => mapOptions.find(m => m.value === val)?.label || val);
 
     const tournamentData: Partial<Tournament> = {
         name: formData.get('t-name') as string,
@@ -222,13 +222,31 @@ export default function AdminPage() {
   }
 
   const handleRequest = (requestId: string, status: "Aprobado" | "Rechazado") => {
-    setRequests(prev => prev.map(req => req.id === requestId ? { ...req, status } : req))
+    const request = requests.find(req => req.id === requestId);
+    if (!request) return;
+
+    setRequests(prev => prev.map(req => req.id === requestId ? { ...req, status } : req));
     toast({
         title: `Solicitud ${status}`,
-        description: `El equipo ha sido ${status.toLowerCase()} para el torneo.`,
-    })
-    
-     if (status === 'Aprobado') {
+        description: `El equipo ${request.teamName} ha sido ${status.toLowerCase()}.`,
+    });
+
+    if (status === 'Aprobado') {
+        // Add the team to the main registered list
+        const newTeam = {
+            id: `team-${Date.now()}`,
+            name: request.teamName,
+            players: request.players,
+        };
+        registeredTeams.push(newTeam);
+
+        // Update the registration status for the user who made the request
+        const userId = request.players[0]?.id; // Assuming the first player is the one who registered
+        if (userId) {
+            updateRegistrationStatus(request.tournamentId, 'approved');
+        }
+
+        // Notify other components (like the chat) to update
         window.dispatchEvent(new Event('tournamentUpdated'));
         toast({
             title: "Notificación Enviada",
@@ -408,37 +426,37 @@ export default function AdminPage() {
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label htmlFor="t-map-1">Mapa 1</Label>
-                             <Select name="t-map-1" defaultValue={defaultValues?.maps?.[0]}>
+                             <Select name="t-map-1" defaultValue={mapOptions.find(m => m.label === defaultValues?.maps?.[0])?.value}>
                                 <SelectTrigger><SelectValue placeholder="Seleccionar mapa"/></SelectTrigger>
                                 <SelectContent>
-                                    {mapOptions.map(m => <SelectItem key={m.value} value={m.label}>{m.label}</SelectItem>)}
+                                    {mapOptions.map(m => <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>)}
                                 </SelectContent>
                             </Select>
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="t-map-2">Mapa 2</Label>
-                             <Select name="t-map-2" defaultValue={defaultValues?.maps?.[1]}>
+                             <Select name="t-map-2" defaultValue={mapOptions.find(m => m.label === defaultValues?.maps?.[1])?.value}>
                                 <SelectTrigger><SelectValue placeholder="Seleccionar mapa"/></SelectTrigger>
                                 <SelectContent>
-                                    {mapOptions.map(m => <SelectItem key={m.value} value={m.label}>{m.label}</SelectItem>)}
+                                    {mapOptions.map(m => <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>)}
                                 </SelectContent>
                             </Select>
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="t-map-3">Mapa 3</Label>
-                             <Select name="t-map-3" defaultValue={defaultValues?.maps?.[2]}>
+                             <Select name="t-map-3" defaultValue={mapOptions.find(m => m.label === defaultValues?.maps?.[2])?.value}>
                                 <SelectTrigger><SelectValue placeholder="Seleccionar mapa"/></SelectTrigger>
                                 <SelectContent>
-                                    {mapOptions.map(m => <SelectItem key={m.value} value={m.label}>{m.label}</SelectItem>)}
+                                    {mapOptions.map(m => <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>)}
                                 </SelectContent>
                             </Select>
                         </div>
                          <div className="space-y-2">
                             <Label htmlFor="t-map-4">Mapa 4 (Opcional)</Label>
-                             <Select name="t-map-4" defaultValue={defaultValues?.maps?.[3]}>
+                             <Select name="t-map-4" defaultValue={mapOptions.find(m => m.label === defaultValues?.maps?.[3])?.value}>
                                 <SelectTrigger><SelectValue placeholder="Seleccionar mapa"/></SelectTrigger>
                                 <SelectContent>
-                                    {mapOptions.map(m => <SelectItem key={m.value} value={m.label}>{m.label}</SelectItem>)}
+                                    {mapOptions.map(m => <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>)}
                                 </SelectContent>
                             </Select>
                         </div>
@@ -453,7 +471,7 @@ export default function AdminPage() {
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="t-max-reserves">Cantidad de Reservas</Label>
-                    <Input id="t-max-reserves" name="t-max-reserves" type="number" placeholder="Ej: 5" defaultValue={defaultValues?.maxReserves} />
+                    <Input id="t-max-reserves" name="t-max-reserves" type="number" placeholder="Ej: 5" defaultValue={defaultValues?.maxReserves || 0} />
                 </div>
             </div>
             <div className="space-y-2">
