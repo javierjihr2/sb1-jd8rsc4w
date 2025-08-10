@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { notFound, useRouter, useParams } from "next/navigation"
-import { tournaments, playerProfile, teamMates, registeredTeams, getRegistrationStatus, updateRegistrationStatus, reserveTeams } from "@/lib/data"
+import { tournaments, playerProfile, teamMates, registeredTeams as initialRegisteredTeams, getRegistrationStatus, updateRegistrationStatus, reserveTeams as initialReserveTeams } from "@/lib/data"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -29,8 +29,8 @@ export default function TournamentDetailPage() {
   const [registrationStatus, setRegistrationStatus] = useState<'not_registered' | 'pending' | 'approved' | 'rejected' | 'reserve'>('not_registered');
   const [isMounted, setIsMounted] = useState(false);
   
-  const [_registeredTeams, setRegisteredTeams] = useState(registeredTeams);
-  const [_reserveTeams, setReserveTeams] = useState(reserveTeams);
+  const [_registeredTeams, setRegisteredTeams] = useState(initialRegisteredTeams);
+  const [_reserveTeams, setReserveTeams] = useState(initialReserveTeams);
 
 
   useEffect(() => {
@@ -84,29 +84,32 @@ export default function TournamentDetailPage() {
   }
 
   const handleWithdraw = () => {
-    // Simular la baja del equipo
-    const myTeam = _registeredTeams.find(t => t.players.some(p => p.id === playerProfile.id));
-    if (myTeam) {
-        // Eliminar al equipo de la lista de registrados
-        const updatedRegisteredTeams = _registeredTeams.filter(t => t.id !== myTeam.id);
-        
-        // Promover a un equipo de reserva si hay
+    const myTeamIndex = _registeredTeams.findIndex(t => t.players.some(p => p.id === playerProfile.id));
+    if (myTeamIndex !== -1) {
+        const myTeam = _registeredTeams[myTeamIndex];
         let promotedTeam: Team | undefined;
-        const updatedReserveTeams = [..._reserveTeams];
-        if (updatedReserveTeams.length > 0) {
-            promotedTeam = updatedReserveTeams.shift();
+        let finalRegisteredTeams = [..._registeredTeams];
+        let finalReserveTeams = [..._reserveTeams];
+
+        // Eliminar al equipo de la lista de registrados temporalmente
+        finalRegisteredTeams.splice(myTeamIndex, 1);
+
+        // Si hay reservas, promover la primera
+        if (finalReserveTeams.length > 0) {
+            promotedTeam = finalReserveTeams.shift();
             if (promotedTeam) {
-                updatedRegisteredTeams.push(promotedTeam);
+                // Insertar el equipo promovido en el mismo slot que quedó libre
+                finalRegisteredTeams.splice(myTeamIndex, 0, promotedTeam);
             }
         }
         
-        setRegisteredTeams(updatedRegisteredTeams);
-        setReserveTeams(updatedReserveTeams);
+        setRegisteredTeams(finalRegisteredTeams);
+        setReserveTeams(finalReserveTeams);
         
         updateRegistrationStatus(tournament.id, 'not_registered');
         setRegistrationStatus('not_registered');
 
-        // Notificar al chat
+        // Notificar al chat para que se actualice la lista de slots
         window.dispatchEvent(new Event('tournamentUpdated'));
 
         toast({
