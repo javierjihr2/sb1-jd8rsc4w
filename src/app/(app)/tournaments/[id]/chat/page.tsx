@@ -3,11 +3,10 @@
 
 import { useState, useEffect, useRef } from "react"
 import { notFound, useRouter } from "next/navigation"
-import { tournaments, playerProfile, registeredTeams, getRegistrationStatus } from "@/lib/data"
+import { tournaments, playerProfile, registeredTeams } from "@/lib/data"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { useToast } from "@/hooks/use-toast"
 import { MessageSquare, Send, ArrowLeft } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -21,24 +20,19 @@ export default function TournamentChatPage({ params }: { params: { id: string } 
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const lastMessageRef = useRef<HTMLDivElement>(null);
-  
-  const registrationStatus = getRegistrationStatus(params.id);
 
   useEffect(() => {
-    if (registrationStatus !== 'approved' || !tournament) {
-      router.push(`/tournaments/${params.id}`);
-      return;
+    // This effect runs once to initialize the chat with a system message.
+    // The restriction logic has been removed for demonstration purposes.
+    if (tournament) {
+        setMessages([
+            { 
+                sender: 'other', 
+                text: `¡Bienvenidos al chat del torneo "${tournament.name}"!\n\n**Detalles del Evento:**\n- **Fecha y Hora:** ${tournament.date}\n- **Premio Total:** ${tournament.prize}\n- **Modo:** ${tournament.mode}\n\n**Info Importante:**\n- Por favor, mantén una comunicación respetuosa.\n- Las reglas completas se pueden encontrar en la página del torneo.\n\n**Equipos Inscritos (hasta ahora):**\n${registeredTeams.map((team, i) => `${i + 1}. ${team.name} [${team.id}]`).join('\n')}\n\n¡Mucha suerte a todos los participantes!` 
+            },
+        ]);
     }
-    
-    // Si la inscripción está aprobada, se inicializa el chat con el mensaje del sistema
-    setMessages([
-        { 
-            sender: 'other', 
-            text: `¡Bienvenidos al chat del torneo "${tournament.name}"!\n\n**Detalles del Evento:**\n- **Fecha:** ${tournament.date}\n- **Premio:** ${tournament.prize}\n\n**Info Importante:**\n- Por favor, mantén una comunicación respetuosa.\n- Las reglas completas se pueden encontrar en la página del torneo.\n\n**Equipos Inscritos:**\n${registeredTeams.map((team, i) => `${i + 1}. ${team.name} [${team.id}]`).join('\n')}\n\n¡Mucha suerte a todos!` 
-        },
-    ]);
-
-  }, [params.id, tournament, registrationStatus, router]);
+  }, [tournament]);
   
    useEffect(() => {
     if (lastMessageRef.current) {

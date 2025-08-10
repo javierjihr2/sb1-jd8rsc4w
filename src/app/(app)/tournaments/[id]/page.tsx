@@ -116,15 +116,13 @@ export default function TournamentDetailPage({ params }: { params: { id: string 
                 <p className="text-muted-foreground">
                     Prepárate para la batalla en el torneo {tournament.name}. Equipos de toda la región {tournament.region} competirán por la gloria y un premio de {tournament.prize}.
                 </p>
-                {registrationStatus === 'approved' && (
-                    <Button asChild className="mt-4 animate-in fade-in-50">
-                        <Link href={`/tournaments/${tournament.id}/chat`}>
-                            <MessageSquare className="mr-2"/>
-                            Ir a la Sala de Chat del Torneo
-                            <ArrowRight className="ml-2"/>
-                        </Link>
-                    </Button>
-                )}
+                <Button asChild className="mt-4">
+                    <Link href={`/tournaments/${tournament.id}/chat`}>
+                        <MessageSquare className="mr-2"/>
+                        Ir a la Sala de Chat del Torneo
+                        <ArrowRight className="ml-2"/>
+                    </Link>
+                </Button>
              </CardContent>
           </Card>
 
