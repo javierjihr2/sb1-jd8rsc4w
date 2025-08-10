@@ -1,9 +1,10 @@
 
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import Autoplay from "embla-carousel-autoplay"
 import {
   Send,
   ImageIcon,
@@ -40,6 +41,10 @@ export default function DashboardPage() {
   const [newComments, setCommentText] = useState<{[key: string]: string}>({});
 
   const upcomingTournaments = tournaments.filter(t => t.status === 'Abierto' || t.status === 'Próximamente').slice(0, 2);
+
+  const plugin = useRef(
+    Autoplay({ delay: 5000, stopOnInteraction: true, stopOnMouseEnter: true })
+  )
 
   const handleLike = (postId: string) => {
     setFeedPosts(posts => posts.map(p => {
@@ -87,11 +92,14 @@ export default function DashboardPage() {
     <div className="space-y-8">
         {/* Featured News Carousel */}
         <Carousel
+            plugins={[plugin.current]}
             opts={{
                 align: "start",
                 loop: true,
             }}
             className="w-full"
+            onMouseEnter={plugin.current.stop}
+            onMouseLeave={plugin.current.reset}
         >
             <CarouselContent>
                 {newsArticles.slice(0, 3).map((article, index) => (
