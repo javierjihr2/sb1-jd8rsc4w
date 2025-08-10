@@ -206,3 +206,18 @@ export const IcebreakerOutputSchema = z.object({
     messages: z.array(z.string()).length(3).describe("Una lista de exactamente 3 mensajes rompehielos únicos y creativos."),
 });
 export type IcebreakerOutput = z.infer<typeof IcebreakerOutputSchema>;
+
+// Schema for weapon-specific sensitivity
+export const WeaponSensitivityInputSchema = SensitivityInputSchema.extend({
+    weaponName: z.string().describe("El nombre del arma para la que se genera la sensibilidad (ej. M416, Kar98K)."),
+    weaponCategory: z.string().describe("La categoría del arma (ej. Rifle de Asalto, Rifle de Francotirador).")
+});
+export type WeaponSensitivityInput = z.infer<typeof WeaponSensitivityInputSchema>;
+
+// The output can reuse the main Sensitivity schema, but we'll create a specific type for clarity.
+export const WeaponSensitivitySchema = z.object({
+    camera: ScopeSensitivitySchema.describe("Sensibilidad de la cámara optimizada para el arma."),
+    ads: ScopeSensitivitySchema.describe("Sensibilidad de ADS optimizada para el arma."),
+    code: z.string().describe("Un código de sensibilidad de ejemplo para el arma específica."),
+});
+export type WeaponSensitivity = z.infer<typeof WeaponSensitivitySchema>;

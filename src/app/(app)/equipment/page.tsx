@@ -4,8 +4,8 @@
 import { useState } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Wrench, PlusCircle, Trash2, Smartphone, Gamepad2, Loader2, Sparkles, ThumbsUp, ThumbsDown, CheckCircle, Brain, Terminal, ClipboardCopy, Target } from "lucide-react";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Wrench, PlusCircle, Trash2, Smartphone, Gamepad2, Loader2, Sparkles, ThumbsUp, ThumbsDown, CheckCircle, Brain, Terminal, ClipboardCopy, Target, Rss } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
@@ -13,7 +13,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup } from "@/components/ui/select";
 import { getSensitivity } from "@/ai/flows/sensitivityFlow";
 import { getControls } from "@/ai/flows/controlsFlow";
-import type { Sensitivity, SensitivityInput, Controls, ControlsInput } from "@/ai/schemas";
+import { getWeaponSensitivity } from "@/ai/flows/weaponSensitivityFlow";
+import type { Sensitivity, SensitivityInput, Controls, ControlsInput, WeaponSensitivity } from "@/ai/schemas";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -119,6 +120,15 @@ const deviceList = {
     },
 };
 
+const weaponList = {
+    'Rifle de Asalto (AR)': ['M416', 'AKM', 'SCAR-L', 'M762 (Beryl)', 'AUG A3', 'Groza', 'QBZ', 'G36C', 'Honey Badger', 'FAMAS'],
+    'Rifle de Francotirador (SR)': ['Kar98K', 'M24', 'AWM', 'AMR', 'Mosin Nagant'],
+    'Rifle de Tirador Designado (DMR)': ['SKS', 'Mini14', 'SLR', 'QBU', 'Mk14', 'VSS'],
+    'Subfusil (SMG)': ['UMP45', 'Vector', 'Uzi', 'Thompson', 'MP5K', 'PP-19 Bizon'],
+    'Escopeta': ['S1897', 'S686', 'S12K', 'DBS'],
+    'Ametralladora Ligera (LMG)': ['M249', 'DP-28', 'MG3'],
+};
+
 
 export default function EquipmentPage() {
     const { toast } = useToast();
@@ -146,6 +156,13 @@ export default function EquipmentPage() {
     const [controls, setControls] = useState<Controls | null>(null);
     const [isControlsLoading, setIsControlsLoading] = useState(false);
     const [controlsError, setControlsError] = useState<string | null>(null);
+    
+    // State for Weapon Sensitivity
+    const [weaponCategory, setWeaponCategory] = useState<string | null>(null);
+    const [weaponName, setWeaponName] = useState<string | null>(null);
+    const [weaponSensitivity, setWeaponSensitivity] = useState<WeaponSensitivity | null>(null);
+    const [isWeaponSensitivityLoading, setIsWeaponSensitivityLoading] = useState(false);
+    const [weaponSensitivityError, setWeaponSensitivityError] = useState<string | null>(null);
 
 
     const handleGenerateSensitivity = async () => {
@@ -168,9 +185,9 @@ export default function EquipmentPage() {
         }
     };
     
-    const handleCopyCode = () => {
-        if(sensitivity?.code) {
-            navigator.clipboard.writeText(sensitivity.code);
+    const handleCopyCode = (code: string) => {
+        if(code) {
+            navigator.clipboard.writeText(code);
             toast({
                 title: "Copiado",
                 description: "El código de sensibilidad ha sido copiado al portapapeles."
@@ -197,6 +214,32 @@ export default function EquipmentPage() {
             setIsControlsLoading(false);
         }
     };
+
+    const handleGenerateWeaponSensitivity = async () => {
+        if (!sensitivityInput.deviceType || !sensitivityInput.playStyle || !sensitivityInput.gyroscope || !weaponCategory || !weaponName) {
+            setWeaponSensitivityError("Por favor, configura tu perfil de sensibilidad y selecciona un arma para generar.");
+            return;
+        }
+
+        setIsWeaponSensitivityLoading(true);
+        setWeaponSensitivityError(null);
+        setWeaponSensitivity(null);
+
+        try {
+            const result = await getWeaponSensitivity({
+                ...sensitivityInput as SensitivityInput,
+                weaponCategory: weaponCategory!,
+                weaponName: weaponName!
+            });
+            setWeaponSensitivity(result);
+        } catch(e: any) {
+            setWeaponSensitivityError("Hubo un error al generar la sensibilidad para el arma. Inténtalo de nuevo.");
+            console.error(e);
+        } finally {
+            setIsWeaponSensitivityLoading(false);
+        }
+    };
+
 
     const handleDeviceTypeChange = (value: "Telefono" | "Tablet") => {
         setSensitivityInput({ 
@@ -308,6 +351,29 @@ export default function EquipmentPage() {
                         <Skeleton className="h-6 w-1/3 mb-2" />
                         <Skeleton className="h-16 w-full" />
                     </div>
+                </div>
+            </CardContent>
+        </Card>
+    );
+
+    const WeaponSensitivitySkeleton = () => (
+        <Card>
+            <CardHeader>
+                <Skeleton className="h-8 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+            </CardHeader>
+            <CardContent>
+                <div className="grid md:grid-cols-2 gap-6">
+                    {[...Array(2)].map((_, i) => (
+                        <div key={i} className="space-y-4">
+                            <Skeleton className="h-8 w-1/2" />
+                            <div className="border rounded-lg p-2">
+                                <Skeleton className="h-10 w-full mb-1" />
+                                <Skeleton className="h-10 w-full mb-1" />
+                                <Skeleton className="h-10 w-full" />
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </CardContent>
         </Card>
@@ -428,7 +494,7 @@ export default function EquipmentPage() {
                                         </div>
                                         <div>
                                             <h3 className="text-lg font-semibold text-primary mb-2">Código de Sensibilidad</h3>
-                                            <div className="flex items-center gap-2"><Input value={sensitivity.code} readOnly className="bg-muted"/><Button variant="outline" size="icon" onClick={handleCopyCode}><ClipboardCopy className="h-4 w-4"/></Button></div>
+                                            <div className="flex items-center gap-2"><Input value={sensitivity.code} readOnly className="bg-muted"/><Button variant="outline" size="icon" onClick={() => handleCopyCode(sensitivity.code)}><ClipboardCopy className="h-4 w-4"/></Button></div>
                                             <p className="text-xs text-muted-foreground mt-2">Puedes usar este código para importar la configuración directamente en el juego.</p>
                                         </div>
                                     </CardContent>
@@ -539,6 +605,54 @@ export default function EquipmentPage() {
                 <TabsContent value="loadouts" className="mt-6">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
                         <div className="lg:col-span-2 space-y-8">
+                             <Card>
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2"><Rss className="h-5 w-5 text-primary"/> Generador de Sensibilidad por Arma</CardTitle>
+                                    <CardDescription>Obtén una configuración de sensibilidad optimizada para un arma específica, basada en tu perfil.</CardDescription>
+                                </CardHeader>
+                                <CardContent className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 items-end">
+                                    <div className="space-y-2">
+                                        <Label>Categoría de Arma</Label>
+                                        <Select onValueChange={(value) => { setWeaponCategory(value); setWeaponName(null); }}>
+                                            <SelectTrigger><SelectValue placeholder="Selecciona categoría" /></SelectTrigger>
+                                            <SelectContent>
+                                                {Object.keys(weaponList).map(cat => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Arma</Label>
+                                        <Select onValueChange={setWeaponName} value={weaponName || undefined} disabled={!weaponCategory}>
+                                            <SelectTrigger><SelectValue placeholder="Selecciona un arma" /></SelectTrigger>
+                                            <SelectContent>
+                                                {weaponCategory && weaponList[weaponCategory as keyof typeof weaponList].map(w => <SelectItem key={w} value={w}>{w}</SelectItem>)}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                     <Button onClick={handleGenerateWeaponSensitivity} disabled={isWeaponSensitivityLoading} className="w-full">
+                                        {isWeaponSensitivityLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                                        {isWeaponSensitivityLoading ? "Generando..." : "Generar para Arma"}
+                                    </Button>
+                                </CardContent>
+                                {isWeaponSensitivityLoading && <CardFooter><WeaponSensitivitySkeleton/></CardFooter>}
+                                {weaponSensitivityError && !isWeaponSensitivityLoading && (
+                                     <CardFooter><Alert variant="destructive"><Terminal className="h-4 w-4" /><AlertTitle>Error</AlertTitle><AlertDescription>{weaponSensitivityError}</AlertDescription></Alert></CardFooter>
+                                )}
+                                {weaponSensitivity && !isWeaponSensitivityLoading && (
+                                    <CardFooter className="flex-col items-start gap-4">
+                                        <h3 className="font-bold text-lg">Sensibilidad optimizada para {weaponName}</h3>
+                                        <div className="grid md:grid-cols-2 gap-6 w-full">
+                                            <SensitivityTable title="Sensibilidad de Cámara" data={weaponSensitivity.camera} />
+                                            <SensitivityTable title="Sensibilidad de ADS" data={weaponSensitivity.ads} />
+                                        </div>
+                                         <div>
+                                            <h3 className="text-lg font-semibold text-primary mb-2">Código de Sensibilidad (Arma)</h3>
+                                            <div className="flex items-center gap-2"><Input value={weaponSensitivity.code} readOnly className="bg-muted"/><Button variant="outline" size="icon" onClick={() => handleCopyCode(weaponSensitivity.code)}><ClipboardCopy className="h-4 w-4"/></Button></div>
+                                        </div>
+                                    </CardFooter>
+                                )}
+                            </Card>
+
                             <div className="grid gap-6 md:grid-cols-2">
                                 {initialLoadouts.map((loadout) => (
                                     <Card key={loadout.id}>
