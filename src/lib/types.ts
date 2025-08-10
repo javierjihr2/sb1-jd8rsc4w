@@ -107,4 +107,11 @@ export type RechargeProvider = {
     logoUrl: string;
 };
 
+export type Developer = {
+    id: string;
+    name: string;
+    status: 'Activo' | 'Inactivo';
+    apiKey: string;
+};
+
     

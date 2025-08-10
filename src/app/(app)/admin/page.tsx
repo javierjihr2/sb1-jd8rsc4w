@@ -23,18 +23,13 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
 import { Code, UserPlus, Newspaper, Check, X, Users, Swords, PlusCircle, Pencil, Trash2, LayoutDashboard, Settings, DollarSign, BarChart, BellRing, Wrench, Link as LinkIcon, KeyRound, RefreshCw } from "lucide-react"
-import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles, friendsForComparison as users, rechargeProviders } from "@/lib/data"
+import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles, friendsForComparison as users, rechargeProviders, developers } from "@/lib/data"
 import type { RegistrationRequest, Tournament, NewsArticle } from "@/lib/types"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Switch } from "@/components/ui/switch"
-
-
-const developers = [
-    { id: 'dev-01', name: 'Alice', status: 'Activo', apiKey: 'a1b2c3d4-...' },
-    { id: 'dev-02', name: 'Bob', status: 'Inactivo', apiKey: 'e5f6g7h8-...' },
-];
+import { Badge } from "@/components/ui/badge"
 
 
 export default function AdminPage() {

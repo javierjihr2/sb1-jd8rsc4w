@@ -1,6 +1,6 @@
 
 
-import type { PlayerProfile, Tournament, Chat, NewsArticle, Team, RegistrationRequest, FeedPost, RechargeProvider } from './types';
+import type { PlayerProfile, Tournament, Chat, NewsArticle, Team, RegistrationRequest, FeedPost, RechargeProvider, Developer } from './types';
 import type { PlayerProfileInput } from '@/ai/schemas';
 
 export const playerProfile: PlayerProfile = {
@@ -290,6 +290,11 @@ export const rechargeProviders: RechargeProvider[] = [
         url: "https://www.eneba.com/", 
         logoUrl: "https://placehold.co/100x40/3c3c3c/FFFFFF.png"
     }
+];
+
+export const developers: Developer[] = [
+    { id: 'dev-01', name: 'Alice', status: 'Activo', apiKey: 'a1b2c3d4-e5f6-g7h8' },
+    { id: 'dev-02', name: 'Bob', status: 'Inactivo', apiKey: 'i9j0k1l2-m3n4-o5p6' },
 ];
 
     
