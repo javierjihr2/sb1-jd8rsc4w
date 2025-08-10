@@ -9,10 +9,13 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { FileCode, PlusCircle, Sparkles, Loader2, Terminal, ClipboardCopy, QrCode, Trash2, Edit, Save, X, Bot, Gamepad2, Crosshair, Brain } from 'lucide-react';
 import { decodeSensitivity } from '@/ai/flows/decodeSensitivityFlow';
-import type { DecodedSensitivity } from '@/ai/schemas';
+import type { DecodedSensitivity, Sensitivity, SensitivityInput, DecodeSensitivityInput } from '@/ai/schemas';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import { Switch } from '@/components/ui/switch';
+
 
 interface SavedSensitivity extends DecodedSensitivity {
   id: string;
@@ -46,69 +49,126 @@ const SensitivityTable = ({ title, data }: { title: string, data: any }) => (
     </div>
 );
 
-const ResultSkeleton = () => (
-    <Card className="mt-6">
-        <CardHeader>
-            <Skeleton className="h-8 w-3/4" />
-            <Skeleton className="h-4 w-1/2" />
-        </CardHeader>
-        <CardContent className="space-y-6">
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[...Array(3)].map((_, i) => (
-                    <div key={i} className="space-y-4">
-                        <Skeleton className="h-8 w-1/2" />
-                        <div className="border rounded-lg p-2 space-y-1">
-                            {[...Array(8)].map((_, j) => <Skeleton key={j} className="h-8 w-full" />)}
-                        </div>
-                    </div>
-                ))}
-            </div>
-             <div className="space-y-2">
-                <Skeleton className="h-6 w-1/4" />
-                <Skeleton className="h-5 w-full" />
-                <Skeleton className="h-5 w-5/6" />
-            </div>
-        </CardContent>
-    </Card>
-);
+const emptyScope = { tpp: 0, fpp: 0, redDot: 0, scope2x: 0, scope3x: 0, scope4x: 0, scope6x: 0, scope8x: 0 };
+const emptySettings: Sensitivity = {
+    camera: { ...emptyScope },
+    ads: { ...emptyScope },
+    gyroscope: { ...emptyScope },
+    code: ''
+};
 
-export default function SensitivitiesPage() {
-    const { toast } = useToast();
-    const [sensitivityCode, setSensitivityCode] = useState('');
-    const [decoded, setDecoded] = useState<DecodedSensitivity | null>(null);
-    const [savedSensitivities, setSavedSensitivities] = useState<SavedSensitivity[]>([]);
+const NewSensitivityForm = ({ onSave, onCancel }: { onSave: (data: DecodedSensitivity) => void, onCancel: () => void }) => {
+    const [settings, setSettings] = useState<Sensitivity>(emptySettings);
+    const [useGyro, setUseGyro] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const handleDecode = async () => {
-        if (!sensitivityCode.trim()) {
-            setError('Por favor, introduce un código de sensibilidad.');
-            return;
-        }
-        setError(null);
-        setDecoded(null);
+    const handleValueChange = (category: 'camera' | 'ads' | 'gyroscope', scope: string, value: string) => {
+        const numValue = parseInt(value) || 0;
+        setSettings(prev => ({
+            ...prev,
+            [category]: {
+                ...prev[category],
+                [scope]: numValue
+            }
+        }));
+    };
+
+    const handleAnalyze = async () => {
         setIsLoading(true);
+        setError(null);
         try {
-            const result = await decodeSensitivity({ code: sensitivityCode });
-            setDecoded(result);
+            const result = await decodeSensitivity({
+                settings: {
+                    ...settings,
+                    gyroscope: useGyro ? settings.gyroscope : undefined,
+                }
+            });
+            onSave(result);
         } catch (e) {
             console.error(e);
-            setError('Error al decodificar el código. Asegúrate de que es válido e inténtalo de nuevo.');
+            setError('Error al analizar con la IA. Por favor, inténtalo de nuevo.');
         } finally {
             setIsLoading(false);
         }
     };
     
-    const handleSave = () => {
-        if (!decoded) return;
+    const renderScopeInputs = (category: 'camera' | 'ads' | 'gyroscope') => (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {Object.keys(emptyScope).map(scope => (
+                <div key={`${category}-${scope}`} className="space-y-1">
+                    <Label htmlFor={`${category}-${scope}`} className="text-xs capitalize">{scope.replace('scope', 'x')}</Label>
+                    <Input 
+                        id={`${category}-${scope}`} 
+                        type="number" 
+                        className="h-8"
+                        // @ts-ignore
+                        value={settings[category][scope] || ''}
+                        onChange={(e) => handleValueChange(category, scope, e.target.value)}
+                    />
+                </div>
+            ))}
+        </div>
+    );
+
+    return (
+        <Card className="animate-in fade-in-50">
+            <CardHeader>
+                <CardTitle>Añadir Nueva Sensibilidad</CardTitle>
+                <CardDescription>Introduce tus valores de sensibilidad manualmente. La IA puede analizarlos para darte consejos.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+                <div className="space-y-2">
+                    <Label htmlFor="code-input">Código de Sensibilidad (Opcional)</Label>
+                    <Input id="code-input" placeholder="Pega tu código aquí para guardarlo" value={settings.code} onChange={(e) => setSettings(p => ({ ...p, code: e.target.value }))}/>
+                </div>
+                <Collapsible defaultOpen>
+                    <CollapsibleTrigger className="text-lg font-semibold text-primary w-full text-left">Sensibilidad de Cámara</CollapsibleTrigger>
+                    <CollapsibleContent className="pt-4">{renderScopeInputs('camera')}</CollapsibleContent>
+                </Collapsible>
+                 <Collapsible defaultOpen>
+                    <CollapsibleTrigger className="text-lg font-semibold text-primary w-full text-left">Sensibilidad de ADS</CollapsibleTrigger>
+                    <CollapsibleContent className="pt-4">{renderScopeInputs('ads')}</CollapsibleContent>
+                </Collapsible>
+                 <Collapsible>
+                    <div className="flex items-center justify-between">
+                         <CollapsibleTrigger className="text-lg font-semibold text-primary">Sensibilidad de Giroscopio</CollapsibleTrigger>
+                         <div className="flex items-center space-x-2">
+                            <Switch id="use-gyro" checked={useGyro} onCheckedChange={setUseGyro}/>
+                            <Label htmlFor="use-gyro">{useGyro ? 'Activado' : 'Desactivado'}</Label>
+                         </div>
+                    </div>
+                    {useGyro && <CollapsibleContent className="pt-4">{renderScopeInputs('gyroscope')}</CollapsibleContent>}
+                </Collapsible>
+
+                {error && <Alert variant="destructive"><Terminal className="h-4 w-4" /><AlertDescription>{error}</AlertDescription></Alert>}
+
+            </CardContent>
+            <CardFooter className="gap-2">
+                <Button onClick={handleAnalyze} disabled={isLoading}>
+                    {isLoading ? <Loader2 className="mr-2 animate-spin" /> : <Sparkles className="mr-2" />}
+                    {isLoading ? 'Analizando...' : 'Analizar y Guardar'}
+                </Button>
+                <Button variant="outline" onClick={onCancel}>Cancelar</Button>
+            </CardFooter>
+        </Card>
+    );
+};
+
+
+export default function SensitivitiesPage() {
+    const { toast } = useToast();
+    const [savedSensitivities, setSavedSensitivities] = useState<SavedSensitivity[]>([]);
+    const [isAdding, setIsAdding] = useState(false);
+    
+    const handleSaveNewSensitivity = (decodedData: DecodedSensitivity) => {
         const newSaved: SavedSensitivity = {
-            ...decoded,
+            ...decodedData,
             id: `sens-${Date.now()}`,
-            userGivenName: decoded.analysis.suggestedName,
+            userGivenName: decodedData.analysis.suggestedName || "Mi Nueva Sensibilidad",
         };
         setSavedSensitivities(prev => [newSaved, ...prev]);
-        setDecoded(null);
-        setSensitivityCode('');
+        setIsAdding(false);
         toast({
             title: 'Sensibilidad Guardada',
             description: `"${newSaved.userGivenName}" ha sido añadido a tu arsenal.`,
@@ -116,6 +176,10 @@ export default function SensitivitiesPage() {
     };
     
     const handleCopyCode = (code: string) => {
+        if (!code) {
+            toast({ variant: 'destructive', title: 'Sin Código', description: 'No hay un código guardado para esta configuración.' });
+            return;
+        }
         navigator.clipboard.writeText(code);
         toast({ title: 'Copiado', description: 'Código de sensibilidad copiado.' });
     };
@@ -138,67 +202,20 @@ export default function SensitivitiesPage() {
         <div className="space-y-8">
             <div>
                 <h1 className="text-3xl font-bold flex items-center gap-2"><FileCode className="w-8 h-8 text-primary"/> Arsenal de Sensibilidad</h1>
-                <p className="text-muted-foreground">Pega tu código de sensibilidad para decodificarlo, analizarlo con IA y guardarlo en tu arsenal personal.</p>
+                <p className="text-muted-foreground">Añade, gestiona y analiza tus configuraciones de sensibilidad. La IA te ayudará a entender sus fortalezas.</p>
             </div>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Decodificador de Sensibilidad</CardTitle>
-                    <CardDescription>Introduce un código de sensibilidad de PUBG Mobile para empezar.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="flex flex-col sm:flex-row gap-2">
-                        <Input 
-                            placeholder="Ej: 7293-4161-3334-9493-294" 
-                            value={sensitivityCode}
-                            onChange={(e) => setSensitivityCode(e.target.value)}
-                            disabled={isLoading}
-                        />
-                        <Button onClick={handleDecode} disabled={isLoading || !sensitivityCode.trim()} className="w-full sm:w-auto">
-                            {isLoading ? <Loader2 className="mr-2 animate-spin" /> : <Sparkles className="mr-2" />}
-                            {isLoading ? 'Analizando...' : 'Analizar Código'}
-                        </Button>
-                    </div>
-                </CardContent>
-            </Card>
-
-            {error && !isLoading && <Alert variant="destructive"><Terminal className="h-4 w-4" /><AlertTitle>Error</AlertTitle><AlertDescription>{error}</AlertDescription></Alert>}
-            {isLoading && <ResultSkeleton />}
-            
-            {decoded && !isLoading && (
-                <Card className="animate-in fade-in-50">
-                    <CardHeader>
-                        <CardTitle>Análisis de IA: <span className="text-primary">{decoded.analysis.suggestedName}</span></CardTitle>
-                        <CardDescription>Este es el análisis de tu código de sensibilidad. Puedes guardarlo en tu arsenal.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            <SensitivityTable title="Sensibilidad de Cámara" data={decoded.settings.camera} />
-                            <SensitivityTable title="Sensibilidad de ADS" data={decoded.settings.ads} />
-                            {decoded.settings.gyroscope && <SensitivityTable title="Sensibilidad de Giroscopio" data={decoded.settings.gyroscope} />}
-                        </div>
-                        <div className="grid md:grid-cols-2 gap-6 pt-6 border-t">
-                            <div className="space-y-3">
-                                <h3 className="font-semibold text-lg flex items-center gap-2"><Brain className="w-5 h-5 text-accent"/>Análisis Táctico</h3>
-                                <p className="text-sm text-muted-foreground">{decoded.analysis.tacticalAnalysis}</p>
-                            </div>
-                            <div className="space-y-3">
-                                <h3 className="font-semibold text-lg flex items-center gap-2"><Crosshair className="w-5 h-5 text-accent"/>Armas Recomendadas</h3>
-                                 <ul className="list-disc list-inside text-sm text-muted-foreground">
-                                    {decoded.analysis.recommendedWeapons.map(w => <li key={w}>{w}</li>)}
-                                </ul>
-                            </div>
-                        </div>
-                    </CardContent>
-                    <CardFooter className="gap-2">
-                        <Button onClick={handleSave}><PlusCircle className="mr-2"/>Guardar en Arsenal</Button>
-                        <Button variant="outline" onClick={() => setDecoded(null)}>Descartar</Button>
-                    </CardFooter>
-                </Card>
+            {!isAdding && (
+                 <Button onClick={() => setIsAdding(true)}>
+                    <PlusCircle className="mr-2" />
+                    Añadir Nueva Sensibilidad
+                </Button>
             )}
 
+            {isAdding && <NewSensitivityForm onSave={handleSaveNewSensitivity} onCancel={() => setIsAdding(false)}/>}
+            
             {savedSensitivities.length > 0 && (
-                 <div className="space-y-4">
+                 <div className="space-y-4 pt-8">
                     <h2 className="text-2xl font-bold">Mi Arsenal</h2>
                     <div className="grid md:grid-cols-2 gap-6">
                         {savedSensitivities.map(s => (
@@ -221,10 +238,28 @@ export default function SensitivitiesPage() {
                                     <CardDescription className="flex items-center gap-2 text-xs"><Gamepad2 className="h-3 w-3"/>{s.analysis.playStyle}</CardDescription>
                                 </CardHeader>
                                 <CardContent className="flex-1 space-y-4">
-                                     <div className="p-4 bg-muted/50 rounded-lg">
-                                        <h4 className="font-semibold text-sm flex items-center gap-2 mb-2"><Bot className="h-4 w-4"/>Análisis de IA</h4>
-                                        <p className="text-xs text-muted-foreground">{s.analysis.tacticalAnalysis}</p>
-                                     </div>
+                                     <Collapsible>
+                                        <CollapsibleTrigger asChild>
+                                             <div className="p-4 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted">
+                                                <h4 className="font-semibold text-sm flex items-center gap-2 mb-2"><Bot className="h-4 w-4"/>Análisis de IA</h4>
+                                                <p className="text-xs text-muted-foreground line-clamp-2">{s.analysis.tacticalAnalysis}</p>
+                                             </div>
+                                        </CollapsibleTrigger>
+                                        <CollapsibleContent className="p-4 bg-muted/50 rounded-lg mt-2">
+                                             <div className="space-y-4">
+                                                <div>
+                                                    <h4 className="font-semibold text-sm flex items-center gap-2 mb-2"><Brain className="h-4 w-4"/>Análisis Táctico Completo</h4>
+                                                    <p className="text-xs text-muted-foreground">{s.analysis.tacticalAnalysis}</p>
+                                                </div>
+                                                <div>
+                                                    <h4 className="font-semibold text-sm flex items-center gap-2 mb-2"><Crosshair className="h-4 w-4"/>Armas Recomendadas</h4>
+                                                    <ul className="list-disc list-inside text-xs text-muted-foreground">
+                                                        {s.analysis.recommendedWeapons.map(w => <li key={w}>{w}</li>)}
+                                                    </ul>
+                                                </div>
+                                             </div>
+                                        </CollapsibleContent>
+                                     </Collapsible>
                                     <div className="flex gap-2 justify-center">
                                        <QrCode className="w-24 h-24 text-muted-foreground"/>
                                     </div>
@@ -232,7 +267,7 @@ export default function SensitivitiesPage() {
                                 <CardFooter>
                                     <Button variant="outline" className="w-full" onClick={() => handleCopyCode(s.code)}>
                                         <ClipboardCopy className="mr-2"/>
-                                        Copiar Código: {s.code.substring(0, 9)}...
+                                        Copiar Código: {s.code ? `${s.code.substring(0, 9)}...` : 'N/A'}
                                     </Button>
                                 </CardFooter>
                             </Card>
@@ -240,7 +275,17 @@ export default function SensitivitiesPage() {
                     </div>
                 </div>
             )}
+             {savedSensitivities.length === 0 && !isAdding && (
+                 <Card className="h-full flex flex-col items-center justify-center text-center p-8 border-dashed min-h-[300px]">
+                    <div className="p-4 bg-primary/10 rounded-full mb-4">
+                        <FileCode className="h-12 w-12 text-primary" />
+                    </div>
+                    <h2 className="text-2xl font-bold">Tu Arsenal está Vacío</h2>
+                    <p className="text-muted-foreground max-w-md">
+                       Haz clic en "Añadir Nueva Sensibilidad" para empezar a construir tu colección personal de configuraciones.
+                    </p>
+                </Card>
+            )}
         </div>
     );
 }
-
