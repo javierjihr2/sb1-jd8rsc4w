@@ -23,8 +23,7 @@ const prompt = ai.definePrompt({
 
 Parámetros del Usuario:
 - Tipo de Dispositivo: {{{deviceType}}}
-- Marca del Dispositivo: {{{deviceBrand}}}
-- Modelo del Dispositivo: {{{deviceModel}}}
+- Dispositivo Específico: {{{device}}}
 - Tamaño de Pantalla (pulgadas): {{{screenSize}}}
 - Estilo de Juego Preferido: {{{playStyle}}}
 - Usa Giroscopio: {{{gyroscope}}}
@@ -35,7 +34,7 @@ Instrucciones:
     *   **Media Distancia:** Un perfil equilibrado. Las sensibilidades para miras 2x, 3x y 4x son cruciales aquí.
     *   **Larga Distancia (Francotirador):** Requiere sensibilidades más bajas en miras de alto aumento (6x, 8x) para una mayor precisión en disparos lejanos. La sensibilidad de la cámara puede ser más baja.
     *   **Versátil (Mixto):** Crea una configuración equilibrada que funcione bien en la mayoría de las situaciones, pero que no sobresalga en extremos.
-2.  Utiliza la marca y el modelo del dispositivo, si se proporcionan, para afinar aún más la configuración. Ciertos modelos pueden tener tasas de refresco o respuestas táctiles específicas que puedes tener en cuenta.
+2.  Utiliza el dispositivo específico proporcionado para afinar aún más la configuración. Ciertos modelos pueden tener tasas de refresco o respuestas táctiles específicas que puedes tener en cuenta para generar valores más reales y precisos.
 3.  Genera valores numéricos para la sensibilidad de la "Cámara", "ADS" (Aim Down Sight).
 4.  Si el usuario ha especificado 'si' para el giroscopio, genera también una configuración completa para la "Sensibilidad del Giroscopio". Si es 'no', omite el campo del giroscopio en la respuesta.
 5.  Los valores deben ser lógicos y estar optimizados para el tipo de dispositivo y el tamaño de la pantalla. Las tablets generalmente requieren sensibilidades ligeramente más bajas que los teléfonos.

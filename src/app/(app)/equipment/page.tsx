@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup } from "@/components/ui/select";
 import { getSensitivity } from "@/ai/flows/sensitivityFlow";
 import { getControls } from "@/ai/flows/controlsFlow";
 import type { Sensitivity, SensitivityInput, Controls, ControlsInput } from "@/ai/schemas";
@@ -32,6 +32,26 @@ const initialLoadouts = [
         secondary: { name: "Mini14", sight: "4x", grip: "Light Grip" }
     },
 ];
+
+const deviceList = {
+    Telefono: [
+        { value: "Apple iPhone 15 Pro Max", label: "Apple iPhone 15 Pro Max" },
+        { value: "Samsung Galaxy S24 Ultra", label: "Samsung Galaxy S24 Ultra" },
+        { value: "Google Pixel 8 Pro", label: "Google Pixel 8 Pro" },
+        { value: "Asus ROG Phone 8", label: "Asus ROG Phone 8" },
+        { value: "Xiaomi 14 Pro", label: "Xiaomi 14 Pro" },
+        { value: "OnePlus 12", label: "OnePlus 12" },
+        { value: "Otro Telefono", label: "Otro Teléfono (Genérico)" },
+    ],
+    Tablet: [
+        { value: "Apple iPad Pro 12.9", label: "Apple iPad Pro 12.9" },
+        { value: "Samsung Galaxy Tab S9 Ultra", label: "Samsung Galaxy Tab S9 Ultra" },
+        { value: "Apple iPad Air", label: "Apple iPad Air" },
+        { value: "Xiaomi Pad 6", label: "Xiaomi Pad 6" },
+        { value: "Otro Tablet", label: "Otro Tablet (Genérico)" },
+    ]
+}
+
 
 export default function EquipmentPage() {
     const { toast } = useToast();
@@ -221,18 +241,25 @@ export default function EquipmentPage() {
                                 <CardContent className="space-y-6">
                                     <div className="space-y-2">
                                         <Label htmlFor="device-type-sens">Tipo de Dispositivo</Label>
-                                        <Select onValueChange={(value) => setSensitivityInput(prev => ({ ...prev, deviceType: value }))} value={sensitivityInput.deviceType}>
+                                        <Select onValueChange={(value: "Telefono" | "Tablet") => setSensitivityInput(prev => ({ ...prev, deviceType: value, device: undefined }))} value={sensitivityInput.deviceType}>
                                             <SelectTrigger id="device-type-sens"><SelectValue placeholder="Selecciona tu dispositivo" /></SelectTrigger>
                                             <SelectContent><SelectItem value="Telefono">Teléfono</SelectItem><SelectItem value="Tablet">Tablet</SelectItem></SelectContent>
                                         </Select>
                                     </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="device-brand">Marca del Dispositivo (Opcional)</Label>
-                                        <Input id="device-brand" placeholder="Ej: Samsung, Apple" value={sensitivityInput.deviceBrand || ''} onChange={(e) => setSensitivityInput(prev => ({ ...prev, deviceBrand: e.target.value }))} />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="device-model">Modelo del Dispositivo (Opcional)</Label>
-                                        <Input id="device-model" placeholder="Ej: Galaxy S23, iPhone 14 Pro" value={sensitivityInput.deviceModel || ''} onChange={(e) => setSensitivityInput(prev => ({ ...prev, deviceModel: e.target.value }))} />
+                                     <div className="space-y-2">
+                                        <Label htmlFor="device-model">Dispositivo</Label>
+                                        <Select 
+                                            onValueChange={(value) => setSensitivityInput(prev => ({ ...prev, device: value }))} 
+                                            value={sensitivityInput.device}
+                                            disabled={!sensitivityInput.deviceType}
+                                        >
+                                            <SelectTrigger id="device-model"><SelectValue placeholder={!sensitivityInput.deviceType ? "Primero elige un tipo" : "Selecciona tu dispositivo"} /></SelectTrigger>
+                                            <SelectContent>
+                                                {sensitivityInput.deviceType && deviceList[sensitivityInput.deviceType].map(device => (
+                                                     <SelectItem key={device.value} value={device.value}>{device.label}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
                                     </div>
                                     <div className="space-y-2">
                                         <Label htmlFor="screen-size">Tamaño de Pantalla (Pulgadas)</Label>
@@ -275,7 +302,7 @@ export default function EquipmentPage() {
                                 <Card className="animate-in fade-in-50">
                                     <CardHeader>
                                         <CardTitle>Tu Configuración de Sensibilidad Personalizada</CardTitle>
-                                        <CardDescription className="capitalize pt-1">Valores optimizados para un {lastUsedSensitivityInput.deviceType} {lastUsedSensitivityInput.deviceBrand && ` ${lastUsedSensitivityInput.deviceBrand}`} {lastUsedSensitivityInput.deviceModel && ` ${lastUsedSensitivityInput.deviceModel}`} {` de ${lastUsedSensitivityInput.screenSize}", un estilo de juego ${lastUsedSensitivityInput.playStyle},`} {lastUsedSensitivityInput.gyroscope === 'si' ? ' con' : ' sin'} giroscopio.</CardDescription>
+                                        <CardDescription className="capitalize pt-1">Valores optimizados para un {lastUsedSensitivityInput.deviceType} ({lastUsedSensitivityInput.device}) de {lastUsedSensitivityInput.screenSize}", un estilo de juego {lastUsedSensitivityInput.playStyle}, {lastUsedSensitivityInput.gyroscope === 'si' ? ' con' : ' sin'} giroscopio.</CardDescription>
                                     </CardHeader>
                                     <CardContent className="space-y-8">
                                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
