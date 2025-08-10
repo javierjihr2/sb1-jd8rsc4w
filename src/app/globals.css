@@ -103,38 +103,45 @@
     .bg-chat-dark {
         background-color: hsl(var(--sidebar-background));
     }
+    /* data-ai-hint: forest grass */
     .bg-chat-erangel {
-        background-image: url('https://placehold.co/1920x1080/556B2F/FFFFFF.png');
+        background-image: url('https://images.unsplash.com/photo-1500534623283-312aade485b7?w=1920&h=1080&fit=crop');
         background-size: cover;
         background-position: center;
     }
+    /* data-ai-hint: desert dune */
     .bg-chat-miramar {
-        background-image: url('https://placehold.co/1920x1080/D2B48C/FFFFFF.png');
+        background-image: url('https://images.unsplash.com/photo-1473580044384-7ba9967e16a0?w=1920&h=1080&fit=crop');
         background-size: cover;
         background-position: center;
     }
+    /* data-ai-hint: jungle canopy */
     .bg-chat-sanhok {
-        background-image: url('https://placehold.co/1920x1080/2E8B57/FFFFFF.png');
+        background-image: url('https://images.unsplash.com/photo-1542396342-822453443427?w=1920&h=1080&fit=crop');
         background-size: cover;
         background-position: center;
     }
+    /* data-ai-hint: snow mountain */
     .bg-chat-vikendi {
-        background-image: url('https://placehold.co/1920x1080/ADD8E6/000000.png');
+        background-image: url('https://images.unsplash.com/photo-1483561834359-523176558831?w=1920&h=1080&fit=crop');
         background-size: cover;
         background-position: center;
     }
+    /* data-ai-hint: green valley */
     .bg-chat-livik {
-        background-image: url('https://placehold.co/1920x1080/6B8E23/FFFFFF.png');
+        background-image: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1920&h=1080&fit=crop');
         background-size: cover;
         background-position: center;
     }
+    /* data-ai-hint: abstract pattern */
     .bg-chat-skin-mosaic {
-        background-image: url('https://placehold.co/1920x1080/2F4F4F/FFFFFF.png');
+        background-image: url('https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=1920&h=1080&fit=crop');
         background-size: cover;
         background-position: center;
     }
+    /* data-ai-hint: camouflage pattern */
     .bg-chat-camo {
-        background-image: url('https://placehold.co/1920x1080/556B2F/FFFFFF.png');
+        background-image: url('https://images.unsplash.com/photo-1582731705415-88c9b3941466?w=1920&h=1080&fit=crop');
         background-size: cover;
         background-position: center;
     }
