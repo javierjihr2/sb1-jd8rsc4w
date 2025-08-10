@@ -20,24 +20,26 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { tournaments, playerProfile } from "@/lib/data"
-import { PlusCircle, Filter, ChevronRight } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
+import { tournaments, playerProfile, myApprovedRegistrations } from "@/lib/data"
+import { PlusCircle, Filter, ChevronRight, MessageSquare, ListVideo } from "lucide-react"
 import Link from "next/link"
 
 export default function TournamentsPage() {
-  const { toast } = useToast();
+  const canCreate = playerProfile.role === 'Admin' || playerProfile.role === 'Creador';
   
   const naTournaments = tournaments.filter(t => t.region === 'N.A.');
   const saTournaments = tournaments.filter(t => t.region === 'S.A.');
-  const canCreate = playerProfile.role === 'Admin' || playerProfile.role === 'Creador';
+
+  const accessibleChats = tournaments.filter(t => 
+    myApprovedRegistrations.some(reg => reg.tournamentId === t.id && reg.status === 'approved')
+  );
 
   return (
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Torneos</h1>
-          <p className="text-muted-foreground">Encuentra y participa en competiciones por región.</p>
+          <h1 className="text-3xl font-bold">Torneos y Salas</h1>
+          <p className="text-muted-foreground">Explora torneos, inscríbete y accede a las salas de chat.</p>
         </div>
         <div className="flex gap-2">
             <Button variant="outline">
@@ -45,21 +47,24 @@ export default function TournamentsPage() {
                 Filtrar
             </Button>
             {canCreate && (
-              <Button>
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Crear Torneo
+              <Button asChild>
+                  <Link href="/admin">
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Crear Torneo
+                  </Link>
               </Button>
             )}
         </div>
       </div>
 
-      <Tabs defaultValue="na">
+      <Tabs defaultValue="explore">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="na">Torneos N.A.</TabsTrigger>
-          <TabsTrigger value="sa">Torneos S.A.</TabsTrigger>
+          <TabsTrigger value="explore">Explorar Torneos</TabsTrigger>
+          <TabsTrigger value="chats">Mis Salas de Chat <Badge className="ml-2">{accessibleChats.length}</Badge></TabsTrigger>
         </TabsList>
-        <TabsContent value="na">
-          <Card>
+        
+        <TabsContent value="explore" className="space-y-6">
+           <Card>
             <CardHeader>
               <CardTitle>Torneos de Norteamérica</CardTitle>
               <CardDescription>
@@ -107,8 +112,6 @@ export default function TournamentsPage() {
               </Table>
             </CardContent>
           </Card>
-        </TabsContent>
-        <TabsContent value="sa">
           <Card>
             <CardHeader>
               <CardTitle>Torneos de Sudamérica</CardTitle>
@@ -158,9 +161,42 @@ export default function TournamentsPage() {
             </CardContent>
           </Card>
         </TabsContent>
+        
+        <TabsContent value="chats">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Mis Salas de Chat</CardTitle>
+                    <CardDescription>Accede a los chats de los torneos en los que estás inscrito y aprobado.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    {accessibleChats.length > 0 ? (
+                        <div className="space-y-4">
+                            {accessibleChats.map(tournament => (
+                                <div key={tournament.id} className="p-4 bg-muted/50 rounded-lg flex items-center justify-between">
+                                    <div>
+                                        <h3 className="font-bold text-lg">{tournament.name}</h3>
+                                        <p className="text-sm text-muted-foreground">{tournament.date} - {tournament.mode}</p>
+                                    </div>
+                                    <Button asChild>
+                                        <Link href={`/tournaments/${tournament.id}/chat`}>
+                                            <MessageSquare className="mr-2"/>
+                                            Entrar a la Sala
+                                        </Link>
+                                    </Button>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center text-muted-foreground py-8 border-2 border-dashed rounded-lg">
+                            <ListVideo className="mx-auto h-12 w-12 mb-4" />
+                            <h3 className="text-lg font-semibold">No tienes acceso a ninguna sala de chat</h3>
+                            <p className="text-sm">Inscríbete a un torneo y espera la aprobación de un administrador para poder chatear.</p>
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
+        </TabsContent>
       </Tabs>
     </div>
   )
 }
-
-    

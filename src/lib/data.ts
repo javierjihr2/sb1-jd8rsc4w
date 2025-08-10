@@ -1,5 +1,5 @@
 
-import type { PlayerProfile, Tournament, Chat, NewsArticle, Team, RegistrationRequest, FeedPost, RechargeProvider, Developer, Service, UserWithRole, BankAccount, Transaction } from './types';
+import type { PlayerProfile, Tournament, Chat, NewsArticle, Team, RegistrationRequest, FeedPost, RechargeProvider, Developer, Service, UserWithRole, BankAccount, Transaction, ApprovedRegistration } from './types';
 import type { PlayerProfileInput } from '@/ai/schemas';
 
 export const playerProfile: PlayerProfile = {
@@ -225,6 +225,11 @@ export const registeredTeams: Team[] = [
   }
 ];
 
+// Datos de ejemplo para simular qué inscripciones están aprobadas para el usuario actual.
+export const myApprovedRegistrations: ApprovedRegistration[] = [
+  { userId: 'p1', tournamentId: 't2', status: 'approved' },
+];
+
 export const teamMates = friendsForComparison.filter(f => f.id !== 'p1');
 
 export const initialRegistrationRequests: RegistrationRequest[] = [
@@ -381,7 +386,7 @@ export const bankAccounts: BankAccount[] = [
 ];
 
 export const initialTransactions: Transaction[] = [
-    { id: 'txn1', date: '2024-07-28', description: 'Suscripción Creador Pro - Ninja_Dude', amount: 5.00, type: 'Ingreso' },
-    { id: 'txn2', date: '2024-07-27', description: 'Suscripción Creador Pro - ShadowStriker', amount: 5.00, type: 'Ingreso' },
-    { id: 'txn3', date: '2024-07-25', description: 'Suscripción Creador Básico - Phoenix_Queen', amount: 3.00, type: 'Ingreso' },
+    { id: 'txn1', date: '2024-07-28', description: 'Suscripción Creador Pro - Ninja_Dude', amount: 4.99, type: 'Ingreso' },
+    { id: 'txn2', date: '2024-07-27', description: 'Suscripción Creador Pro - ShadowStriker', amount: 4.99, type: 'Ingreso' },
+    { id: 'txn3', date: '2024-07-25', description: 'Suscripción Creador Básico - Phoenix_Queen', amount: 2.99, type: 'Ingreso' },
 ];

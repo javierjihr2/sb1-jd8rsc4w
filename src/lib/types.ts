@@ -90,6 +90,12 @@ export type RegistrationRequest = {
     status: 'Pendiente' | 'Aprobado' | 'Rechazado';
 };
 
+export type ApprovedRegistration = {
+  userId: string;
+  tournamentId: string;
+  status: 'approved';
+}
+
 export type Comment = {
   author: string;
   text: string;
@@ -150,5 +156,3 @@ export type Transaction = {
     amount: number;
     type: 'Ingreso' | 'Retiro';
 }
-
-    
