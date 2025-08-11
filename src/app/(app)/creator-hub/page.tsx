@@ -31,6 +31,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Icons } from "@/components/icons";
 
 
 export default function CreatorHubPage() {
@@ -52,6 +53,8 @@ export default function CreatorHubPage() {
   const [creatorBankAccounts, setCreatorBankAccounts] = useState<BankAccount[]>(initialCreatorBankAccounts);
   const [isAddAccountOpen, setIsAddAccountOpen] = useState(false);
   const currentBalance = transactions.reduce((acc, t) => acc + t.amount, 0);
+  const [accountType, setAccountType] = useState<'bank' | 'paypal'>('bank');
+
 
   const finalServiceTitle = serviceTitle === 'Otro...' ? customServiceTitle : serviceTitle;
 
@@ -114,19 +117,36 @@ export default function CreatorHubPage() {
     })
   }
 
-  const handleAddAccount = (e: React.FormEvent<HTMLFormElement>) => {
+ const handleAddAccount = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const newAccount: BankAccount = {
-        id: `cba-${Date.now()}`,
-        bankName: formData.get('bank-name') as string,
-        holderName: formData.get('holder-name') as string,
-        accountNumber: formData.get('account-number') as string,
-        country: formData.get('country') as string,
-    };
+    const type = formData.get('account-type') as 'bank' | 'paypal';
+
+    let newAccount: BankAccount;
+
+    if (type === 'paypal') {
+        newAccount = {
+            id: `cba-${Date.now()}`,
+            type: 'paypal',
+            email: formData.get('paypal-email') as string,
+            holderName: playerProfile.name,
+        };
+    } else {
+         newAccount = {
+            id: `cba-${Date.now()}`,
+            type: 'bank',
+            bankName: formData.get('bank-name') as string,
+            holderName: formData.get('holder-name') as string,
+            accountNumber: formData.get('account-number') as string,
+            country: formData.get('country') as string,
+        };
+    }
+    
     setCreatorBankAccounts(prev => [...prev, newAccount]);
-    toast({ title: "Cuenta Añadida", description: "La nueva cuenta bancaria ha sido guardada." });
+    toast({ title: "Cuenta Añadida", description: "La nueva cuenta ha sido guardada." });
     setIsAddAccountOpen(false);
+    e.currentTarget.reset();
+    setAccountType('bank');
   }
   
   const handleWithdrawal = (e: React.FormEvent<HTMLFormElement>) => {
@@ -142,16 +162,19 @@ export default function CreatorHubPage() {
       return;
     }
     if (!selectedAccount) {
-      toast({ variant: 'destructive', title: 'Cuenta no Seleccionada', description: 'Por favor, selecciona una cuenta bancaria para el retiro.' });
+      toast({ variant: 'destructive', title: 'Cuenta no Seleccionada', description: 'Por favor, selecciona una cuenta para el retiro.' });
       return;
     }
 
     const accountDetails = creatorBankAccounts.find(acc => acc.id === selectedAccount);
+    const descriptionText = accountDetails?.type === 'paypal'
+        ? `Retiro a PayPal (${accountDetails.email})`
+        : `Retiro a ${accountDetails?.bankName} (...${accountDetails?.accountNumber?.slice(-4)})`;
 
     const newTransaction: Transaction = {
         id: `txn-${Date.now()}`,
         date: new Date().toISOString().split('T')[0],
-        description: `Retiro a ${accountDetails?.bankName} (...${accountDetails?.accountNumber.slice(-4)})`,
+        description: descriptionText,
         amount: -amount,
         type: 'Retiro',
     };
@@ -470,7 +493,7 @@ export default function CreatorHubPage() {
                     <Card>
                         <CardHeader>
                             <CardTitle>Retirar Fondos</CardTitle>
-                            <CardDescription>Transfiere tu saldo disponible a tu cuenta bancaria.</CardDescription>
+                            <CardDescription>Transfiere tu saldo disponible a tu cuenta.</CardDescription>
                         </CardHeader>
                         <form onSubmit={handleWithdrawal}>
                             <CardContent className="space-y-4">
@@ -495,7 +518,16 @@ export default function CreatorHubPage() {
                                         <SelectContent>
                                             {creatorBankAccounts.map(account => (
                                                 <SelectItem key={account.id} value={account.id}>
-                                                    {account.bankName} (...{account.accountNumber.slice(-4)})
+                                                     <div className="flex items-center gap-2">
+                                                        {account.type === 'paypal' && <Icons.paypal className="h-4 w-4" />}
+                                                        {account.type === 'bank' && <Banknote className="h-4 w-4" />}
+                                                        <span>
+                                                            {account.type === 'paypal' 
+                                                                ? `${account.email}` 
+                                                                : `${account.bankName} (...${account.accountNumber?.slice(-4)})`
+                                                            }
+                                                        </span>
+                                                    </div>
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>
@@ -505,28 +537,51 @@ export default function CreatorHubPage() {
                                             <Button variant="link" className="text-xs p-0 h-auto">Añadir nueva cuenta</Button>
                                         </DialogTrigger>
                                         <DialogContent>
-                                            <DialogHeader>
-                                                <DialogTitle>Añadir Nueva Cuenta Bancaria</DialogTitle>
-                                                <DialogDescription>
-                                                    Introduce los detalles de tu cuenta bancaria. Esta información se guardará de forma segura.
-                                                </DialogDescription>
-                                            </DialogHeader>
-                                            <form onSubmit={handleAddAccount} className="grid gap-4 py-4">
-                                                <div className="space-y-2">
-                                                    <Label htmlFor="bank-name">Nombre del Banco</Label>
-                                                    <Input id="bank-name" name="bank-name" required />
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <Label htmlFor="holder-name">Nombre del Titular</Label>
-                                                    <Input id="holder-name" name="holder-name" defaultValue={playerProfile.name} required />
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <Label htmlFor="account-number">Número de Cuenta</Label>
-                                                    <Input id="account-number" name="account-number" required />
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <Label htmlFor="country">País del Banco</Label>
-                                                    <Input id="country" name="country" required />
+                                            <form onSubmit={handleAddAccount}>
+                                                <DialogHeader>
+                                                    <DialogTitle>Añadir Nuevo Método de Pago</DialogTitle>
+                                                    <DialogDescription>
+                                                        Introduce los detalles de tu cuenta bancaria o PayPal.
+                                                    </DialogDescription>
+                                                </DialogHeader>
+                                                <div className="grid gap-4 py-4">
+                                                     <div className="space-y-2">
+                                                        <Label htmlFor="account-type-creator">Tipo de Cuenta</Label>
+                                                        <Select name="account-type" onValueChange={(value) => setAccountType(value as 'bank' | 'paypal')} defaultValue="bank">
+                                                            <SelectTrigger id="account-type-creator">
+                                                                <SelectValue placeholder="Selecciona un tipo" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                <SelectItem value="bank">Cuenta Bancaria</SelectItem>
+                                                                <SelectItem value="paypal">PayPal</SelectItem>
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+                                                    {accountType === 'bank' ? (
+                                                        <div className="space-y-4 animate-in fade-in-50">
+                                                            <div className="space-y-2">
+                                                                <Label htmlFor="bank-name">Nombre del Banco</Label>
+                                                                <Input id="bank-name" name="bank-name" required />
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <Label htmlFor="holder-name">Nombre del Titular</Label>
+                                                                <Input id="holder-name" name="holder-name" defaultValue={playerProfile.name} required />
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <Label htmlFor="account-number">Número de Cuenta</Label>
+                                                                <Input id="account-number" name="account-number" required />
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <Label htmlFor="country">País del Banco</Label>
+                                                                <Input id="country" name="country" required />
+                                                            </div>
+                                                        </div>
+                                                    ) : (
+                                                         <div className="space-y-2 animate-in fade-in-50">
+                                                            <Label htmlFor="paypal-email">Correo de PayPal</Label>
+                                                            <Input id="paypal-email" name="paypal-email" type="email" placeholder="pagos@ejemplo.com" required />
+                                                         </div>
+                                                    )}
                                                 </div>
                                                 <DialogFooter>
                                                     <Button type="submit">Guardar Cuenta</Button>

@@ -165,10 +165,12 @@ export type Service = {
 
 export type BankAccount = {
     id: string;
-    bankName: string;
-    accountNumber: string;
+    type: 'bank' | 'paypal';
+    bankName?: string; // Nombre del banco o 'PayPal'
+    accountNumber?: string; // Número de cuenta bancaria
+    email?: string; // Correo de PayPal
     holderName: string;
-    country: string;
+    country?: string;
 }
 
 export type Transaction = {

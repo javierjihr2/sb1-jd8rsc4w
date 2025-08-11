@@ -39,6 +39,7 @@ import { Calendar } from "@/components/ui/calendar"
 import { cn } from "@/lib/utils"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import { Icons } from "@/components/icons"
 
 
 export default function AdminPage() {
@@ -64,6 +65,10 @@ export default function AdminPage() {
   const [withdrawalAmount, setWithdrawalAmount] = useState<number | string>('');
   const [selectedAccount, setSelectedAccount] = useState<string>('');
   const currentBalance = transactions.reduce((acc, t) => acc + t.amount, 0);
+  
+  // State for adding a new payment method
+  const [accountType, setAccountType] = useState<'bank' | 'paypal'>('bank');
+
 
   // State for tournament creation/editing
   const [tournamentDate, setTournamentDate] = useState<Date>();
@@ -304,16 +309,33 @@ export default function AdminPage() {
   const handleAddAccount = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const newAccount: BankAccount = {
-        id: `ba-${Date.now()}`,
-        bankName: formData.get('bank-name') as string,
-        holderName: formData.get('holder-name') as string,
-        accountNumber: formData.get('account-number') as string,
-        country: formData.get('country') as string,
-    };
+    const type = formData.get('account-type') as 'bank' | 'paypal';
+
+    let newAccount: BankAccount;
+
+    if (type === 'paypal') {
+        newAccount = {
+            id: `ba-${Date.now()}`,
+            type: 'paypal',
+            email: formData.get('paypal-email') as string,
+            holderName: "SquadUp Corp",
+        };
+    } else {
+         newAccount = {
+            id: `ba-${Date.now()}`,
+            type: 'bank',
+            bankName: formData.get('bank-name') as string,
+            holderName: formData.get('holder-name') as string,
+            accountNumber: formData.get('account-number') as string,
+            country: formData.get('country') as string,
+        };
+    }
+    
     setBankAccounts(prev => [...prev, newAccount]);
-    toast({ title: "Cuenta Añadida", description: "La nueva cuenta bancaria ha sido guardada." });
+    toast({ title: "Cuenta Añadida", description: "La nueva cuenta ha sido guardada." });
     setIsAddAccountOpen(false);
+    e.currentTarget.reset();
+    setAccountType('bank');
   }
   
   const handleWithdrawal = (e: React.FormEvent<HTMLFormElement>) => {
@@ -334,12 +356,15 @@ export default function AdminPage() {
     }
 
     const accountDetails = bankAccounts.find(acc => acc.id === selectedAccount);
+    const descriptionText = accountDetails?.type === 'paypal' 
+        ? `Retiro a PayPal (${accountDetails.email})`
+        : `Retiro a ${accountDetails?.bankName} (...${accountDetails?.accountNumber?.slice(-4)})`;
 
     // Simulate withdrawal
     const newTransaction: Transaction = {
         id: `txn-${Date.now()}`,
         date: new Date().toISOString().split('T')[0],
-        description: `Retiro a ${accountDetails?.bankName} (...${accountDetails?.accountNumber.slice(-4)})`,
+        description: descriptionText,
         amount: -amount,
         type: 'Retiro',
     };
@@ -1123,7 +1148,7 @@ export default function AdminPage() {
                     <Card>
                         <CardHeader>
                             <CardTitle>Retirar Fondos</CardTitle>
-                            <CardDescription>Transfiere el saldo de la plataforma a una cuenta bancaria.</CardDescription>
+                            <CardDescription>Transfiere el saldo de la plataforma a una cuenta.</CardDescription>
                         </CardHeader>
                         <form onSubmit={handleWithdrawal}>
                             <CardContent className="space-y-4">
@@ -1148,7 +1173,16 @@ export default function AdminPage() {
                                         <SelectContent>
                                             {bankAccounts.map(account => (
                                                 <SelectItem key={account.id} value={account.id}>
-                                                    {account.bankName} (...{account.accountNumber.slice(-4)})
+                                                     <div className="flex items-center gap-2">
+                                                        {account.type === 'paypal' && <Icons.paypal className="h-4 w-4" />}
+                                                        {account.type === 'bank' && <Banknote className="h-4 w-4" />}
+                                                        <span>
+                                                            {account.type === 'paypal' 
+                                                                ? `${account.email}` 
+                                                                : `${account.bankName} (...${account.accountNumber?.slice(-4)})`
+                                                            }
+                                                        </span>
+                                                    </div>
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>
@@ -1158,28 +1192,51 @@ export default function AdminPage() {
                                             <Button variant="link" className="text-xs p-0 h-auto">Añadir nueva cuenta</Button>
                                         </DialogTrigger>
                                         <DialogContent>
-                                            <form onSubmit={handleAddAccount} className="grid gap-4 py-4">
+                                            <form onSubmit={handleAddAccount}>
                                                 <DialogHeader>
-                                                    <DialogTitle>Añadir Nueva Cuenta Bancaria</DialogTitle>
+                                                    <DialogTitle>Añadir Nuevo Método de Pago</DialogTitle>
                                                     <DialogDescription>
-                                                        Introduce los detalles de la cuenta bancaria. Esta información se guardará de forma segura.
+                                                        Introduce los detalles de tu cuenta bancaria o PayPal.
                                                     </DialogDescription>
                                                 </DialogHeader>
-                                                <div className="space-y-2">
-                                                    <Label htmlFor="bank-name">Nombre del Banco</Label>
-                                                    <Input id="bank-name" name="bank-name" required />
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <Label htmlFor="holder-name">Nombre del Titular</Label>
-                                                    <Input id="holder-name" name="holder-name" defaultValue="SquadUp Corp" required />
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <Label htmlFor="account-number">Número de Cuenta</Label>
-                                                    <Input id="account-number" name="account-number" required />
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <Label htmlFor="country">País del Banco</Label>
-                                                    <Input id="country" name="country" required />
+                                                <div className="grid gap-4 py-4">
+                                                     <div className="space-y-2">
+                                                        <Label htmlFor="account-type">Tipo de Cuenta</Label>
+                                                        <Select name="account-type" onValueChange={(value) => setAccountType(value as 'bank' | 'paypal')} defaultValue="bank">
+                                                            <SelectTrigger id="account-type">
+                                                                <SelectValue placeholder="Selecciona un tipo" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                <SelectItem value="bank">Cuenta Bancaria</SelectItem>
+                                                                <SelectItem value="paypal">PayPal</SelectItem>
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+                                                    {accountType === 'bank' ? (
+                                                        <div className="space-y-4 animate-in fade-in-50">
+                                                            <div className="space-y-2">
+                                                                <Label htmlFor="bank-name">Nombre del Banco</Label>
+                                                                <Input id="bank-name" name="bank-name" required />
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <Label htmlFor="holder-name">Nombre del Titular</Label>
+                                                                <Input id="holder-name" name="holder-name" defaultValue="SquadUp Corp" required />
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <Label htmlFor="account-number">Número de Cuenta</Label>
+                                                                <Input id="account-number" name="account-number" required />
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <Label htmlFor="country">País del Banco</Label>
+                                                                <Input id="country" name="country" required />
+                                                            </div>
+                                                        </div>
+                                                    ) : (
+                                                         <div className="space-y-2 animate-in fade-in-50">
+                                                            <Label htmlFor="paypal-email">Correo de PayPal</Label>
+                                                            <Input id="paypal-email" name="paypal-email" type="email" placeholder="pagos@ejemplo.com" required />
+                                                         </div>
+                                                    )}
                                                 </div>
                                                 <DialogFooter>
                                                     <Button type="submit">Guardar Cuenta</Button>

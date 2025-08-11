@@ -480,13 +480,14 @@ export const creators = friendsForComparison.filter(f => f.role === 'Creador' ||
     
 // Finance data
 export let adminBankAccounts: BankAccount[] = [
-    { id: 'ba1', bankName: 'Banco Regional', accountNumber: '...1234', holderName: 'SquadUp Corp', country: 'US' },
-    { id: 'ba2', bankName: 'Metro Bank', accountNumber: '...5678', holderName: 'SquadUp Corp', country: 'US' },
-    { id: 'ba3', bankName: 'Payoneer', accountNumber: 'admin@squadup.com', holderName: 'SquadUp Corp', country: 'US' },
+    { id: 'ba1', type: 'bank', bankName: 'Banco Regional', accountNumber: '...1234', holderName: 'SquadUp Corp', country: 'US' },
+    { id: 'ba2', type: 'bank', bankName: 'Metro Bank', accountNumber: '...5678', holderName: 'SquadUp Corp', country: 'US' },
+    { id: 'ba3', type: 'paypal', email: 'pagos@squadup.com', holderName: 'SquadUp Corp' },
 ];
 
 export let creatorBankAccounts: BankAccount[] = [
-    { id: 'cba1', bankName: 'Mi Banco Local', accountNumber: '...9876', holderName: playerProfile.name, country: 'MX' },
+    { id: 'cba1', type: 'bank', bankName: 'Mi Banco Local', accountNumber: '...9876', holderName: playerProfile.name, country: 'MX' },
+    { id: 'cba2', type: 'paypal', email: playerProfile.email, holderName: playerProfile.name },
 ];
 
 
@@ -495,4 +496,3 @@ export const initialTransactions: Transaction[] = [
     { id: 'txn2', date: '2024-07-27', description: 'Suscripción Creador Pro - ShadowStriker', amount: 4.99, type: 'Ingreso' },
     { id: 'txn3', date: '2024-07-25', description: 'Suscripción Creador Básico - Phoenix_Queen', amount: 2.99, type: 'Ingreso' },
 ];
-
