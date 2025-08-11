@@ -37,7 +37,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { format, parseISO } from "date-fns"
 import { Calendar } from "@/components/ui/calendar"
 import { cn } from "@/lib/utils"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 
 
@@ -1158,13 +1158,13 @@ export default function AdminPage() {
                                             <Button variant="link" className="text-xs p-0 h-auto">Añadir nueva cuenta</Button>
                                         </DialogTrigger>
                                         <DialogContent>
-                                            <DialogHeader>
-                                                <DialogTitle>Añadir Nueva Cuenta Bancaria</DialogTitle>
-                                                <DialogDescription>
-                                                    Introduce los detalles de la cuenta bancaria. Esta información se guardará de forma segura.
-                                                </DialogDescription>
-                                            </DialogHeader>
                                             <form onSubmit={handleAddAccount} className="grid gap-4 py-4">
+                                                <DialogHeader>
+                                                    <DialogTitle>Añadir Nueva Cuenta Bancaria</DialogTitle>
+                                                    <DialogDescription>
+                                                        Introduce los detalles de la cuenta bancaria. Esta información se guardará de forma segura.
+                                                    </DialogDescription>
+                                                </DialogHeader>
                                                 <div className="space-y-2">
                                                     <Label htmlFor="bank-name">Nombre del Banco</Label>
                                                     <Input id="bank-name" name="bank-name" required />
@@ -1343,20 +1343,20 @@ export default function AdminPage() {
                                     Usa estas etiquetas en tu plantilla. Serán reemplazadas por los datos reales del torneo:
                                 </p>
                                 <code className="text-xs grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-4 gap-y-1 mt-2">
-                                    <span>{'{'}{'{'}header{'}'}{'}'}</span>
-                                    <span>{'{'}{'{'}organizerName{'}'}{'}'}</span>
-                                    <span>{'{'}{'{'}tournamentName{'}'}{'}'}</span>
-                                    <span>{'{'}{'{'}date{'}'}{'}'}</span>
-                                    <span>{'{'}{'{'}startTime{'}'}{'}'}</span>
-                                    <span>{'{'}{'{'}timeZoneFlag{'}'}{'}'}</span>
-                                    <span>{'{'}{'{'}infoSendText{'}'}{'}'}</span>
-                                    <span>{'{'}{'{'}maxWithdrawalText{'}'}{'}'}</span>
-                                    <span>{'{'}{'{'}mapsList{'}'}{'}'}</span>
-                                    <span>{'{'}{'{'}slotsList{'}'}{'}'}</span>
-                                    <span>{'{'}{'{'}registeredCount{'}'}{'}'}</span>
-                                    <span>{'{'}{'{'}maxSlots{'}'}{'}'}</span>
-                                    <span>{'{'}{'{'}reserveText{'}'}{'}'}</span>
-                                    <span>{'{'}{'{'}streamLink{'}'}{'}'}</span>
+                                    <span>{'{{header}}'}</span>
+                                    <span>{'{{organizerName}}'}</span>
+                                    <span>{'{{tournamentName}}'}</span>
+                                    <span>{'{{date}}'}</span>
+                                    <span>{'{{startTime}}'}</span>
+                                    <span>{'{{timeZoneFlag}}'}</span>
+                                    <span>{'{{infoSendText}}'}</span>
+                                    <span>{'{{maxWithdrawalText}}'}</span>
+                                    <span>{'{{mapsList}}'}</span>
+                                    <span>{'{{slotsList}}'}</span>
+                                    <span>{'{{registeredCount}}'}</span>
+                                    <span>{'{{maxSlots}}'}</span>
+                                    <span>{'{{reserveText}}'}</span>
+                                    <span>{'{{streamLink}}'}</span>
                                 </code>
                             </div>
                         </div>
