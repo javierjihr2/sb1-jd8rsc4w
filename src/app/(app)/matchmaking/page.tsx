@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { friendsForComparison, playerProfile, addChat } from "@/lib/data"
-import { Search, Filter, Users, Wifi, X, Heart, MessageSquare, Sparkles } from "lucide-react"
+import { Search, Filter, Users, Wifi, X, MessageSquare, Sparkles, Swords, UserPlus } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { AddFriendDialog } from "@/components/add-friend-dialog"
 import type { PlayerProfileInput, IcebreakerInput, IcebreakerOutput } from "@/ai/schemas"
@@ -63,7 +63,7 @@ export default function MatchmakingPage() {
   const handleLike = (player: PlayerProfileInput) => {
     setIsMatched(true);
     toast({
-      title: "¡Es un Match! 🔥",
+      title: "¡Conexión Exitosa! ⚔️",
       description: `Ahora puedes chatear con ${player.name}.`,
     });
   };
@@ -172,7 +172,7 @@ export default function MatchmakingPage() {
                                         En línea
                                     </Badge>
                                     <Badge variant="secondary" className="bg-primary/20 text-primary-foreground border-primary/30 backdrop-blur-sm">
-                                        <Heart className="w-3 h-3 mr-1.5"/>
+                                        <Users className="w-3 h-3 mr-1.5"/>
                                         {player.compatibility}%
                                     </Badge>
                                 </div>
@@ -198,7 +198,7 @@ export default function MatchmakingPage() {
                         </div>
                         <div className="absolute top-4 right-4">
                             <Badge variant="secondary" className="bg-primary/20 text-primary-foreground border-primary/30 backdrop-blur-sm">
-                                <Heart className="w-4 h-4 mr-2"/>
+                                <Users className="w-4 h-4 mr-2"/>
                                 {selectedPlayer.compatibility}% Compatible
                             </Badge>
                         </div>
@@ -248,7 +248,7 @@ export default function MatchmakingPage() {
                             </Button>
                          ) : (
                             <Button variant="default" size="icon" className="h-14 w-14 rounded-full bg-blue-500 hover:bg-blue-600 text-white" onClick={() => handleLike(selectedPlayer)}>
-                                <Heart className="h-7 w-7"/>
+                                <Swords className="h-7 w-7"/>
                             </Button>
                          )}
                     </div>
