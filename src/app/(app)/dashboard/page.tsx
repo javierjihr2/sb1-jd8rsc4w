@@ -34,7 +34,7 @@ import {
 } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { playerProfile, feedPosts as initialFeedPosts, newsArticles, tournaments } from "@/lib/data"
+import { playerProfile, feedPosts as initialFeedPosts, tournaments, newsArticles } from "@/lib/data"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/hooks/use-toast"
 import type { FeedPost } from "@/lib/types"
@@ -281,5 +281,3 @@ export default function DashboardPage() {
     </div>
   )
 }
-
-    

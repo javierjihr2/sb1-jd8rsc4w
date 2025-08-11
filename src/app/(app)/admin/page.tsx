@@ -24,7 +24,7 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
 import { Code, UserPlus, Newspaper, Check, X, Users, Swords, PlusCircle, Pencil, Trash2, LayoutDashboard, Settings, DollarSign, BarChart, BellRing, Wrench, Link as LinkIcon, KeyRound, RefreshCw, Briefcase, Star, CheckCircle, Banknote, Flag, Calendar as CalendarIcon, Clock, Info, Map, Video, ShieldAlert, FileText, Lightbulb, ChevronDown } from "lucide-react"
-import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles, friendsForComparison as initialUsers, rechargeProviders, developers, services as initialServices, creators, bankAccounts, initialTransactions, addTournament, tournaments, updateTournament, mapOptions, registeredTeams, updateRegistrationStatus, addApprovedRegistration, reserveTeams, playerProfile, tournamentMessageTemplate as globalTournamentMessageTemplate } from "@/lib/data"
+import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles as initialNewsArticles, friendsForComparison as initialUsers, rechargeProviders, developers, services as initialServices, creators, bankAccounts, initialTransactions, addTournament, tournaments, updateTournament, mapOptions, registeredTeams, updateRegistrationStatus, addApprovedRegistration, reserveTeams, playerProfile, tournamentMessageTemplate as globalTournamentMessageTemplate } from "@/lib/data"
 import type { RegistrationRequest, Tournament, NewsArticle, Service, UserWithRole, BankAccount, Transaction, Team } from "@/lib/types"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -48,6 +48,7 @@ export default function AdminPage() {
   const [services, setServices] = useState<Service[]>(initialServices);
   const [users, setUsers] = useState<UserWithRole[]>(initialUsers);
   const [transactions, setTransactions] = useState<Transaction[]>(initialTransactions);
+  const [newsArticles, setNewsArticles] = useState<NewsArticle[]>(initialNewsArticles);
   
   // State for the new service form
   const [serviceTitle, setServiceTitle] = useState("");
@@ -81,10 +82,21 @@ export default function AdminPage() {
 
   const handleCreateArticle = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    const formData = new FormData(event.currentTarget);
+    const newArticle: NewsArticle = {
+        id: `news${newsArticles.length + 1}`,
+        title: formData.get('article-title') as string,
+        summary: formData.get('article-summary') as string,
+        category: formData.get('article-category') as string,
+        date: new Date().toISOString().split('T')[0],
+        imageUrl: 'https://placehold.co/800x400.png',
+    };
+    setNewsArticles(prev => [newArticle, ...prev]);
     toast({
       title: "Artículo Creado",
       description: "El nuevo artículo de noticias ha sido publicado.",
-    })
+    });
+    (event.target as HTMLFormElement).reset();
   }
   
   const handleTournamentSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -1155,23 +1167,23 @@ export default function AdminPage() {
                         <CardContent className="grid gap-4">
                             <div className="space-y-2">
                             <Label htmlFor="article-title">Título</Label>
-                            <Input id="article-title" placeholder="Ej: Nueva Actualización 3.4" required />
+                            <Input name="article-title" id="article-title" placeholder="Ej: Nueva Actualización 3.4" required />
                             </div>
                             <div className="space-y-2">
                             <Label htmlFor="article-summary">Resumen</Label>
-                            <Textarea id="article-summary" placeholder="Un breve resumen del artículo..." required />
+                            <Textarea name="article-summary" id="article-summary" placeholder="Un breve resumen del artículo..." required />
                             </div>
                             <div className="space-y-2">
                             <Label htmlFor="article-category">Categoría</Label>
-                            <Select required>
+                            <Select name="article-category" required>
                                 <SelectTrigger id="article-category">
                                     <SelectValue placeholder="Selecciona una categoría" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem key="updates" value="updates">Actualizaciones</SelectItem>
-                                    <SelectItem key="events" value="events">Eventos</SelectItem>
-                                    <SelectItem key="esports" value="esports">eSports</SelectItem>
-                                    <SelectItem key="guides" value="guides">Guías</SelectItem>
+                                    <SelectItem value="updates">Actualizaciones</SelectItem>
+                                    <SelectItem value="events">Eventos</SelectItem>
+                                    <SelectItem value="esports">eSports</SelectItem>
+                                    <SelectItem value="guides">Guías</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
@@ -1257,20 +1269,20 @@ export default function AdminPage() {
                                     Usa estas etiquetas en tu plantilla. Serán reemplazadas por los datos reales del torneo:
                                 </p>
                                 <code className="text-xs grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-4 gap-y-1 mt-2">
-                                    <span>{'{{header}}'}</span>
-                                    <span>{'{{organizerName}}'}</span>
-                                    <span>{'{{tournamentName}}'}</span>
-                                    <span>{'{{date}}'}</span>
-                                    <span>{'{{startTime}}'}</span>
-                                    <span>{'{{timeZoneFlag}}'}</span>
-                                    <span>{'{{infoSendText}}'}</span>
-                                    <span>{'{{maxWithdrawalText}}'}</span>
-                                    <span>{'{{mapsList}}'}</span>
-                                    <span>{'{{slotsList}}'}</span>
-                                    <span>{'{{registeredCount}}'}</span>
-                                    <span>{'{{maxSlots}}'}</span>
-                                    <span>{'{{reserveText}}'}</span>
-                                    <span>{'{{streamLink}}'}</span>
+                                    <span>{'{'}{'{'}header{'}'}{'}'}</span>
+                                    <span>{'{'}{'{'}organizerName{'}'}{'}'}</span>
+                                    <span>{'{'}{'{'}tournamentName{'}'}{'}'}</span>
+                                    <span>{'{'}{'{'}date{'}'}{'}'}</span>
+                                    <span>{'{'}{'{'}startTime{'}'}{'}'}</span>
+                                    <span>{'{'}{'{'}timeZoneFlag{'}'}{'}'}</span>
+                                    <span>{'{'}{'{'}infoSendText{'}'}{'}'}</span>
+                                    <span>{'{'}{'{'}maxWithdrawalText{'}'}{'}'}</span>
+                                    <span>{'{'}{'{'}mapsList{'}'}{'}'}</span>
+                                    <span>{'{'}{'{'}slotsList{'}'}{'}'}</span>
+                                    <span>{'{'}{'{'}registeredCount{'}'}{'}'}</span>
+                                    <span>{'{'}{'{'}maxSlots{'}'}{'}'}</span>
+                                    <span>{'{'}{'{'}reserveText{'}'}{'}'}</span>
+                                    <span>{'{'}{'{'}streamLink{'}'}{'}'}</span>
                                 </code>
                             </div>
                         </div>

@@ -1,4 +1,5 @@
 
+
 import type { PlayerProfile, Tournament, Chat, NewsArticle, Team, RegistrationRequest, FeedPost, RechargeProvider, Developer, Service, UserWithRole, BankAccount, Transaction, ApprovedRegistration } from './types';
 import type { PlayerProfileInput } from '@/ai/schemas';
 
@@ -17,6 +18,7 @@ export const playerProfile: PlayerProfile = {
     kdRatio: 4.8,
   },
   role: 'Admin', // El admin también puede ser creador
+  location: { lat: 19.4326, lon: -99.1332 }, // Mexico City
 };
 
 export const mapOptions = [
@@ -182,43 +184,16 @@ export const recentChats: Chat[] = [
   },
 ];
 
+// Función para añadir un chat nuevo (simulación)
+export const addChat = (newChat: Chat) => {
+    // Evita añadir un chat duplicado
+    if (!recentChats.some(chat => chat.name === newChat.name)) {
+        recentChats.unshift(newChat);
+    }
+};
 
-export const newsArticles: NewsArticle[] = [
-  {
-    id: 'n1',
-    title: 'Actualización de Versión 3.3',
-    summary: 'La nueva actualización trae consigo un nuevo modo de juego, mejoras en el mapa Erangel y nuevas skins de armas. ¡Descubre todo lo nuevo!',
-    date: '2024-07-28',
-    imageUrl: 'https://placehold.co/600x400.png',
-    category: 'Actualizaciones',
-  },
-  {
-    id: 'n2',
-    title: 'Colaboración con Súper-Deportivo',
-    summary: '¡Velocidad y adrenalina! Descubre los nuevos vehículos y skins de la colaboración exclusiva que llega a los campos de batalla.',
-    date: '2024-07-25',
-    imageUrl: 'https://placehold.co/600x400.png',
-    category: 'Eventos',
-  },
-  {
-    id: 'n3',
-    title: 'Guía del PMGC 2024',
-    summary: 'No te pierdas ni un detalle del torneo más grande del año. Conoce los equipos, horarios y cómo ver las partidas en vivo.',
-    date: '2024-07-22',
-    imageUrl: 'https://placehold.co/600x400.png',
-    category: 'eSports',
-  },
-   {
-    id: 'n4',
-    title: 'Nuevo Pase Royale A5',
-    summary: 'El nuevo Pase Royale trae recompensas exclusivas, trajes míticos y un nuevo personaje. ¡Completa las misiones y súbelo al máximo!',
-    date: '2024-07-20',
-    imageUrl: 'https://placehold.co/600x400.png',
-    category: 'Actualizaciones',
-  },
-];
 
-const baseFriends: PlayerProfileInput[] = [
+const baseFriends: (Omit<PlayerProfileInput, 'location'> & {location: {lat: number, lon: number}})[] = [
     {
       id: 'p1',
       name: 'Player1_Pro',
@@ -229,7 +204,8 @@ const baseFriends: PlayerProfileInput[] = [
       favoriteWeapons: ['M416', 'Kar98k'],
       playSchedule: 'Noches (20:00 - 00:00)',
       favoriteMap: 'erangel',
-      bio: 'Busco dúo para llegar a Conquistador. Activo principalmente por las noches.'
+      bio: 'Busco dúo para llegar a Conquistador. Activo principalmente por las noches.',
+      location: { lat: 19.4326, lon: -99.1332 }, // Mexico City
     },
     {
       id: 'c2',
@@ -241,7 +217,8 @@ const baseFriends: PlayerProfileInput[] = [
       favoriteWeapons: ['AKM', 'SKS'],
       playSchedule: 'Fines de semana',
       favoriteMap: 'sanhok',
-      bio: 'Jugador agresivo, amante de Sanhok. Busco gente para rushear sin miedo.'
+      bio: 'Jugador agresivo, amante de Sanhok. Busco gente para rushear sin miedo.',
+      location: { lat: 4.7110, lon: -74.0721 }, // Bogotá
     },
     {
       id: 'c3',
@@ -253,7 +230,8 @@ const baseFriends: PlayerProfileInput[] = [
       favoriteWeapons: ['UMP45', 'M24'],
       playSchedule: 'Tardes (16:00 - 19:00)',
       favoriteMap: 'miramar',
-      bio: 'Francotirador paciente. Me gusta controlar zonas y jugar táctico en Miramar.'
+      bio: 'Francotirador paciente. Me gusta controlar zonas y jugar táctico en Miramar.',
+      location: { lat: 34.0522, lon: -118.2437 }, // Los Angeles
     },
     {
       id: 'c4',
@@ -265,14 +243,15 @@ const baseFriends: PlayerProfileInput[] = [
       favoriteWeapons: ['DP-28', 'Vector'],
       playSchedule: 'Variable',
       favoriteMap: 'erangel',
-      bio: 'Juego por diversión pero me gusta ganar. Abierta a cualquier modo de juego.'
+      bio: 'Juego por diversión pero me gusta ganar. Abierta a cualquier modo de juego.',
+      location: { lat: -23.5505, lon: -46.6333 }, // São Paulo
     },
-     { id: 'f1', name: 'GamerX_Treme', avatarUrl: 'https://placehold.co/40x40/FF6347/FFFFFF.png', rank: 'Platino II', countryCode: 'CA', stats: { wins: 30, kills: 600, kdRatio: 2.5 }, favoriteWeapons: ['SCAR-L', 'UMP45'], playSchedule: 'Noches', favoriteMap: 'sanhok', bio: 'Mejorando cada día. Busco gente para subir de rango juntos.'},
-     { id: 'f2', name: 'ProSlayer_99', avatarUrl: 'https://placehold.co/40x40/4682B4/FFFFFF.png', rank: 'Diamante V', countryCode: 'AR', stats: { wins: 55, kills: 1100, kdRatio: 2.9 }, favoriteWeapons: ['M762', 'Mini14'], playSchedule: 'Fines de semana', favoriteMap: 'miramar', bio: 'Conductor experto y buen support. ¡Vamos por esos Chicken Dinners!'},
+     { id: 'f1', name: 'GamerX_Treme', avatarUrl: 'https://placehold.co/40x40/FF6347/FFFFFF.png', rank: 'Platino II', countryCode: 'CA', stats: { wins: 30, kills: 600, kdRatio: 2.5 }, favoriteWeapons: ['SCAR-L', 'UMP45'], playSchedule: 'Noches', favoriteMap: 'sanhok', bio: 'Mejorando cada día. Busco gente para subir de rango juntos.', location: { lat: 45.4215, lon: -75.6972 } }, // Ottawa
+     { id: 'f2', name: 'ProSlayer_99', avatarUrl: 'https://placehold.co/40x40/4682B4/FFFFFF.png', rank: 'Diamante V', countryCode: 'AR', stats: { wins: 55, kills: 1100, kdRatio: 2.9 }, favoriteWeapons: ['M762', 'Mini14'], playSchedule: 'Fines de semana', favoriteMap: 'miramar', bio: 'Conductor experto y buen support. ¡Vamos por esos Chicken Dinners!', location: { lat: -34.6037, lon: -58.3816 } }, // Buenos Aires
 ];
 
 
-export const friendsForComparison: (PlayerProfileInput & { favoriteMap: string, bio: string, role: 'Jugador' | 'Creador' | 'Admin' })[] = baseFriends.map((friend, index) => {
+export const friendsForComparison: (PlayerProfileInput & { favoriteMap: string, bio: string, role: 'Jugador' | 'Creador' | 'Admin', location: { lat: number, lon: number } })[] = baseFriends.map((friend) => {
     let role: 'Jugador' | 'Creador' | 'Admin' = 'Jugador';
     if (friend.id === 'p1') role = 'Admin';
     if (['c2', 'c3'].includes(friend.id)) role = 'Creador';
@@ -339,6 +318,34 @@ export const initialRegistrationRequests: RegistrationRequest[] = [
     ]
   }
 ];
+
+export const newsArticles: NewsArticle[] = [
+  {
+    id: 'news1',
+    title: 'Nueva Actualización 3.4: Modo Dinosaurio',
+    summary: 'La última actualización trae un nuevo y emocionante modo de juego con dinosaurios. ¡Descubre todos los detalles y prepárate para la batalla prehistórica!',
+    date: '2024-07-28',
+    imageUrl: 'https://placehold.co/1200x400.png',
+    category: 'Actualizaciones',
+  },
+  {
+    id: 'news2',
+    title: 'Finales de la PMGC: ¡No te lo pierdas!',
+    summary: 'Los mejores equipos del mundo compiten por el título de campeón mundial. Sigue la transmisión en vivo este fin de semana.',
+    date: '2024-07-27',
+    imageUrl: 'https://placehold.co/1200x400.png',
+    category: 'eSports',
+  },
+  {
+    id: 'news3',
+    title: 'Guía Completa del Mapa Rondo',
+    summary: 'Domina cada rincón del nuevo mapa Rondo con nuestra guía completa. Descubre los mejores lugares para aterrizar, lootear y asegurar la victoria.',
+    date: '2024-07-26',
+    imageUrl: 'https://placehold.co/1200x400.png',
+    category: 'Guías',
+  }
+];
+
 
 export const feedPosts: FeedPost[] = [
   {

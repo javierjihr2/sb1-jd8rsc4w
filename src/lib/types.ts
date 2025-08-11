@@ -1,4 +1,5 @@
 
+
 import type { PlayerProfileInput as PlayerProfileInputSchema } from '@/ai/schemas';
 
 export type PlayerProfile = {
@@ -16,6 +17,10 @@ export type PlayerProfile = {
     kdRatio: number;
   };
   role: 'Jugador' | 'Creador' | 'Admin';
+  location: {
+      lat: number;
+      lon: number;
+  }
 };
 
 // Re-exporting this type for use in data.ts without circular dependency issues with AI schemas.
@@ -23,6 +28,10 @@ export type PlayerProfileInput = PlayerProfileInputSchema & {
   favoriteMap: string;
   bio: string;
   countryCode: string;
+  location: {
+      lat: number;
+      lon: number;
+  }
 };
 
 export type UserWithRole = PlayerProfileInput & {
