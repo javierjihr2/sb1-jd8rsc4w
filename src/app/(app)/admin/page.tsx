@@ -52,9 +52,11 @@ export default function AdminPage() {
   
   // State for the new service form
   const [serviceTitle, setServiceTitle] = useState("");
+  const [customServiceTitle, setCustomServiceTitle] = useState("");
   const [creatorId, setCreatorId] = useState("");
   const [price, setPrice] = useState<string>("");
   const [voluntaryOptions, setVoluntaryOptions] = useState<Set<string>>(new Set());
+  const finalServiceTitle = serviceTitle === 'Otro...' ? customServiceTitle : serviceTitle;
 
   // State for finance withdrawal
   const [withdrawalAmount, setWithdrawalAmount] = useState<number | string>('');
@@ -189,13 +191,17 @@ export default function AdminPage() {
         });
         return;
     }
+     if (!finalServiceTitle) {
+        toast({ variant: "destructive", title: "Campos Incompletos", description: "Por favor, completa el título del servicio." });
+        return;
+    }
 
     const newService: Service = {
         id: `s${services.length + 1}`,
         creatorId: selectedCreator.id,
         creatorName: selectedCreator.name,
         uid: formData.get('s-uid') as string,
-        serviceTitle: serviceTitle,
+        serviceTitle: finalServiceTitle,
         description: formData.get('s-description') as string,
         price: parseFloat(price) || 0,
         voluntaryOptions: price === "0" ? Array.from(voluntaryOptions) : [],
@@ -213,6 +219,7 @@ export default function AdminPage() {
     // Reset form state
     (event.target as HTMLFormElement).reset();
     setServiceTitle("");
+    setCustomServiceTitle("");
     setCreatorId("");
     setPrice("");
     setVoluntaryOptions(new Set());
@@ -967,9 +974,25 @@ export default function AdminPage() {
                                             <SelectItem value="Optimización de Sensibilidad y Controles (HUD)">Optimización de Sensibilidad y Controles (HUD)</SelectItem>
                                             <SelectItem value="Entrenamiento de Rotaciones y Posicionamiento">Entrenamiento de Rotaciones y Posicionamiento</SelectItem>
                                             <SelectItem value="Gestión y Creación de Equipos de Torneo">Gestión y Creación de Equipos de Torneo</SelectItem>
+                                            <SelectItem value="Entrenamiento para Rol de Soporte">Entrenamiento para Rol de Soporte</SelectItem>
+                                            <SelectItem value="Entrenamiento para Rol de Francotirador">Entrenamiento para Rol de Francotirador</SelectItem>
+                                            <SelectItem value="Guía de Mapas y Zonas de Caída">Guía de Mapas y Zonas de Caída</SelectItem>
+                                            <SelectItem value="Otro...">Otro...</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
+                                 {serviceTitle === 'Otro...' && (
+                                    <div className="space-y-2 animate-in fade-in-50">
+                                        <Label htmlFor="s-customServiceTitle">Título Personalizado</Label>
+                                        <Input 
+                                            id="s-customServiceTitle"
+                                            value={customServiceTitle}
+                                            onChange={(e) => setCustomServiceTitle(e.target.value)}
+                                            placeholder="Ej: Creación de contenido para tu team"
+                                            required
+                                        />
+                                    </div>
+                                )}
                                 <div className="space-y-2">
                                     <Label htmlFor="s-description">Descripción</Label>
                                     <Textarea id="s-description" name="s-description" placeholder="Describe el servicio en detalle..." required />

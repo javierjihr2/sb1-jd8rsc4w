@@ -39,6 +39,7 @@ export default function CreatorHubPage() {
   );
 
   const [serviceTitle, setServiceTitle] = useState("");
+  const [customServiceTitle, setCustomServiceTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState<string>("");
   const [voluntaryOptions, setVoluntaryOptions] = useState<Set<string>>(new Set());
@@ -49,11 +50,12 @@ export default function CreatorHubPage() {
   const [transactions, setTransactions] = useState<Transaction[]>(initialTransactions.filter(t => t.type === 'Ingreso')); // Creator only sees income
   const currentBalance = transactions.reduce((acc, t) => acc + t.amount, 0);
 
+  const finalServiceTitle = serviceTitle === 'Otro...' ? customServiceTitle : serviceTitle;
 
   const handleCreateService = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!serviceTitle || !description) {
+    if (!finalServiceTitle || !description) {
         toast({ variant: "destructive", title: "Campos Incompletos", description: "Por favor, completa todos los campos requeridos." });
         return;
     }
@@ -64,7 +66,7 @@ export default function CreatorHubPage() {
       creatorName: playerProfile.name,
       avatarUrl: playerProfile.avatarUrl,
       uid: playerProfile.id,
-      serviceTitle: serviceTitle,
+      serviceTitle: finalServiceTitle,
       description: description,
       price: parseFloat(price) || 0,
       voluntaryOptions: price === "0" ? Array.from(voluntaryOptions) : [],
@@ -82,6 +84,7 @@ export default function CreatorHubPage() {
 
     (event.target as HTMLFormElement).reset();
     setServiceTitle("");
+    setCustomServiceTitle("");
     setDescription("");
     setPrice("");
     setVoluntaryOptions(new Set());
@@ -161,7 +164,7 @@ export default function CreatorHubPage() {
                   </CardHeader>
                   <CardContent>
                       <Button asChild>
-                          <Link href="/creator-application">Aplica para ser Creador</Link>
+                          <a href="/creator-application">Aplica para ser Creador</a>
                       </Button>
                   </CardContent>
               </Card>
@@ -263,17 +266,33 @@ export default function CreatorHubPage() {
                             <SelectValue placeholder="Selecciona un tipo de servicio" />
                             </SelectTrigger>
                             <SelectContent>
-                            <SelectItem value="Coaching de Puntería y Estrategia">Coaching de Puntería y Estrategia</SelectItem>
-                            <SelectItem value="Compañero Profesional para Dúos/Squads">Compañero Profesional para Dúos/Squads</SelectItem>
-                            <SelectItem value="Análisis de Partidas de Torneo">Análisis de Partidas de Torneo</SelectItem>
-                            <SelectItem value="IGL (In-Game Leader) para tu Squad">IGL (In-Game Leader) para tu Squad</SelectItem>
-                            <SelectItem value="Entrenamiento de Control de Retroceso (Recoil)">Entrenamiento de Control de Retroceso (Recoil)</SelectItem>
-                            <SelectItem value="Optimización de Sensibilidad y Controles (HUD)">Optimización de Sensibilidad y Controles (HUD)</SelectItem>
-                            <SelectItem value="Entrenamiento de Rotaciones y Posicionamiento">Entrenamiento de Rotaciones y Posicionamiento</SelectItem>
-                            <SelectItem value="Gestión y Creación de Equipos de Torneo">Gestión y Creación de Equipos de Torneo</SelectItem>
+                                <SelectItem value="Coaching de Puntería y Estrategia">Coaching de Puntería y Estrategia</SelectItem>
+                                <SelectItem value="Compañero Profesional para Dúos/Squads">Compañero Profesional para Dúos/Squads</SelectItem>
+                                <SelectItem value="Análisis de Partidas de Torneo">Análisis de Partidas de Torneo</SelectItem>
+                                <SelectItem value="IGL (In-Game Leader) para tu Squad">IGL (In-Game Leader) para tu Squad</SelectItem>
+                                <SelectItem value="Entrenamiento de Control de Retroceso (Recoil)">Entrenamiento de Control de Retroceso (Recoil)</SelectItem>
+                                <SelectItem value="Optimización de Sensibilidad y Controles (HUD)">Optimización de Sensibilidad y Controles (HUD)</SelectItem>
+                                <SelectItem value="Entrenamiento de Rotaciones y Posicionamiento">Entrenamiento de Rotaciones y Posicionamiento</SelectItem>
+                                <SelectItem value="Gestión y Creación de Equipos de Torneo">Gestión y Creación de Equipos de Torneo</SelectItem>
+                                <SelectItem value="Entrenamiento para Rol de Soporte">Entrenamiento para Rol de Soporte</SelectItem>
+                                <SelectItem value="Entrenamiento para Rol de Francotirador">Entrenamiento para Rol de Francotirador</SelectItem>
+                                <SelectItem value="Guía de Mapas y Zonas de Caída">Guía de Mapas y Zonas de Caída</SelectItem>
+                                <SelectItem value="Otro...">Otro...</SelectItem>
                             </SelectContent>
                         </Select>
                         </div>
+                        {serviceTitle === 'Otro...' && (
+                            <div className="space-y-2 animate-in fade-in-50">
+                                <Label htmlFor="s-customServiceTitle">Título Personalizado</Label>
+                                <Input 
+                                    id="s-customServiceTitle"
+                                    value={customServiceTitle}
+                                    onChange={(e) => setCustomServiceTitle(e.target.value)}
+                                    placeholder="Ej: Creación de contenido para tu team"
+                                    required
+                                />
+                            </div>
+                        )}
                         <div className="space-y-2">
                         <Label htmlFor="s-description">Descripción Detallada</Label>
                         <Textarea
