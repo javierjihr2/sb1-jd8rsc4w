@@ -1269,20 +1269,20 @@ export default function AdminPage() {
                                     Usa estas etiquetas en tu plantilla. Serán reemplazadas por los datos reales del torneo:
                                 </p>
                                 <code className="text-xs grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-4 gap-y-1 mt-2">
-                                    <span>{'{'}{'{'}header{'}'}{'}'}</span>
-                                    <span>{'{'}{'{'}organizerName{'}'}{'}'}</span>
-                                    <span>{'{'}{'{'}tournamentName{'}'}{'}'}</span>
-                                    <span>{'{'}{'{'}date{'}'}{'}'}</span>
-                                    <span>{'{'}{'{'}startTime{'}'}{'}'}</span>
-                                    <span>{'{'}{'{'}timeZoneFlag{'}'}{'}'}</span>
-                                    <span>{'{'}{'{'}infoSendText{'}'}{'}'}</span>
-                                    <span>{'{'}{'{'}maxWithdrawalText{'}'}{'}'}</span>
-                                    <span>{'{'}{'{'}mapsList{'}'}{'}'}</span>
-                                    <span>{'{'}{'{'}slotsList{'}'}{'}'}</span>
-                                    <span>{'{'}{'{'}registeredCount{'}'}{'}'}</span>
-                                    <span>{'{'}{'{'}maxSlots{'}'}{'}'}</span>
-                                    <span>{'{'}{'{'}reserveText{'}'}{'}'}</span>
-                                    <span>{'{'}{'{'}streamLink{'}'}{'}'}</span>
+                                    <span>{'{{header}}'}</span>
+                                    <span>{'{{organizerName}}'}</span>
+                                    <span>{'{{tournamentName}}'}</span>
+                                    <span>{'{{date}}'}</span>
+                                    <span>{'{{startTime}}'}</span>
+                                    <span>{'{{timeZoneFlag}}'}</span>
+                                    <span>{'{{infoSendText}}'}</span>
+                                    <span>{'{{maxWithdrawalText}}'}</span>
+                                    <span>{'{{mapsList}}'}</span>
+                                    <span>{'{{slotsList}}'}</span>
+                                    <span>{'{{registeredCount}}'}</span>
+                                    <span>{'{{maxSlots}}'}</span>
+                                    <span>{'{{reserveText}}'}</span>
+                                    <span>{'{{streamLink}}'}</span>
                                 </code>
                             </div>
                         </div>

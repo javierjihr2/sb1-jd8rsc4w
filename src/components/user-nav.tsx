@@ -67,7 +67,7 @@ export function UserNav() {
             <Settings className="mr-2 h-4 w-4" />
             <span>Ajustes</span>
           </DropdownMenuItem>
-          {playerProfile.isAdmin && (
+          {playerProfile.role === 'Admin' && (
             <DropdownMenuItem asChild>
               <Link href="/admin">
                 <ShieldCheck className="mr-2 h-4 w-4" />
