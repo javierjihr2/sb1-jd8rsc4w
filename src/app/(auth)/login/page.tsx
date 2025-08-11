@@ -1,4 +1,5 @@
 
+
 "use client"
 
 import { useState } from "react"
@@ -29,6 +30,7 @@ import { useToast } from "@/hooks/use-toast"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Terminal, KeyRound, Shield } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import Link from "next/link"
 
 const GoogleIcon = () => (
     <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
@@ -223,8 +225,25 @@ export default function LoginPage() {
                     </Select>
                 </div>
                 </CardContent>
-                <CardFooter>
+                <CardFooter className="flex-col items-start gap-4">
                 <Button className="w-full" onClick={() => handleAuthAction("register")}>Crear Cuenta</Button>
+                 <p className="px-8 text-center text-sm text-muted-foreground">
+                    Al hacer clic en continuar, aceptas nuestros{" "}
+                    <Link
+                        href="#"
+                        className="underline underline-offset-4 hover:text-primary"
+                    >
+                        Términos de Servicio
+                    </Link>{" "}
+                    y{" "}
+                    <Link
+                        href="#"
+                        className="underline underline-offset-4 hover:text-primary"
+                    >
+                        Política de Privacidad
+                    </Link>
+                    .
+                </p>
                 </CardFooter>
             </Card>
         </TabsContent>
@@ -288,5 +307,3 @@ export default function LoginPage() {
     </div>
   )
 }
-
-    

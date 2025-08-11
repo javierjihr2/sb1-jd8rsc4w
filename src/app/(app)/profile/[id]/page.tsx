@@ -9,11 +9,23 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { friendsForComparison } from "@/lib/data"
-import { FileCode, Bot, Gamepad2, Brain, Crosshair, ClipboardCopy, QrCode, Medal } from "lucide-react"
+import { FileCode, Bot, Gamepad2, Brain, Crosshair, ClipboardCopy, QrCode, Medal, AlertTriangle } from "lucide-react"
 import { useToast } from "@/hooks/use-toast";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import Image from "next/image"
 import { cn } from '@/lib/utils';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+
 
 // Datos de ejemplo para sensibilidades públicas. En una app real, esto vendría de una base de datos.
 const publicSensitivities: any = {
@@ -47,6 +59,13 @@ export default function PublicProfilePage({ params }: { params: { id: string } }
         navigator.clipboard.writeText(code);
         toast({ title: 'Copiado', description: 'Código de sensibilidad copiado a tu portapapeles.' });
     };
+
+    const handleReportUser = () => {
+        toast({
+            title: "Usuario Reportado",
+            description: `Gracias por tu reporte. Nuestro equipo de moderación revisará el perfil de ${player.name}.`
+        })
+    }
 
     const isCreator = player.role === 'Creador' || player.role === 'Admin';
 
@@ -85,6 +104,26 @@ export default function PublicProfilePage({ params }: { params: { id: string } }
                                 <p className="text-muted-foreground">ID: {player.id}</p>
                                 <p className="text-sm text-muted-foreground mt-2 max-w-prose">{player.bio}</p>
                             </div>
+                             <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                     <Button variant="outline" size="sm" className="w-full sm:w-auto">
+                                        <AlertTriangle className="mr-2 h-4 w-4"/>
+                                        Reportar Usuario
+                                    </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                    <AlertDialogTitle>¿Estás seguro de que quieres reportar a {player.name}?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        Si este usuario está violando las normas de la comunidad (usando lenguaje ofensivo, haciendo trampa, etc.), por favor repórtalo. Tu reporte es anónimo y será revisado por nuestro equipo de moderación.
+                                    </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                    <AlertDialogAction onClick={handleReportUser} className="bg-destructive hover:bg-destructive/90">Sí, reportar</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                                </AlertDialog>
                         </div>
                     </CardContent>
                 </Card>
