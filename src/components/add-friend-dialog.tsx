@@ -1,4 +1,5 @@
 
+
 "use client"
 
 import { Button } from "@/components/ui/button"
@@ -95,26 +96,26 @@ export function AddFriendDialog({ children, triggerButton, isFilterDialog = fals
                             <SelectValue placeholder="Cualquier País" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="ar">Argentina</SelectItem>
-                            <SelectItem value="bo">Bolivia</SelectItem>
-                            <SelectItem value="br">Brasil</SelectItem>
-                            <SelectItem value="ca">Canadá</SelectItem>
-                            <SelectItem value="cl">Chile</SelectItem>
-                            <SelectItem value="co">Colombia</SelectItem>
-                            <SelectItem value="cr">Costa Rica</SelectItem>
-                            <SelectItem value="ec">Ecuador</SelectItem>
-                            <SelectItem value="sv">El Salvador</SelectItem>
-                            <SelectItem value="us">Estados Unidos</SelectItem>
-                            <SelectItem value="gt">Guatemala</SelectItem>
-                            <SelectItem value="hn">Honduras</SelectItem>
-                            <SelectItem value="mx">México</SelectItem>
-                            <SelectItem value="pa">Panamá</SelectItem>
-                            <SelectItem value="py">Paraguay</SelectItem>
-                            <SelectItem value="pe">Perú</SelectItem>
-                            <SelectItem value="pr">Puerto Rico</SelectItem>
-                            <SelectItem value="do">República Dominicana</SelectItem>
-                            <SelectItem value="uy">Uruguay</SelectItem>
-                            <SelectItem value="ve">Venezuela</SelectItem>
+                            <SelectItem value="AR">Argentina</SelectItem>
+                            <SelectItem value="BO">Bolivia</SelectItem>
+                            <SelectItem value="BR">Brasil</SelectItem>
+                            <SelectItem value="CA">Canadá</SelectItem>
+                            <SelectItem value="CL">Chile</SelectItem>
+                            <SelectItem value="CO">Colombia</SelectItem>
+                            <SelectItem value="CR">Costa Rica</SelectItem>
+                            <SelectItem value="EC">Ecuador</SelectItem>
+                            <SelectItem value="SV">El Salvador</SelectItem>
+                            <SelectItem value="US">Estados Unidos</SelectItem>
+                            <SelectItem value="GT">Guatemala</SelectItem>
+                            <SelectItem value="HN">Honduras</SelectItem>
+                            <SelectItem value="MX">México</SelectItem>
+                            <SelectItem value="PA">Panamá</SelectItem>
+                            <SelectItem value="PY">Paraguay</SelectItem>
+                            <SelectItem value="PE">Perú</SelectItem>
+                            <SelectItem value="PR">Puerto Rico</SelectItem>
+                            <SelectItem value="DO">República Dominicana</SelectItem>
+                            <SelectItem value="UY">Uruguay</SelectItem>
+                            <SelectItem value="VE">Venezuela</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
