@@ -241,5 +241,3 @@ export const DecodedSensitivitySchema = z.object({
   isPublic: z.boolean().optional().describe("Si la sensibilidad debe ser visible para otros jugadores."),
 });
 export type DecodedSensitivity = z.infer<typeof DecodedSensitivitySchema>;
-
-    
