@@ -479,11 +479,16 @@ export const services: Service[] = [
 export const creators = friendsForComparison.filter(f => f.role === 'Creador' || f.role === 'Admin').map(f => ({ id: f.id, name: f.name }));
     
 // Finance data
-export const bankAccounts: BankAccount[] = [
-    { id: 'ba1', bankName: 'Banco Regional', accountNumber: '...1234' },
-    { id: 'ba2', bankName: 'Metro Bank', accountNumber: '...5678' },
-    { id: 'ba3', bankName: 'Payoneer', accountNumber: 'admin@squadup.com' },
+export let adminBankAccounts: BankAccount[] = [
+    { id: 'ba1', bankName: 'Banco Regional', accountNumber: '...1234', holderName: 'SquadUp Corp', country: 'US' },
+    { id: 'ba2', bankName: 'Metro Bank', accountNumber: '...5678', holderName: 'SquadUp Corp', country: 'US' },
+    { id: 'ba3', bankName: 'Payoneer', accountNumber: 'admin@squadup.com', holderName: 'SquadUp Corp', country: 'US' },
 ];
+
+export let creatorBankAccounts: BankAccount[] = [
+    { id: 'cba1', bankName: 'Mi Banco Local', accountNumber: '...9876', holderName: playerProfile.name, country: 'MX' },
+];
+
 
 export const initialTransactions: Transaction[] = [
     { id: 'txn1', date: '2024-07-28', description: 'Suscripción Creador Pro - Ninja_Dude', amount: 4.99, type: 'Ingreso' },
@@ -491,4 +496,3 @@ export const initialTransactions: Transaction[] = [
     { id: 'txn3', date: '2024-07-25', description: 'Suscripción Creador Básico - Phoenix_Queen', amount: 2.99, type: 'Ingreso' },
 ];
 
-    

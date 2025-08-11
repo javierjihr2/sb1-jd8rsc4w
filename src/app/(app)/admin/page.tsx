@@ -24,7 +24,7 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
 import { Code, UserPlus, Newspaper, Check, X, Users, Swords, PlusCircle, Pencil, Trash2, LayoutDashboard, Settings, DollarSign, BarChart, BellRing, Wrench, Link as LinkIcon, KeyRound, RefreshCw, Briefcase, Star, CheckCircle, Banknote, Flag, Calendar as CalendarIcon, Clock, Info, Map, Video, ShieldAlert, FileText, Lightbulb, ChevronDown } from "lucide-react"
-import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles as initialNewsArticles, friendsForComparison as initialUsers, rechargeProviders, developers, services as initialServices, creators, bankAccounts, initialTransactions, addTournament, tournaments, updateTournament, mapOptions, registeredTeams, updateRegistrationStatus, addApprovedRegistration, reserveTeams, playerProfile, tournamentMessageTemplate as globalTournamentMessageTemplate } from "@/lib/data"
+import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles as initialNewsArticles, friendsForComparison as initialUsers, rechargeProviders, developers, services as initialServices, creators, adminBankAccounts, initialTransactions, addTournament, tournaments, updateTournament, mapOptions, registeredTeams, updateRegistrationStatus, addApprovedRegistration, reserveTeams, playerProfile, tournamentMessageTemplate as globalTournamentMessageTemplate } from "@/lib/data"
 import type { RegistrationRequest, Tournament, NewsArticle, Service, UserWithRole, BankAccount, Transaction, Team } from "@/lib/types"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -59,6 +59,8 @@ export default function AdminPage() {
   const finalServiceTitle = serviceTitle === 'Otro...' ? customServiceTitle : serviceTitle;
 
   // State for finance withdrawal
+  const [bankAccounts, setBankAccounts] = useState<BankAccount[]>(adminBankAccounts);
+  const [isAddAccountOpen, setIsAddAccountOpen] = useState(false);
   const [withdrawalAmount, setWithdrawalAmount] = useState<number | string>('');
   const [selectedAccount, setSelectedAccount] = useState<string>('');
   const currentBalance = transactions.reduce((acc, t) => acc + t.amount, 0);
@@ -298,6 +300,21 @@ export default function AdminPage() {
         toast({ title: `Solicitud Rechazada`, description: `El equipo ${request.teamName} ha sido rechazado.` });
     }
   }
+
+  const handleAddAccount = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const newAccount: BankAccount = {
+        id: `ba-${Date.now()}`,
+        bankName: formData.get('bank-name') as string,
+        holderName: formData.get('holder-name') as string,
+        accountNumber: formData.get('account-number') as string,
+        country: formData.get('country') as string,
+    };
+    setBankAccounts(prev => [...prev, newAccount]);
+    toast({ title: "Cuenta Añadida", description: "La nueva cuenta bancaria ha sido guardada." });
+    setIsAddAccountOpen(false);
+  }
   
   const handleWithdrawal = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -322,7 +339,7 @@ export default function AdminPage() {
     const newTransaction: Transaction = {
         id: `txn-${Date.now()}`,
         date: new Date().toISOString().split('T')[0],
-        description: `Retiro a ${accountDetails?.bankName} (CTA: ...${accountDetails?.accountNumber.slice(-4)})`,
+        description: `Retiro a ${accountDetails?.bankName} (...${accountDetails?.accountNumber.slice(-4)})`,
         amount: -amount,
         type: 'Retiro',
     };
@@ -571,7 +588,7 @@ export default function AdminPage() {
                       defaultValue={defaultValues?.messageTemplate || globalTournamentMessageTemplate}
                     />
                     <p className="text-xs text-muted-foreground">
-                      Si editas este campo, este torneo usará esta plantilla en lugar de la global. Puedes usar las mismas etiquetas (ej: {'{{header}}'}).
+                      Si editas este campo, este torneo usará esta plantilla en lugar de la global. Puedes usar las mismas etiquetas (ej: {'\'{{header}}\''}).
                     </p>
                   </div>
               </CollapsibleContent>
@@ -1106,7 +1123,7 @@ export default function AdminPage() {
                     <Card>
                         <CardHeader>
                             <CardTitle>Retirar Fondos</CardTitle>
-                            <CardDescription>Transfiere tu saldo disponible a tu cuenta bancaria.</CardDescription>
+                            <CardDescription>Transfiere el saldo de la plataforma a una cuenta bancaria.</CardDescription>
                         </CardHeader>
                         <form onSubmit={handleWithdrawal}>
                             <CardContent className="space-y-4">
@@ -1131,11 +1148,45 @@ export default function AdminPage() {
                                         <SelectContent>
                                             {bankAccounts.map(account => (
                                                 <SelectItem key={account.id} value={account.id}>
-                                                    {account.bankName} - (...{account.accountNumber.slice(-4)})
+                                                    {account.bankName} (...{account.accountNumber.slice(-4)})
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>
                                     </Select>
+                                     <Dialog open={isAddAccountOpen} onOpenChange={setIsAddAccountOpen}>
+                                        <DialogTrigger asChild>
+                                            <Button variant="link" className="text-xs p-0 h-auto">Añadir nueva cuenta</Button>
+                                        </DialogTrigger>
+                                        <DialogContent>
+                                            <DialogHeader>
+                                                <DialogTitle>Añadir Nueva Cuenta Bancaria</DialogTitle>
+                                                <DialogDescription>
+                                                    Introduce los detalles de la cuenta bancaria. Esta información se guardará de forma segura.
+                                                </DialogDescription>
+                                            </DialogHeader>
+                                            <form onSubmit={handleAddAccount} className="grid gap-4 py-4">
+                                                <div className="space-y-2">
+                                                    <Label htmlFor="bank-name">Nombre del Banco</Label>
+                                                    <Input id="bank-name" name="bank-name" required />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label htmlFor="holder-name">Nombre del Titular</Label>
+                                                    <Input id="holder-name" name="holder-name" defaultValue="SquadUp Corp" required />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label htmlFor="account-number">Número de Cuenta</Label>
+                                                    <Input id="account-number" name="account-number" required />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label htmlFor="country">País del Banco</Label>
+                                                    <Input id="country" name="country" required />
+                                                </div>
+                                                <DialogFooter>
+                                                    <Button type="submit">Guardar Cuenta</Button>
+                                                </DialogFooter>
+                                            </form>
+                                        </DialogContent>
+                                    </Dialog>
                                 </div>
                             </CardContent>
                             <CardFooter>
@@ -1292,20 +1343,20 @@ export default function AdminPage() {
                                     Usa estas etiquetas en tu plantilla. Serán reemplazadas por los datos reales del torneo:
                                 </p>
                                 <code className="text-xs grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-4 gap-y-1 mt-2">
-                                    <span>{'{{header}}'}</span>
-                                    <span>{'{{organizerName}}'}</span>
-                                    <span>{'{{tournamentName}}'}</span>
-                                    <span>{'{{date}}'}</span>
-                                    <span>{'{{startTime}}'}</span>
-                                    <span>{'{{timeZoneFlag}}'}</span>
-                                    <span>{'{{infoSendText}}'}</span>
-                                    <span>{'{{maxWithdrawalText}}'}</span>
-                                    <span>{'{{mapsList}}'}</span>
-                                    <span>{'{{slotsList}}'}</span>
-                                    <span>{'{{registeredCount}}'}</span>
-                                    <span>{'{{maxSlots}}'}</span>
-                                    <span>{'{{reserveText}}'}</span>
-                                    <span>{'{{streamLink}}'}</span>
+                                    <span>{'{'}{'{'}header{'}'}{'}'}</span>
+                                    <span>{'{'}{'{'}organizerName{'}'}{'}'}</span>
+                                    <span>{'{'}{'{'}tournamentName{'}'}{'}'}</span>
+                                    <span>{'{'}{'{'}date{'}'}{'}'}</span>
+                                    <span>{'{'}{'{'}startTime{'}'}{'}'}</span>
+                                    <span>{'{'}{'{'}timeZoneFlag{'}'}{'}'}</span>
+                                    <span>{'{'}{'{'}infoSendText{'}'}{'}'}</span>
+                                    <span>{'{'}{'{'}maxWithdrawalText{'}'}{'}'}</span>
+                                    <span>{'{'}{'{'}mapsList{'}'}{'}'}</span>
+                                    <span>{'{'}{'{'}slotsList{'}'}{'}'}</span>
+                                    <span>{'{'}{'{'}registeredCount{'}'}{'}'}</span>
+                                    <span>{'{'}{'{'}maxSlots{'}'}{'}'}</span>
+                                    <span>{'{'}{'{'}reserveText{'}'}{'}'}</span>
+                                    <span>{'{'}{'{'}streamLink{'}'}{'}'}</span>
                                 </code>
                             </div>
                         </div>

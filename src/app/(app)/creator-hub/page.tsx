@@ -24,12 +24,13 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { services as initialServices, playerProfile, creators, bankAccounts as creatorBankAccounts, initialTransactions } from "@/lib/data";
-import type { Service, Transaction } from "@/lib/types";
+import { services as initialServices, playerProfile, creatorBankAccounts as initialCreatorBankAccounts, initialTransactions } from "@/lib/data";
+import type { Service, Transaction, BankAccount } from "@/lib/types";
 import { Palette, PlusCircle, Pencil, Trash2, CheckCircle, Star, DollarSign, LayoutDashboard, Briefcase, Banknote, MessageSquare, Settings, BarChart, FileText, Youtube, Twitch, Instagram } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 
 export default function CreatorHubPage() {
@@ -48,6 +49,8 @@ export default function CreatorHubPage() {
   const [withdrawalAmount, setWithdrawalAmount] = useState<number | string>('');
   const [selectedAccount, setSelectedAccount] = useState<string>('');
   const [transactions, setTransactions] = useState<Transaction[]>(initialTransactions.filter(t => t.type === 'Ingreso')); // Creator only sees income
+  const [creatorBankAccounts, setCreatorBankAccounts] = useState<BankAccount[]>(initialCreatorBankAccounts);
+  const [isAddAccountOpen, setIsAddAccountOpen] = useState(false);
   const currentBalance = transactions.reduce((acc, t) => acc + t.amount, 0);
 
   const finalServiceTitle = serviceTitle === 'Otro...' ? customServiceTitle : serviceTitle;
@@ -110,6 +113,21 @@ export default function CreatorHubPage() {
         description: "Tu servicio ha sido eliminado de la plataforma.",
     })
   }
+
+  const handleAddAccount = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const newAccount: BankAccount = {
+        id: `cba-${Date.now()}`,
+        bankName: formData.get('bank-name') as string,
+        holderName: formData.get('holder-name') as string,
+        accountNumber: formData.get('account-number') as string,
+        country: formData.get('country') as string,
+    };
+    setCreatorBankAccounts(prev => [...prev, newAccount]);
+    toast({ title: "Cuenta Añadida", description: "La nueva cuenta bancaria ha sido guardada." });
+    setIsAddAccountOpen(false);
+  }
   
   const handleWithdrawal = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -133,7 +151,7 @@ export default function CreatorHubPage() {
     const newTransaction: Transaction = {
         id: `txn-${Date.now()}`,
         date: new Date().toISOString().split('T')[0],
-        description: `Retiro a ${accountDetails?.bankName} (CTA: ...${accountDetails?.accountNumber.slice(-4)})`,
+        description: `Retiro a ${accountDetails?.bankName} (...${accountDetails?.accountNumber.slice(-4)})`,
         amount: -amount,
         type: 'Retiro',
     };
@@ -477,11 +495,45 @@ export default function CreatorHubPage() {
                                         <SelectContent>
                                             {creatorBankAccounts.map(account => (
                                                 <SelectItem key={account.id} value={account.id}>
-                                                    {account.bankName} - (...{account.accountNumber.slice(-4)})
+                                                    {account.bankName} (...{account.accountNumber.slice(-4)})
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>
                                     </Select>
+                                    <Dialog open={isAddAccountOpen} onOpenChange={setIsAddAccountOpen}>
+                                        <DialogTrigger asChild>
+                                            <Button variant="link" className="text-xs p-0 h-auto">Añadir nueva cuenta</Button>
+                                        </DialogTrigger>
+                                        <DialogContent>
+                                            <DialogHeader>
+                                                <DialogTitle>Añadir Nueva Cuenta Bancaria</DialogTitle>
+                                                <DialogDescription>
+                                                    Introduce los detalles de tu cuenta bancaria. Esta información se guardará de forma segura.
+                                                </DialogDescription>
+                                            </DialogHeader>
+                                            <form onSubmit={handleAddAccount} className="grid gap-4 py-4">
+                                                <div className="space-y-2">
+                                                    <Label htmlFor="bank-name">Nombre del Banco</Label>
+                                                    <Input id="bank-name" name="bank-name" required />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label htmlFor="holder-name">Nombre del Titular</Label>
+                                                    <Input id="holder-name" name="holder-name" defaultValue={playerProfile.name} required />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label htmlFor="account-number">Número de Cuenta</Label>
+                                                    <Input id="account-number" name="account-number" required />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label htmlFor="country">País del Banco</Label>
+                                                    <Input id="country" name="country" required />
+                                                </div>
+                                                <DialogFooter>
+                                                    <Button type="submit">Guardar Cuenta</Button>
+                                                </DialogFooter>
+                                            </form>
+                                        </DialogContent>
+                                    </Dialog>
                                 </div>
                             </CardContent>
                             <CardFooter>
@@ -552,5 +604,3 @@ export default function CreatorHubPage() {
     </div>
   );
 }
-
-    

@@ -167,6 +167,8 @@ export type BankAccount = {
     id: string;
     bankName: string;
     accountNumber: string;
+    holderName: string;
+    country: string;
 }
 
 export type Transaction = {
@@ -177,4 +179,3 @@ export type Transaction = {
     type: 'Ingreso' | 'Retiro';
 }
 
-    
