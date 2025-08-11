@@ -571,7 +571,7 @@ export default function AdminPage() {
                       defaultValue={defaultValues?.messageTemplate || globalTournamentMessageTemplate}
                     />
                     <p className="text-xs text-muted-foreground">
-                      Si editas este campo, este torneo usará esta plantilla en lugar de la global. Puedes usar las mismas etiquetas (ej: {{header}}).
+                      Si editas este campo, este torneo usará esta plantilla en lugar de la global. Puedes usar las mismas etiquetas (ej: {'{{header}}'}).
                     </p>
                   </div>
               </CollapsibleContent>
@@ -1292,20 +1292,20 @@ export default function AdminPage() {
                                     Usa estas etiquetas en tu plantilla. Serán reemplazadas por los datos reales del torneo:
                                 </p>
                                 <code className="text-xs grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-4 gap-y-1 mt-2">
-                                    <span>{{header}}</span>
-                                    <span>{{organizerName}}</span>
-                                    <span>{{tournamentName}}</span>
-                                    <span>{{date}}</span>
-                                    <span>{{startTime}}</span>
-                                    <span>{{timeZoneFlag}}</span>
-                                    <span>{{infoSendText}}</span>
-                                    <span>{{maxWithdrawalText}}</span>
-                                    <span>{{mapsList}}</span>
-                                    <span>{{slotsList}}</span>
-                                    <span>{{registeredCount}}</span>
-                                    <span>{{maxSlots}}</span>
-                                    <span>{{reserveText}}</span>
-                                    <span>{{streamLink}}</span>
+                                    <span>{'{{header}}'}</span>
+                                    <span>{'{{organizerName}}'}</span>
+                                    <span>{'{{tournamentName}}'}</span>
+                                    <span>{'{{date}}'}</span>
+                                    <span>{'{{startTime}}'}</span>
+                                    <span>{'{{timeZoneFlag}}'}</span>
+                                    <span>{'{{infoSendText}}'}</span>
+                                    <span>{'{{maxWithdrawalText}}'}</span>
+                                    <span>{'{{mapsList}}'}</span>
+                                    <span>{'{{slotsList}}'}</span>
+                                    <span>{'{{registeredCount}}'}</span>
+                                    <span>{'{{maxSlots}}'}</span>
+                                    <span>{'{{reserveText}}'}</span>
+                                    <span>{'{{streamLink}}'}</span>
                                 </code>
                             </div>
                         </div>
@@ -1371,5 +1371,3 @@ export default function AdminPage() {
     </div>
   )
 }
-
-    
