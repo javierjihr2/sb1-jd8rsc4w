@@ -4,21 +4,21 @@ import { NextResponse } from 'next/server';
 import { tournaments, developers } from '@/lib/data';
 
 /**
- * @api {get} /api/tournaments Listar todos los torneos
+ * @api {get} /api/tournaments List All Tournaments
  * @apiName GetTournaments
  * @apiGroup Tournaments
  * @apiVersion 1.0.0
  * 
- * @apiHeader {String} Authorization Clave de API del desarrollador (Bearer Token).
+ * @apiHeader {String} Authorization Developer's API Key (Bearer Token).
  * 
- * @apiSuccess {Object[]} tournaments Lista de torneos.
- * @apiSuccess {String} tournaments.id ID del torneo.
- * @apiSuccess {String} tournaments.name Nombre del torneo.
- * @apiSuccess {String} tournaments.date Fecha del torneo.
- * @apiSuccess {String} tournaments.prize Premio del torneo.
- * @apiSuccess {String} tournaments.mode Modo de juego ('Solo', 'Dúo', 'Escuadra').
- * @apiSuccess {String} tournaments.status Estado del torneo ('Abierto', 'Cerrado', 'Próximamente').
- * @apiSuccess {String} tournaments.region Región del torneo ('N.A.', 'S.A.').
+ * @apiSuccess {Object[]} tournaments List of tournaments.
+ * @apiSuccess {String} tournaments.id Tournament ID.
+ * @apiSuccess {String} tournaments.name Tournament name.
+ * @apiSuccess {String} tournaments.date Tournament date.
+ * @apiSuccess {String} tournaments.prize Tournament prize.
+ * @apiSuccess {String} tournaments.mode Game mode ('Solo', 'Dúo', 'Escuadra').
+ * @apiSuccess {String} tournaments.status Tournament status ('Abierto', 'Cerrado', 'Próximamente').
+ * @apiSuccess {String} tournaments.region Tournament region ('N.A.', 'S.A.').
  * 
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
@@ -34,8 +34,8 @@ import { tournaments, developers } from '@/lib/data';
  *       }
  *     ]
  * 
- * @apiError (401) Unauthorized La clave de API no fue proporcionada o no es válida.
- * @apiError (403) Forbidden La clave de API es válida pero está inactiva.
+ * @apiError (401) Unauthorized The API key was not provided or is invalid.
+ * @apiError (403) Forbidden The API key is valid but inactive.
  */
 export async function GET(request: Request) {
   const authHeader = request.headers.get('Authorization');

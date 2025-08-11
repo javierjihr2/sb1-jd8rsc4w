@@ -72,16 +72,18 @@ export default function DashboardLayout({
   const navItems = [
     { href: "/dashboard", label: "Inicio", icon: Home, badge: 0, id: 'nav-dashboard' },
     { href: "/matchmaking", label: "MATCH PUBGM", icon: Search, badge: 0, id: 'nav-matchmaking' },
-    { href: "/creator-application", label: "Conviértete en Creador", icon: Rocket, badge: 0, id: 'nav-creator-app' },
-    { href: "/services", label: "Servicios", icon: Briefcase, badge: 0, id: 'nav-services' },
-    { href: "/creator-hub", label: "Portal del Creador", icon: Palette, badge: 0, id: 'nav-creator-hub' },
     { href: "/tournaments", label: "Torneos", icon: Swords, badge: 0, id: 'nav-tournaments' },
     { href: "/chats", label: "Chats", icon: MessageSquare, badge: recentChats.filter(c => c.unread).length, id: 'nav-chats' },
+    { href: "/services", label: "Servicios", icon: Briefcase, badge: 0, id: 'nav-services' },
+    { type: 'divider', label: 'Herramientas de IA' },
+    { href: "/player-analysis", label: "Análisis de Jugador", icon: BrainCircuit, id: 'nav-player-analysis' },
     { href: "/equipment", label: "Taller de Precisión", icon: Target, badge: 0, id: 'nav-equipment' },
-    { href: "/sensitivities", label: "Mis Sensibilidades", icon: FileCode, id: 'nav-sensitivities' },
+    { href: "/sensitivities", label: "Arsenal de Sensibilidad", icon: FileCode, id: 'nav-sensitivities' },
     { href: "/play-map", label: "Estrategias de Mapas", icon: Map, id: 'nav-play-map' },
     { href: "/compare", label: "Comparador de Dúos", icon: Users, id: 'nav-compare' },
-    { href: "/player-analysis", label: "Análisis con IA", icon: BrainCircuit, id: 'nav-player-analysis' },
+    { type: 'divider', label: 'Ecosistema' },
+    { href: "/creator-hub", label: "Portal del Creador", icon: Palette, badge: 0, id: 'nav-creator-hub' },
+    { href: "/creator-application", label: "Conviértete en Creador", icon: Rocket, badge: 0, id: 'nav-creator-app' },
     { href: "/recharge", label: "Recargar UC", icon: DollarSign, badge: 0, id: 'nav-recharge' },
     { href: "/support", label: "Soporte", icon: HelpCircle, badge: 0, id: 'nav-support' },
   ];
@@ -116,10 +118,13 @@ export default function DashboardLayout({
           </div>
           <ScrollArea className="flex-1">
             <nav className="grid items-start px-2 text-sm font-medium lg:px-4 space-y-1">
-              {navItems.map((item) => (
+              {navItems.map((item, index) => (
+                item.type === 'divider' ? (
+                  <p key={index} className="px-3 pt-4 pb-2 text-xs font-semibold uppercase text-sidebar-foreground/50">{item.label}</p>
+                ) : (
                 <Link
                   key={item.label}
-                  href={item.href}
+                  href={item.href!}
                   id={item.id}
                   className={cn(
                     "flex items-center gap-3 rounded-lg px-3 py-2 text-sidebar-foreground transition-all hover:text-white hover:bg-sidebar-accent/20",
@@ -128,12 +133,13 @@ export default function DashboardLayout({
                 >
                   <item.icon className="h-4 w-4" />
                   {item.label}
-                  {item.badge > 0 && (
+                  {item.badge! > 0 && (
                      <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
                       {item.badge}
                     </Badge>
                   )}
                 </Link>
+                )
               ))}
             </nav>
           </ScrollArea>
@@ -167,10 +173,13 @@ export default function DashboardLayout({
               </nav>
               <ScrollArea className="flex-1">
                 <nav className="grid gap-4 text-base font-medium px-4">
-                  {navItems.map((item) => (
+                  {navItems.map((item, index) => (
+                    item.type === 'divider' ? (
+                        <p key={index} className="px-3 pt-4 pb-2 text-xs font-semibold uppercase text-sidebar-foreground/50">{item.label}</p>
+                    ) : (
                     <Link
                       key={item.label}
-                      href={item.href}
+                      href={item.href!}
                        className={cn(
                         "flex items-center gap-4 rounded-xl px-3 py-2 text-sidebar-foreground hover:text-white hover:bg-sidebar-accent/20",
                         pathname === item.href ? "bg-sidebar-accent/10 text-sidebar-primary font-bold" : ""
@@ -178,12 +187,13 @@ export default function DashboardLayout({
                     >
                       <item.icon className="h-5 w-5" />
                       {item.label}
-                      {item.badge > 0 && (
+                      {item.badge! > 0 && (
                         <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
                           {item.badge}
                         </Badge>
                       )}
                     </Link>
+                    )
                   ))}
                 </nav>
               </ScrollArea>
@@ -239,5 +249,3 @@ export default function DashboardLayout({
     </>
   );
 }
-
-    

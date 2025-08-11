@@ -4,21 +4,25 @@ import { NextResponse } from 'next/server';
 import { tournaments, developers } from '@/lib/data';
 
 /**
- * @api {get} /api/tournaments/:id Obtener detalles de un torneo
+ * @api {get} /api/tournaments/:id Get Tournament Details
  * @apiName GetTournamentById
  * @apiGroup Tournaments
  * @apiVersion 1.0.0
  * 
- * @apiHeader {String} Authorization Clave de API del desarrollador (Bearer Token).
- * @apiParam {String} id ID único del torneo.
+ * @apiHeader {String} Authorization Developer's API Key (Bearer Token).
  * 
- * @apiSuccess {String} id ID del torneo.
- * @apiSuccess {String} name Nombre del torneo.
- * @apiSuccess {String} date Fecha del torneo.
- * @apiSuccess {String} prize Premio del torneo.
- * @apiSuccess {String} mode Modo de juego.
- * @apiSuccess {String} status Estado del torneo.
- * @apiSuccess {String} region Región del torneo.
+ * @apiParam {String} id Unique ID of the tournament.
+ * 
+ * @apiSuccess {String} id Tournament ID.
+ * @apiSuccess {String} name Tournament name.
+ * @apiSuccess {String} date Tournament date.
+ * @apiSuccess {String} prize Tournament prize.
+ * @apiSuccess {String} mode Game mode.
+ * @apiSuccess {String} status Tournament status.
+ * @apiSuccess {String} region Tournament region.
+ * @apiSuccess {String} [description] Tournament description.
+ * @apiSuccess {Number} [maxTeams] Maximum number of teams.
+ * @apiSuccess {String[]} [maps] List of maps for the tournament.
  * 
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
@@ -32,9 +36,9 @@ import { tournaments, developers } from '@/lib/data';
  *       "region": "N.A."
  *     }
  * 
- * @apiError (401) Unauthorized La clave de API no fue proporcionada o no es válida.
- * @apiError (403) Forbidden La clave de API es válida pero está inactiva.
- * @apiError (404) NotFound No se encontró ningún torneo con el ID proporcionado.
+ * @apiError (401) Unauthorized The API key was not provided or is invalid.
+ * @apiError (403) Forbidden The API key is valid but inactive.
+ * @apiError (404) NotFound No tournament with the provided ID was found.
  */
 export async function GET(
   request: Request,
