@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
-import { Code, UserPlus, Newspaper, Check, X, Users, Swords, PlusCircle, Pencil, Trash2, LayoutDashboard, Settings, DollarSign, BarChart, BellRing, Wrench, Link as LinkIcon, KeyRound, RefreshCw, Briefcase, Star, CheckCircle, Banknote, Flag, Calendar as CalendarIcon, Clock, Info, Map, Video, ShieldAlert, FileText, Lightbulb, ChevronDown } from "lucide-react"
+import { Code, UserPlus, Newspaper, Check, X, Users, Swords, PlusCircle, Pencil, Trash2, LayoutDashboard, Settings, DollarSign, BarChart, BellRing, Wrench, Link as LinkIcon, KeyRound, RefreshCw, Briefcase, Star, CheckCircle, Banknote, Flag, Calendar as CalendarIcon, Clock, Info, Map, Video, ShieldAlert, FileText, Lightbulb, ChevronDown, AlertTriangle } from "lucide-react"
 import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles as initialNewsArticles, friendsForComparison as initialUsers, rechargeProviders, developers, services as initialServices, creators, adminBankAccounts, initialTransactions, addTournament, tournaments, updateTournament, mapOptions, registeredTeams, updateRegistrationStatus, addApprovedRegistration, reserveTeams, playerProfile, tournamentMessageTemplate as globalTournamentMessageTemplate } from "@/lib/data"
 import type { RegistrationRequest, Tournament, NewsArticle, Service, UserWithRole, BankAccount, Transaction, Team } from "@/lib/types"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -38,6 +38,17 @@ import { format, parseISO } from "date-fns"
 import { Calendar } from "@/components/ui/calendar"
 import { cn } from "@/lib/utils"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { Icons } from "@/components/icons"
 
@@ -338,23 +349,11 @@ export default function AdminPage() {
     setAccountType('bank');
   }
   
-  const handleWithdrawal = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleWithdrawal = () => {
     const amount = parseFloat(withdrawalAmount as string);
-
-    if (!amount || amount <= 0) {
-      toast({ variant: 'destructive', title: 'Monto Inválido', description: 'Por favor, introduce un monto válido para retirar.' });
-      return;
-    }
-    if (amount > currentBalance) {
-      toast({ variant: 'destructive', title: 'Saldo Insuficiente', description: 'No puedes retirar más de lo que tienes en tu saldo disponible.' });
-      return;
-    }
-    if (!selectedAccount) {
-      toast({ variant: 'destructive', title: 'Cuenta no Seleccionada', description: 'Por favor, selecciona una cuenta bancaria para el retiro.' });
-      return;
-    }
-
+    const fee = amount * 0.01; // 1% processing fee
+    const netAmount = amount - fee;
+    
     const accountDetails = bankAccounts.find(acc => acc.id === selectedAccount);
     const descriptionText = accountDetails?.type === 'paypal' 
         ? `Retiro a PayPal (${accountDetails.email})`
@@ -365,20 +364,34 @@ export default function AdminPage() {
         id: `txn-${Date.now()}`,
         date: new Date().toISOString().split('T')[0],
         description: descriptionText,
-        amount: -amount,
+        amount: -netAmount,
         type: 'Retiro',
     };
-    setTransactions(prev => [newTransaction, ...prev]);
+    
+    const feeTransaction: Transaction = {
+        id: `fee-${Date.now()}`,
+        date: new Date().toISOString().split('T')[0],
+        description: `Tarifa de procesamiento`,
+        amount: -fee,
+        type: 'Retiro',
+    };
+    
+    setTransactions(prev => [newTransaction, feeTransaction, ...prev]);
 
     toast({
       title: 'Retiro Procesado',
-      description: `Se ha iniciado la transferencia de $${amount.toFixed(2)} a tu cuenta. Puede tardar de 2 a 3 días hábiles en reflejarse.`,
+      description: `Se ha iniciado la transferencia de $${netAmount.toFixed(2)} a tu cuenta. Puede tardar de 2 a 3 días hábiles en reflejarse.`,
     });
     
     // Reset form
     setWithdrawalAmount('');
     setSelectedAccount('');
   };
+  
+   const getSelectedAccountDetails = () => {
+        if (!selectedAccount) return null;
+        return bankAccounts.find(acc => acc.id === selectedAccount);
+   }
 
   const TournamentForm = ({ onSubmit, defaultValues }: { onSubmit: (e: React.FormEvent<HTMLFormElement>) => void, defaultValues?: Tournament | null }) => (
     <form onSubmit={onSubmit}>
@@ -1150,106 +1163,130 @@ export default function AdminPage() {
                             <CardTitle>Retirar Fondos</CardTitle>
                             <CardDescription>Transfiere el saldo de la plataforma a una cuenta.</CardDescription>
                         </CardHeader>
-                        <form onSubmit={handleWithdrawal}>
-                            <CardContent className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="withdrawal-amount">Monto a Retirar (USD)</Label>
-                                    <Input 
-                                        id="withdrawal-amount" 
-                                        type="number"
-                                        step="0.01"
-                                        placeholder="0.00"
-                                        value={withdrawalAmount}
-                                        onChange={e => setWithdrawalAmount(e.target.value)}
-                                        required
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="bank-account">Cuenta de Destino</Label>
-                                    <Select onValueChange={setSelectedAccount} value={selectedAccount}>
-                                        <SelectTrigger id="bank-account">
-                                            <SelectValue placeholder="Selecciona una cuenta" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {bankAccounts.map(account => (
-                                                <SelectItem key={account.id} value={account.id}>
-                                                     <div className="flex items-center gap-2">
-                                                        {account.type === 'paypal' && <Icons.paypal className="h-4 w-4" />}
-                                                        {account.type === 'bank' && <Banknote className="h-4 w-4" />}
-                                                        <span>
-                                                            {account.type === 'paypal' 
-                                                                ? `${account.email}` 
-                                                                : `${account.bankName} (...${account.accountNumber?.slice(-4)})`
-                                                            }
-                                                        </span>
-                                                    </div>
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                     <Dialog open={isAddAccountOpen} onOpenChange={setIsAddAccountOpen}>
-                                        <DialogTrigger asChild>
-                                            <Button variant="link" className="text-xs p-0 h-auto">Añadir nueva cuenta</Button>
-                                        </DialogTrigger>
-                                        <DialogContent>
-                                            <form onSubmit={handleAddAccount}>
-                                                <DialogHeader>
-                                                    <DialogTitle>Añadir Nuevo Método de Pago</DialogTitle>
-                                                    <DialogDescription>
-                                                        Introduce los detalles de tu cuenta bancaria o PayPal.
-                                                    </DialogDescription>
-                                                </DialogHeader>
-                                                <div className="grid gap-4 py-4">
-                                                     <div className="space-y-2">
-                                                        <Label htmlFor="account-type">Tipo de Cuenta</Label>
-                                                        <Select name="account-type" onValueChange={(value) => setAccountType(value as 'bank' | 'paypal')} defaultValue="bank">
-                                                            <SelectTrigger id="account-type">
-                                                                <SelectValue placeholder="Selecciona un tipo" />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                <SelectItem value="bank">Cuenta Bancaria</SelectItem>
-                                                                <SelectItem value="paypal">PayPal</SelectItem>
-                                                            </SelectContent>
-                                                        </Select>
-                                                    </div>
-                                                    {accountType === 'bank' ? (
-                                                        <div className="space-y-4 animate-in fade-in-50">
-                                                            <div className="space-y-2">
-                                                                <Label htmlFor="bank-name">Nombre del Banco</Label>
-                                                                <Input id="bank-name" name="bank-name" required />
-                                                            </div>
-                                                            <div className="space-y-2">
-                                                                <Label htmlFor="holder-name">Nombre del Titular</Label>
-                                                                <Input id="holder-name" name="holder-name" defaultValue="SquadUp Corp" required />
-                                                            </div>
-                                                            <div className="space-y-2">
-                                                                <Label htmlFor="account-number">Número de Cuenta</Label>
-                                                                <Input id="account-number" name="account-number" required />
-                                                            </div>
-                                                            <div className="space-y-2">
-                                                                <Label htmlFor="country">País del Banco</Label>
-                                                                <Input id="country" name="country" required />
-                                                            </div>
-                                                        </div>
-                                                    ) : (
-                                                         <div className="space-y-2 animate-in fade-in-50">
-                                                            <Label htmlFor="paypal-email">Correo de PayPal</Label>
-                                                            <Input id="paypal-email" name="paypal-email" type="email" placeholder="pagos@ejemplo.com" required />
-                                                         </div>
-                                                    )}
+                        <CardContent className="space-y-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="withdrawal-amount">Monto a Retirar (USD)</Label>
+                                <Input 
+                                    id="withdrawal-amount" 
+                                    type="number"
+                                    step="0.01"
+                                    placeholder="0.00"
+                                    value={withdrawalAmount}
+                                    onChange={e => setWithdrawalAmount(e.target.value)}
+                                    required
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="bank-account">Cuenta de Destino</Label>
+                                <Select onValueChange={setSelectedAccount} value={selectedAccount}>
+                                    <SelectTrigger id="bank-account">
+                                        <SelectValue placeholder="Selecciona una cuenta" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {bankAccounts.map(account => (
+                                            <SelectItem key={account.id} value={account.id}>
+                                                    <div className="flex items-center gap-2">
+                                                    {account.type === 'paypal' && <Icons.paypal className="h-4 w-4" />}
+                                                    {account.type === 'bank' && <Banknote className="h-4 w-4" />}
+                                                    <span>
+                                                        {account.type === 'paypal' 
+                                                            ? `${account.email}` 
+                                                            : `${account.bankName} (...${account.accountNumber?.slice(-4)})`
+                                                        }
+                                                    </span>
                                                 </div>
-                                                <DialogFooter>
-                                                    <Button type="submit">Guardar Cuenta</Button>
-                                                </DialogFooter>
-                                            </form>
-                                        </DialogContent>
-                                    </Dialog>
-                                </div>
-                            </CardContent>
-                            <CardFooter>
-                                <Button type="submit" className="w-full">Iniciar Transferencia</Button>
-                            </CardFooter>
-                        </form>
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                    <Dialog open={isAddAccountOpen} onOpenChange={setIsAddAccountOpen}>
+                                    <DialogTrigger asChild>
+                                        <Button variant="link" className="text-xs p-0 h-auto">Añadir nueva cuenta</Button>
+                                    </DialogTrigger>
+                                    <DialogContent>
+                                        <form onSubmit={handleAddAccount}>
+                                            <DialogHeader>
+                                                <DialogTitle>Añadir Nuevo Método de Pago</DialogTitle>
+                                                <DialogDescription>
+                                                    Introduce los detalles de tu cuenta bancaria o PayPal.
+                                                </DialogDescription>
+                                            </DialogHeader>
+                                            <div className="grid gap-4 py-4">
+                                                    <div className="space-y-2">
+                                                    <Label htmlFor="account-type">Tipo de Cuenta</Label>
+                                                    <Select name="account-type" onValueChange={(value) => setAccountType(value as 'bank' | 'paypal')} defaultValue="bank">
+                                                        <SelectTrigger id="account-type">
+                                                            <SelectValue placeholder="Selecciona un tipo" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="bank">Cuenta Bancaria</SelectItem>
+                                                            <SelectItem value="paypal">PayPal</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+                                                {accountType === 'bank' ? (
+                                                    <div className="space-y-4 animate-in fade-in-50">
+                                                        <div className="space-y-2">
+                                                            <Label htmlFor="bank-name">Nombre del Banco</Label>
+                                                            <Input id="bank-name" name="bank-name" required />
+                                                        </div>
+                                                        <div className="space-y-2">
+                                                            <Label htmlFor="holder-name">Nombre del Titular</Label>
+                                                            <Input id="holder-name" name="holder-name" defaultValue="SquadUp Corp" required />
+                                                        </div>
+                                                        <div className="space-y-2">
+                                                            <Label htmlFor="account-number">Número de Cuenta</Label>
+                                                            <Input id="account-number" name="account-number" required />
+                                                        </div>
+                                                        <div className="space-y-2">
+                                                            <Label htmlFor="country">País del Banco</Label>
+                                                            <Input id="country" name="country" required />
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                        <div className="space-y-2 animate-in fade-in-50">
+                                                        <Label htmlFor="paypal-email">Correo de PayPal</Label>
+                                                        <Input id="paypal-email" name="paypal-email" type="email" placeholder="pagos@ejemplo.com" required />
+                                                        </div>
+                                                )}
+                                            </div>
+                                            <DialogFooter>
+                                                <Button type="submit">Guardar Cuenta</Button>
+                                            </DialogFooter>
+                                        </form>
+                                    </DialogContent>
+                                </Dialog>
+                            </div>
+                        </CardContent>
+                        <CardFooter>
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button className="w-full" disabled={!withdrawalAmount || !selectedAccount || parseFloat(withdrawalAmount as string) > currentBalance || parseFloat(withdrawalAmount as string) <= 0}>
+                                        Iniciar Transferencia
+                                    </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>Confirmar Retiro</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            <p>Estás a punto de retirar <strong>${parseFloat(withdrawalAmount as string).toFixed(2)}</strong> a la cuenta:</p>
+                                            <p className="font-semibold my-2 p-2 bg-muted rounded-md text-center">
+                                                {getSelectedAccountDetails()?.type === 'paypal' ? getSelectedAccountDetails()?.email : `${getSelectedAccountDetails()?.bankName} (...${getSelectedAccountDetails()?.accountNumber?.slice(-4)})`}
+                                            </p>
+                                            <p>Se aplicará una tarifa de procesamiento del 1% (${(parseFloat(withdrawalAmount as string) * 0.01).toFixed(2)}). El monto final a recibir será de <strong>${(parseFloat(withdrawalAmount as string) * 0.99).toFixed(2)}</strong>.</p>
+                                            <p className="mt-4 text-xs text-muted-foreground flex items-start gap-2">
+                                                <AlertTriangle className="h-4 w-4 text-amber-500 mt-0.5 shrink-0"/>
+                                                <span>Esta acción es irreversible. Asegúrate de que los detalles de la cuenta son correctos.</span>
+                                            </p>
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                        <AlertDialogAction onClick={handleWithdrawal}>Sí, proceder con el retiro</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                        </CardFooter>
                     </Card>
                 </div>
             </div>
