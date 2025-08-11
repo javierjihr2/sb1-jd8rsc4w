@@ -5,22 +5,24 @@ import { useState } from "react"
 import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { friendsForComparison, playerProfile, recentChats, addChat } from "@/lib/data"
-import { Search, Filter, Users, Wifi, X, Heart, MessageSquare } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
+import { friendsForComparison, playerProfile, addChat } from "@/lib/data"
+import { Search, Filter, Users, Wifi, X, Heart, MessageSquare, Sparkles } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { AddFriendDialog } from "@/components/add-friend-dialog"
-import type { PlayerProfileInput } from "@/ai/schemas"
+import type { PlayerProfileInput, IcebreakerInput, IcebreakerOutput } from "@/ai/schemas"
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Progress } from "@/components/ui/progress"
 import { useToast } from "@/hooks/use-toast"
+import { generateIcebreaker } from "@/ai/flows/icebreakerFlow"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Loader2 } from "lucide-react"
 
 // --- Helper Functions ---
 
 // Función para calcular la distancia (simulada)
 const getDistance = (coords1: {lat: number, lon: number}, coords2: {lat: number, lon: number}) => {
-  // Simulación simple, no es una fórmula geodésica real
   const dx = coords1.lon - coords2.lon;
   const dy = coords1.lat - coords2.lat;
   const dist = Math.sqrt(dx*dx + dy*dy) * 111; // Factor de conversión aproximado
@@ -47,15 +49,18 @@ export default function MatchmakingPage() {
     const otherPlayers = friendsForComparison.filter(p => p.id !== playerProfile.id);
     return shuffleArray(otherPlayers).map(p => ({
       ...p,
-      distance: getDistance(playerProfile.location, p.location)
+      distance: getDistance(playerProfile.location, p.location),
+      compatibility: Math.floor(Math.random() * (95 - 75 + 1)) + 75, // Simulated score
     }));
   });
   
-  const [selectedPlayer, setSelectedPlayer] = useState<PlayerProfileInput | null>(null);
+  const [selectedPlayer, setSelectedPlayer] = useState<PlayerProfileInput & { compatibility: number } | null>(null);
   const [isMatched, setIsMatched] = useState(false);
+  const [icebreaker, setIcebreaker] = useState<IcebreakerOutput | null>(null);
+  const [isIcebreakerLoading, setIsIcebreakerLoading] = useState(false);
+
 
   const handleLike = (player: PlayerProfileInput) => {
-    // Simula un "match" instantáneo
     setIsMatched(true);
     toast({
       title: "¡Es un Match! 🔥",
@@ -63,20 +68,24 @@ export default function MatchmakingPage() {
     });
   };
 
-  const handleOpenDialog = (player: PlayerProfileInput) => {
+  const handleOpenDialog = (player: PlayerProfileInput & { compatibility: number }) => {
     setSelectedPlayer(player);
-    setIsMatched(false); // Resetea el estado del match cada vez que se abre un nuevo perfil
+    setIsMatched(false);
+    setIcebreaker(null);
   };
+  
+  const handleCloseDialog = () => {
+      setSelectedPlayer(null);
+  }
 
   const handleStartChat = () => {
     if (!selectedPlayer) return;
     
-    // Añade un nuevo chat a la lista (simulación de backend)
     addChat({
         id: `chat_${Date.now()}`,
         name: selectedPlayer.name,
         avatarUrl: selectedPlayer.avatarUrl,
-        unread: false,
+        unread: true,
         lastMessageTimestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         messages: [{
             sender: 'other',
@@ -84,9 +93,38 @@ export default function MatchmakingPage() {
         }]
     });
 
-    // Redirige a la página de chats
     router.push('/chats');
   };
+  
+  const handleGenerateIcebreaker = async () => {
+      if (!selectedPlayer) return;
+      setIsIcebreakerLoading(true);
+      
+      const input: IcebreakerInput = {
+          player1: {
+              name: playerProfile.name,
+              rank: playerProfile.rank,
+              favoriteMap: 'Erangel', // Dato de ejemplo
+              favoriteWeapons: ['M416', 'Kar98k'], // Dato de ejemplo
+          },
+          player2: {
+              name: selectedPlayer.name,
+              rank: selectedPlayer.rank,
+              favoriteMap: selectedPlayer.favoriteMap,
+              favoriteWeapons: selectedPlayer.favoriteWeapons,
+          }
+      };
+
+      try {
+          const result = await generateIcebreaker(input);
+          setIcebreaker(result);
+      } catch (error) {
+          toast({ variant: 'destructive', title: 'Error de IA', description: 'No se pudieron generar los mensajes. Inténtalo de nuevo.'})
+      } finally {
+          setIsIcebreakerLoading(false);
+      }
+  }
+
 
   return (
     <div className="space-y-8">
@@ -116,7 +154,7 @@ export default function MatchmakingPage() {
          <Dialog onOpenChange={(isOpen) => !isOpen && setSelectedPlayer(null)}>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                 {availablePlayers.map(player => (
-                    <DialogTrigger asChild key={player.id} onClick={() => handleOpenDialog(player as PlayerProfileInput)}>
+                    <DialogTrigger asChild key={player.id} onClick={() => handleOpenDialog(player as any)}>
                         <div className="group cursor-pointer">
                             <Card className="overflow-hidden relative aspect-[3/4] transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                                 <Image 
@@ -128,10 +166,14 @@ export default function MatchmakingPage() {
                                     data-ai-hint="gaming character"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-                                <div className="absolute top-2 left-2">
+                                <div className="absolute top-2 left-2 flex flex-col gap-1.5">
                                     <Badge variant="secondary" className="bg-green-500/20 text-green-300 border-green-500/30 backdrop-blur-sm">
                                         <Wifi className="w-3 h-3 mr-1.5 animate-pulse"/>
                                         En línea
+                                    </Badge>
+                                    <Badge variant="secondary" className="bg-primary/20 text-primary-foreground border-primary/30 backdrop-blur-sm">
+                                        <Heart className="w-3 h-3 mr-1.5"/>
+                                        {player.compatibility}%
                                     </Badge>
                                 </div>
                                 <div className="absolute bottom-0 left-0 right-0 p-3 text-white">
@@ -146,13 +188,19 @@ export default function MatchmakingPage() {
             </div>
 
             {selectedPlayer && (
-                 <DialogContent className="max-w-sm p-0">
+                 <DialogContent className="max-w-md p-0 overflow-hidden">
                     <div className="relative">
-                        <Image src={selectedPlayer.avatarUrl} alt={selectedPlayer.name} width={400} height={400} className="w-full h-64 object-cover rounded-t-lg" data-ai-hint="gaming character"/>
+                        <Image src={selectedPlayer.avatarUrl} alt={selectedPlayer.name} width={400} height={400} className="w-full h-64 object-cover" data-ai-hint="gaming character"/>
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
                         <div className="absolute bottom-4 left-4 text-white">
                             <h2 className="text-3xl font-bold">{selectedPlayer.name}</h2>
                             <p className="text-amber-400">{selectedPlayer.rank}</p>
+                        </div>
+                        <div className="absolute top-4 right-4">
+                            <Badge variant="secondary" className="bg-primary/20 text-primary-foreground border-primary/30 backdrop-blur-sm">
+                                <Heart className="w-4 h-4 mr-2"/>
+                                {selectedPlayer.compatibility}% Compatible
+                            </Badge>
                         </div>
                     </div>
                     <div className="p-6 pt-4 space-y-4">
@@ -163,35 +211,46 @@ export default function MatchmakingPage() {
                                 <p><strong>Mapa favorito:</strong> <span className="capitalize">{selectedPlayer.favoriteMap}</span></p>
                             </div>
                         </div>
-
-                         <div className="space-y-2">
+                        <div className="space-y-2">
                             <div className="flex justify-between mb-1 text-xs"><span>Victorias</span><span className="font-semibold">{selectedPlayer.stats.wins}</span></div>
                             <Progress value={(selectedPlayer.stats.wins / 200) * 100} className="h-2"/>
-                            
+                        </div>
+                        <div className="space-y-2">
                             <div className="flex justify-between mb-1 text-xs"><span>Ratio K/D</span><span className="font-semibold">{selectedPlayer.stats.kdRatio}</span></div>
                             <Progress value={(selectedPlayer.stats.kdRatio / 10) * 100} className="h-2"/>
                         </div>
-                        
-                         {isMatched ? (
-                            <div className="space-y-2 text-center animate-in fade-in-50">
-                                <h3 className="font-bold text-green-500">¡Conexión Exitosa!</h3>
-                                <Button className="w-full" onClick={handleStartChat}>
-                                    <MessageSquare className="mr-2"/> Enviar Mensaje
-                                </Button>
-                            </div>
-                        ) : (
-                            <div className="flex justify-around gap-4 pt-4">
-                                <Button variant="outline" size="icon" className="h-16 w-16 rounded-full border-red-500/50 text-red-500 hover:bg-red-500/10 hover:text-red-600">
-                                    <X className="h-8 w-8"/>
-                                </Button>
-                                <Button variant="outline" size="icon" className="h-20 w-20 -translate-y-4 rounded-full border-green-500/50 text-green-500 hover:bg-green-500/10 hover:text-green-600 shadow-lg" onClick={() => handleLike(selectedPlayer)}>
-                                    <Heart className="h-10 w-10"/>
-                                </Button>
-                                <Button variant="outline" size="icon" className="h-16 w-16 rounded-full border-blue-500/50 text-blue-500 hover:bg-blue-500/10 hover:text-blue-600">
-                                    <MessageSquare className="h-8 w-8"/>
-                                </Button>
+                        {icebreaker && !isIcebreakerLoading && (
+                             <Alert>
+                                <Sparkles className="h-4 w-4" />
+                                <AlertTitle>¡Rompe el Hielo!</AlertTitle>
+                                <AlertDescription className="space-y-2">
+                                    {icebreaker.messages.map((msg, i) => <p key={i}>- "{msg}"</p>)}
+                                </AlertDescription>
+                            </Alert>
+                        )}
+                        {isIcebreakerLoading && (
+                            <div className="flex items-center justify-center gap-2 text-muted-foreground p-4">
+                                <Loader2 className="animate-spin h-5 w-5"/>
+                                <span>La IA está pensando en algo genial que decir...</span>
                             </div>
                         )}
+                    </div>
+                    <div className="bg-card border-t p-4 flex justify-around items-center gap-4">
+                        <Button variant="outline" size="icon" className="h-14 w-14 rounded-full border-red-500/50 text-red-500 hover:bg-red-500/10 hover:text-red-600" onClick={handleCloseDialog}>
+                            <X className="h-7 w-7"/>
+                        </Button>
+                        <Button variant="outline" size="icon" className="h-16 w-16 rounded-full border-primary/50 text-primary hover:bg-primary/10 hover:text-primary shadow-lg" onClick={handleGenerateIcebreaker}>
+                            <Sparkles className="h-8 w-8"/>
+                        </Button>
+                         {isMatched ? (
+                            <Button variant="default" size="icon" className="h-14 w-14 rounded-full bg-green-500 hover:bg-green-600 text-white" onClick={handleStartChat}>
+                                <MessageSquare className="h-7 w-7"/>
+                            </Button>
+                         ) : (
+                            <Button variant="default" size="icon" className="h-14 w-14 rounded-full bg-blue-500 hover:bg-blue-600 text-white" onClick={() => handleLike(selectedPlayer)}>
+                                <Heart className="h-7 w-7"/>
+                            </Button>
+                         )}
                     </div>
                 </DialogContent>
             )}
@@ -207,3 +266,5 @@ export default function MatchmakingPage() {
     </div>
   )
 }
+
+    
