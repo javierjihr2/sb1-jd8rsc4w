@@ -63,9 +63,11 @@ export function UserNav() {
               <span>Perfil</span>
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Settings className="mr-2 h-4 w-4" />
-            <span>Ajustes</span>
+          <DropdownMenuItem asChild>
+            <Link href="/settings">
+              <Settings className="mr-2 h-4 w-4" />
+              <span>Ajustes</span>
+            </Link>
           </DropdownMenuItem>
           {playerProfile.role === 'Admin' && (
             <DropdownMenuItem asChild>

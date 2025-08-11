@@ -27,6 +27,7 @@ import {
   Briefcase,
   Palette,
   Rocket,
+  Settings,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -70,20 +71,27 @@ export default function DashboardLayout({
 
   const navItems = [
     { href: "/dashboard", label: "Inicio", icon: Home, badge: 0, id: 'nav-dashboard' },
-    { href: "/tournaments", label: "Torneos", icon: Swords, badge: 0, id: 'nav-tournaments' },
-    { href: "/chats", label: "Chats", icon: MessageSquare, badge: recentChats.filter(c => c.unread).length, id: 'nav-chats' },
     { href: "/matchmaking", label: "MATCH PUBGM", icon: Search, badge: 0, id: 'nav-matchmaking' },
-    { href: "/equipment", label: "Taller de Precisión", icon: Target, badge: 0, id: 'nav-equipment' },
+    { href: "/creator-application", label: "Conviértete en Creador", icon: Rocket, badge: 0, id: 'nav-creator-app' },
     { href: "/services", label: "Servicios", icon: Briefcase, badge: 0, id: 'nav-services' },
     { href: "/creator-hub", label: "Portal del Creador", icon: Palette, badge: 0, id: 'nav-creator-hub' },
-    { href: "/creator-application", label: "Conviértete en Creador", icon: Rocket, badge: 0, id: 'nav-creator-app' },
-    { href: "/recharge", label: "Recargar UC", icon: DollarSign, badge: 0, id: 'nav-recharge' },
+    { href: "/tournaments", label: "Torneos", icon: Swords, badge: 0, id: 'nav-tournaments' },
+    { href: "/chats", label: "Chats", icon: MessageSquare, badge: recentChats.filter(c => c.unread).length, id: 'nav-chats' },
+    { href: "/equipment", label: "Taller de Precisión", icon: Target, badge: 0, id: 'nav-equipment' },
     { href: "/sensitivities", label: "Mis Sensibilidades", icon: FileCode, id: 'nav-sensitivities' },
-    { href: "/player-analysis", label: "Análisis con IA", icon: BrainCircuit, id: 'nav-player-analysis' },
     { href: "/play-map", label: "Estrategias de Mapas", icon: Map, id: 'nav-play-map' },
     { href: "/compare", label: "Comparador de Dúos", icon: Users, id: 'nav-compare' },
+    { href: "/player-analysis", label: "Análisis con IA", icon: BrainCircuit, id: 'nav-player-analysis' },
+    { href: "/recharge", label: "Recargar UC", icon: DollarSign, badge: 0, id: 'nav-recharge' },
     { href: "/support", label: "Soporte", icon: HelpCircle, badge: 0, id: 'nav-support' },
-    { href: "/admin", label: "Admin", icon: ShieldCheck, badge: 0, id: 'nav-admin' },
+  ];
+  
+  const mobileNavItems = [
+     { href: "/dashboard", label: "Inicio", icon: Home, badge: 0, id: 'nav-dashboard' },
+     { href: "/matchmaking", label: "Match", icon: Search, badge: 0, id: 'nav-matchmaking' },
+     { href: "/tournaments", label: "Torneos", icon: Swords, badge: 0, id: 'nav-tournaments' },
+     { href: "/chats", label: "Chats", icon: MessageSquare, badge: recentChats.filter(c => c.unread).length, id: 'nav-chats' },
+     { href: "/profile", label: "Perfil", icon: Users, badge: 0, id: 'nav-profile' },
   ]
   
   if (loading) {
@@ -205,7 +213,7 @@ export default function DashboardLayout({
         </main>
         {/* Mobile Nav */}
         <div className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t p-2 grid grid-cols-5 gap-1">
-            {navItems.slice(0, 5).map((item) => (
+            {mobileNavItems.map((item) => (
               <Link
                 key={item.label}
                 href={item.href}
