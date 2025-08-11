@@ -6,7 +6,7 @@ import type { PlayerProfileInput } from '@/ai/schemas';
 // --- Admin Configuration ---
 // This is the email that will have admin privileges.
 // Change this to your actual email address before deploying.
-export const ADMIN_EMAIL = 'admin@squadup.com';
+export const ADMIN_EMAIL = 'javier.jihr2@gmail.com';
 
 
 export const playerProfile: PlayerProfile = {
