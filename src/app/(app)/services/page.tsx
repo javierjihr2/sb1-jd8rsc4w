@@ -118,7 +118,7 @@ export default function ServicesPage() {
 
              <div className="text-center text-muted-foreground text-sm space-y-2 pt-8">
                 <p><strong>Aviso de Seguridad:</strong> Todas las comunicaciones y acuerdos se realizan bajo tu propia responsabilidad.</p>
-                <p>¿Quieres ofrecer tus servicios? <Link href="/creator-hub" className="text-primary underline">Visita el Portal del Creador</Link> para empezar.</p>
+                <p>¿Quieres ofrecer tus servicios? <Link href="/creator-application" className="text-primary underline">Aplica para ser creador</Link> para empezar.</p>
             </div>
         </div>
 
@@ -137,3 +137,5 @@ export default function ServicesPage() {
         </>
     )
 }
+
+    
