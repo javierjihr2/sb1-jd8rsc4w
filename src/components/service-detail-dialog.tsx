@@ -69,6 +69,7 @@ export function ServiceDetailDialog({ service, isOpen, onOpenChange, onContact }
             {service.price > 0 ? (
                 <div className="space-y-1">
                     <h4 className="font-semibold text-sm">Precio</h4>
+                     <p className="text-xs text-muted-foreground">Pago a coordinar con el creador</p>
                     <p className="text-2xl font-bold text-foreground">${service.price.toFixed(2)} USD</p>
                 </div>
             ) : (

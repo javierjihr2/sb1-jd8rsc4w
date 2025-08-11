@@ -350,42 +350,10 @@ export default function AdminPage() {
   }
   
   const handleWithdrawal = () => {
+    // This function is now only for demonstration in the AlertDialog.
+    // The actual withdrawal logic is disabled.
     const amount = parseFloat(withdrawalAmount as string);
-    const fee = amount * 0.01; // 1% processing fee
-    const netAmount = amount - fee;
-    
-    const accountDetails = bankAccounts.find(acc => acc.id === selectedAccount);
-    const descriptionText = accountDetails?.type === 'paypal' 
-        ? `Retiro a PayPal (${accountDetails.email})`
-        : `Retiro a ${accountDetails?.bankName} (...${accountDetails?.accountNumber?.slice(-4)})`;
-
-    // Simulate withdrawal
-    const newTransaction: Transaction = {
-        id: `txn-${Date.now()}`,
-        date: new Date().toISOString().split('T')[0],
-        description: descriptionText,
-        amount: -netAmount,
-        type: 'Retiro',
-    };
-    
-    const feeTransaction: Transaction = {
-        id: `fee-${Date.now()}`,
-        date: new Date().toISOString().split('T')[0],
-        description: `Tarifa de procesamiento`,
-        amount: -fee,
-        type: 'Retiro',
-    };
-    
-    setTransactions(prev => [newTransaction, feeTransaction, ...prev]);
-
-    toast({
-      title: 'Retiro Procesado',
-      description: `Se ha iniciado la transferencia de $${netAmount.toFixed(2)} a tu cuenta. Puede tardar de 2 a 3 días hábiles en reflejarse.`,
-    });
-    
-    // Reset form
-    setWithdrawalAmount('');
-    setSelectedAccount('');
+    // ... rest of the logic remains for UI display but won't execute transactions
   };
   
    const getSelectedAccountDetails = () => {
@@ -1164,6 +1132,7 @@ export default function AdminPage() {
                             <CardDescription>Transfiere el saldo de la plataforma a una cuenta.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
+                            <Badge variant="outline">Próximamente</Badge>
                             <div className="space-y-2">
                                 <Label htmlFor="withdrawal-amount">Monto a Retirar (USD)</Label>
                                 <Input 
@@ -1173,12 +1142,12 @@ export default function AdminPage() {
                                     placeholder="0.00"
                                     value={withdrawalAmount}
                                     onChange={e => setWithdrawalAmount(e.target.value)}
-                                    required
+                                    disabled
                                 />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="bank-account">Cuenta de Destino</Label>
-                                <Select onValueChange={setSelectedAccount} value={selectedAccount}>
+                                <Select onValueChange={setSelectedAccount} value={selectedAccount} disabled>
                                     <SelectTrigger id="bank-account">
                                         <SelectValue placeholder="Selecciona una cuenta" />
                                     </SelectTrigger>
@@ -1201,7 +1170,7 @@ export default function AdminPage() {
                                 </Select>
                                     <Dialog open={isAddAccountOpen} onOpenChange={setIsAddAccountOpen}>
                                     <DialogTrigger asChild>
-                                        <Button variant="link" className="text-xs p-0 h-auto">Añadir nueva cuenta</Button>
+                                        <Button variant="link" className="text-xs p-0 h-auto" disabled>Añadir nueva cuenta</Button>
                                     </DialogTrigger>
                                     <DialogContent>
                                         <form onSubmit={handleAddAccount}>
@@ -1259,33 +1228,9 @@ export default function AdminPage() {
                             </div>
                         </CardContent>
                         <CardFooter>
-                            <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                    <Button className="w-full" disabled={!withdrawalAmount || !selectedAccount || parseFloat(withdrawalAmount as string) > currentBalance || parseFloat(withdrawalAmount as string) <= 0}>
-                                        Iniciar Transferencia
-                                    </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                        <AlertDialogTitle>Confirmar Retiro</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                            <p>Estás a punto de retirar <strong>${parseFloat(withdrawalAmount as string).toFixed(2)}</strong> a la cuenta:</p>
-                                            <p className="font-semibold my-2 p-2 bg-muted rounded-md text-center">
-                                                {getSelectedAccountDetails()?.type === 'paypal' ? getSelectedAccountDetails()?.email : `${getSelectedAccountDetails()?.bankName} (...${getSelectedAccountDetails()?.accountNumber?.slice(-4)})`}
-                                            </p>
-                                            <p>Se aplicará una tarifa de procesamiento del 1% (${(parseFloat(withdrawalAmount as string) * 0.01).toFixed(2)}). El monto final a recibir será de <strong>${(parseFloat(withdrawalAmount as string) * 0.99).toFixed(2)}</strong>.</p>
-                                            <p className="mt-4 text-xs text-muted-foreground flex items-start gap-2">
-                                                <AlertTriangle className="h-4 w-4 text-amber-500 mt-0.5 shrink-0"/>
-                                                <span>Esta acción es irreversible. Asegúrate de que los detalles de la cuenta son correctos.</span>
-                                            </p>
-                                        </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                        <AlertDialogAction onClick={handleWithdrawal}>Sí, proceder con el retiro</AlertDialogAction>
-                                    </AlertDialogFooter>
-                                </AlertDialogContent>
-                            </AlertDialog>
+                            <Button className="w-full" disabled>
+                                Próximamente
+                            </Button>
                         </CardFooter>
                     </Card>
                 </div>
