@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { playerProfile } from "@/lib/data"
+import { playerProfile, ADMIN_EMAIL } from "@/lib/data"
 import { User, Settings, LogOut, ShieldCheck, Moon, Sun } from "lucide-react"
 import Link from "next/link"
 import { useTheme } from "next-themes"
@@ -34,6 +34,8 @@ export function UserNav() {
   const userDisplayName = user?.displayName || playerProfile.name;
   const userDisplayEmail = user?.email || playerProfile.email;
   const userDisplayAvatar = user?.photoURL || playerProfile.avatarUrl;
+  
+  const isAdmin = user?.email === ADMIN_EMAIL;
 
 
   return (
@@ -69,7 +71,7 @@ export function UserNav() {
               <span>Ajustes</span>
             </Link>
           </DropdownMenuItem>
-          {playerProfile.role === 'Admin' && (
+          {isAdmin && (
             <DropdownMenuItem asChild>
               <Link href="/admin">
                 <ShieldCheck className="mr-2 h-4 w-4" />

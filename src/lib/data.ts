@@ -3,6 +3,12 @@
 import type { PlayerProfile, Tournament, Chat, NewsArticle, Team, RegistrationRequest, FeedPost, RechargeProvider, Developer, Service, UserWithRole, BankAccount, Transaction, ApprovedRegistration } from './types';
 import type { PlayerProfileInput } from '@/ai/schemas';
 
+// --- Admin Configuration ---
+// This is the email that will have admin privileges.
+// Change this to your actual email address before deploying.
+export const ADMIN_EMAIL = 'admin@squadup.com';
+
+
 export const playerProfile: PlayerProfile = {
   id: 'p1',
   name: 'Player1_Pro',
@@ -17,7 +23,7 @@ export const playerProfile: PlayerProfile = {
     kills: 2345,
     kdRatio: 4.8,
   },
-  role: 'Admin', // El admin también puede ser creador
+  role: 'Jugador', // This is now the default role for the placeholder profile
   location: { lat: 19.4326, lon: -99.1332 }, // Mexico City
 };
 

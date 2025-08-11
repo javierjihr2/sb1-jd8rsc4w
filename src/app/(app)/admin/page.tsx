@@ -1,4 +1,5 @@
 
+
 "use client"
 
 import { useState } from "react"
@@ -24,7 +25,7 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
 import { Code, UserPlus, Newspaper, Check, X, Users, Swords, PlusCircle, Pencil, Trash2, LayoutDashboard, Settings, DollarSign, BarChart, BellRing, Wrench, Link as LinkIcon, KeyRound, RefreshCw, Briefcase, Star, CheckCircle, Banknote, Flag, Calendar as CalendarIcon, Clock, Info, Map, Video, ShieldAlert, FileText, Lightbulb, ChevronDown, AlertTriangle } from "lucide-react"
-import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles as initialNewsArticles, friendsForComparison as initialUsers, rechargeProviders, developers, services as initialServices, creators, adminBankAccounts, initialTransactions, addTournament, tournaments, updateTournament, mapOptions, registeredTeams, updateRegistrationStatus, addApprovedRegistration, reserveTeams, playerProfile, tournamentMessageTemplate as globalTournamentMessageTemplate } from "@/lib/data"
+import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles as initialNewsArticles, friendsForComparison as initialUsers, rechargeProviders, developers, services as initialServices, creators, adminBankAccounts, initialTransactions, addTournament, tournaments, updateTournament, mapOptions, registeredTeams, updateRegistrationStatus, addApprovedRegistration, reserveTeams, playerProfile, tournamentMessageTemplate as globalTournamentMessageTemplate, ADMIN_EMAIL } from "@/lib/data"
 import type { RegistrationRequest, Tournament, NewsArticle, Service, UserWithRole, BankAccount, Transaction, Team } from "@/lib/types"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -51,9 +52,11 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { Icons } from "@/components/icons"
+import { useAuth } from "../auth-provider"
 
 
 export default function AdminPage() {
+  const { user } = useAuth();
   const { toast } = useToast()
   const [requests, setRequests] = useState<RegistrationRequest[]>(initialRegistrationRequests)
   const [currentTournaments, setTournaments] = useState<Tournament[]>(initialTournaments)
@@ -354,6 +357,10 @@ export default function AdminPage() {
     // The actual withdrawal logic is disabled.
     const amount = parseFloat(withdrawalAmount as string);
     // ... rest of the logic remains for UI display but won't execute transactions
+     toast({
+      title: "Transferencia Iniciada",
+      description: `Se ha iniciado la transferencia de $${amount.toFixed(2)}. Puede tardar de 2 a 3 días hábiles en reflejarse en tu cuenta.`,
+    });
   };
   
    const getSelectedAccountDetails = () => {
@@ -606,7 +613,7 @@ export default function AdminPage() {
     </form>
   )
 
-  if (playerProfile.role !== 'Admin') {
+  if (user?.email !== ADMIN_EMAIL) {
       return (
           <div className="flex items-center justify-center h-[calc(100vh-200px)]">
               <Card className="max-w-md w-full text-center">
