@@ -1,15 +1,20 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 
 android {
     namespace "com.squadup.app"
-    compileSdk 34
+    compileSdkVersion rootProject.ext.compileSdkVersion
     defaultConfig {
         applicationId "com.squadup.app"
-        minSdk 22
-        targetSdk 34
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        aaptOptions {
+             // Files and dirs to omit from the packaged assets dir, modified by 'npx cap sync'
+            ignoreAssetsPattern = "!.svn:!.git:!.DS_Store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~"
+        }
     }
     buildTypes {
         release {
@@ -21,6 +26,12 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+    buildFeatures {
+        viewBinding true
+    }
 }
 
 repositories {
@@ -31,21 +42,19 @@ repositories {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation "androidx.appcompat:appcompat:$rootProject.ext.androidXAppCompat"
+    implementation "androidx.coordinatorlayout:coordinatorlayout:$rootProject.ext.androidXCoordinatorLayout"
+    implementation "androidx.core:core-ktx:$rootProject.ext.androidXCore"
+    implementation "androidx.activity:activity-ktx:$rootProject.ext.androidXActivity"
+    implementation "androidx.fragment:fragment-ktx:$rootProject.ext.androidXFragment"
+    implementation "androidx.webkit:webkit:$rootProject.ext.androidxWebkit"
+    implementation "com.google.android.material:material:$rootProject.ext.googleMaterial"
+    implementation "androidx.security:security-crypto-ktx:$rootProject.ext.androidXSecurity"
+    implementation "androidx.core:core-splashscreen:$rootProject.ext.coreSplashScreen"
+    testImplementation "junit:junit:4.13.2"
+    androidTestImplementation "androidx.test.ext:junit:1.2.1"
+    androidTestImplementation "androidx.test.espresso:espresso-core:3.6.1"
     implementation project(':capacitor-android')
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
-    implementation project(':capacitor-cordova-android-plugins')
 }
 
-apply from: "capacitor.build.gradle"
-
-try {
-    def servicesJSON = file('google-services.json')
-    if (servicesJSON.exists()) {
-        apply plugin: 'com.google.gms.google-services'
-    }
-} catch(Exception e) {
-    logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
-}
+apply from: 'capacitor.build.gradle'
