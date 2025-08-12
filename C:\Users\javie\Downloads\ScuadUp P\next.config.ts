@@ -27,8 +27,6 @@ const nextConfig: NextConfig = {
   },
   // Esto asegura que Next.js exporte una app estática compatible con Capacitor
   output: 'export',
-  // Y que la ponga en la carpeta 'out'
-  distDir: 'out',
 };
 
 export default nextConfig;
