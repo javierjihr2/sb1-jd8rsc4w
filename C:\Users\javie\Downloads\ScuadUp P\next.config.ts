@@ -2,7 +2,6 @@
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -25,7 +24,9 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  // Esto asegura que Next.js exporte una app estática compatible con Capacitor
+  // Forzamos la salida a la carpeta 'public' para compatibilidad directa con Capacitor
+  distDir: 'public',
+  // Aseguramos que se exporte una app estática
   output: 'export',
 };
 
