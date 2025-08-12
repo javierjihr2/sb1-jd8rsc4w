@@ -1,4 +1,4 @@
-
+// Capacitor's Gradle settings
 include ':app'
 include ':capacitor-android'
 project(':capacitor-android').projectDir = new File(settings.getRootDir(), '../node_modules/@capacitor/android/capacitor')
