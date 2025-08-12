@@ -25,9 +25,10 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  // La siguiente línea es la solución. 
-  // Le dice a Next.js que ponga los archivos de la app en la carpeta "public".
-  distDir: 'public',
+  // Esto asegura que Next.js exporte una app estática compatible con Capacitor
+  output: 'export',
+  // Y que la ponga en la carpeta 'out'
+  distDir: 'out',
 };
 
 export default nextConfig;
