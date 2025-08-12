@@ -11,7 +11,6 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "install:force": "npm install --legacy-peer-deps",
     "cap:sync": "cap sync android",
     "cap:open": "cap open android",
     "cap:run": "cap run android"
