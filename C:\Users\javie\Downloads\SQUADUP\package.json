@@ -1,3 +1,4 @@
+
 {
   "name": "squadup-mobile-battles",
   "version": "0.1.0",
@@ -11,13 +12,14 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "cap:sync": "cap sync android",
-    "cap:open": "cap open android",
-    "cap:run": "cap run android"
+    "android": "cap run android",
+    "ios": "cap run ios",
+    "sync": "npm run build && cap sync"
   },
   "dependencies": {
     "@capacitor/android": "^6.1.0",
     "@capacitor/core": "^6.1.0",
+    "@capacitor/ios": "^6.1.0",
     "@genkit-ai/firebase": "^1.16.0",
     "@genkit-ai/googleai": "^1.16.0",
     "@google/generative-ai": "^0.16.0",
