@@ -14,8 +14,7 @@
     </style>
 
     <style name="AppTheme.NoActionBarLaunch" parent="AppTheme.NoActionBar">
-        <!-- We are reverting to a simple white background for the splash screen to avoid resource errors -->
-        <item name="android:background">@android:color/white</item>
+        <item name="android:background">@drawable/splash</item>
     </style>
 
 </resources>
