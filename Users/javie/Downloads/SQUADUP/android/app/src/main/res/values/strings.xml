@@ -1,0 +1,8 @@
+
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">SquadUp</string>
+    <string name="title_activity_main">SquadUp</string>
+    <string name="package_name">com.squadup.app</string>
+    <string name="custom_url_scheme">com.squadup.app</string>
+</resources>

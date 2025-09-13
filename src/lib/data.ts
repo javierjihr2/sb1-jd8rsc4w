@@ -1,6 +1,5 @@
 
-import type { PlayerProfile, Tournament, Chat, NewsArticle, Team, RegistrationRequest, FeedPost, RechargeProvider, Developer, Service, UserWithRole, BankAccount, Transaction, ApprovedRegistration } from './types';
-import type { PlayerProfileInput } from '@/ai/schemas';
+import type { PlayerProfile, Tournament, Chat, NewsArticle, Team, RegistrationRequest, FeedPost, RechargeProvider, Developer, Service, UserWithRole, BankAccount, Transaction, ApprovedRegistration, ConnectionRequest, Match, ConnectionStatusResult } from './types';
 
 // --- Admin Configuration ---
 // This is the email that will have admin privileges.
@@ -10,20 +9,36 @@ export const ADMIN_EMAIL = 'javier.jihr2@gmail.com';
 
 export const playerProfile: PlayerProfile = {
   id: 'p1',
-  name: 'Player1_Pro',
-  email: 'pro_player@email.com',
+  // Campos requeridos
+  displayName: 'Player1_Pro',
+  username: 'player1_pro',
   avatarUrl: 'https://placehold.co/100x100.png',
   bio: 'Jugador profesional de PUBG Mobile, especialista en rifles de asalto y estratega de equipo. Buscando dúo para dominar en los torneos.',
+  region: 'MX',
+  language: 'es',
+  mic: true,
+  roles: ['Asaltante', 'Estratega'],
+  rankTier: 'Conquistador',
+  stats: {
+    kda: 4.8,
+    wins: 124,
+    matches: 200,
+  },
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  // Campos opcionales para compatibilidad
+  name: 'Player1_Pro',
+  email: 'pro_player@email.com',
+  avatar: 'https://placehold.co/100x100.png',
   level: 72,
   rank: 'Conquistador',
   countryCode: 'MX',
-  stats: {
-    wins: 124,
-    kills: 2345,
-    kdRatio: 4.8,
-  },
-  role: 'Jugador', // This is now the default role for the placeholder profile
-  location: { lat: 19.4326, lon: -99.1332 }, // Mexico City
+  gameId: '123456789',
+  role: 'Jugador',
+  location: { lat: 19.4326, lon: -99.1332 },
+  favoriteWeapons: ['M416', 'Kar98k'],
+  playSchedule: 'Noches (20:00 - 00:00)',
+  favoriteMap: 'erangel'
 };
 
 export const mapOptions = [
@@ -43,7 +58,7 @@ export const countryFlags: { [key: string]: string } = {
   BO: '🇧🇴', PY: '🇵🇾', CL: '🇨🇱', AR: '🇦🇷', UY: '🇺🇾'
 };
 
-export let tournaments: Tournament[] = [
+export const tournaments: Tournament[] = [
   {
     id: 't1',
     name: 'Copa Verano 2024',
@@ -59,7 +74,7 @@ export let tournaments: Tournament[] = [
     description: 'El torneo más grande del verano en Norteamérica. Formato de puntos estándar. Solo los mejores sobrevivirán.',
     maxTeams: 23,
     maps: ['Erangel', 'Miramar', 'Sanhok'],
-    streamLink: 'https://twitch.tv/squadup_esports',
+    streamLink: 'https://twitch.tv/squadgo_battle',
     maxWithdrawalTime: '17:00',
     maxReserves: 5,
   },
@@ -105,7 +120,7 @@ export let tournaments: Tournament[] = [
 ];
 
 // Variable global para la plantilla del mensaje del torneo
-export let tournamentMessageTemplate = `
+export const tournamentMessageTemplate = `
 {{header}}
 _Organizado por: {{organizerName}} 🥷_
 
@@ -149,9 +164,9 @@ export const recentChats: Chat[] = [
     unread: true,
     lastMessageTimestamp: '20:15',
     messages: [
-        { sender: 'other', text: '¿Listos para el torneo de mañana?' },
-        { sender: 'me', text: '¡Más que listos! Estuve practicando toda la tarde.' },
-        { sender: 'other', text: 'Perfecto, nos vemos a las 8pm para calentar.' },
+        { sender: 'other', text: '¿Listos para el torneo de mañana?', content: '¿Listos para el torneo de mañana?' },
+        { sender: 'me', text: '¡Más que listos! Estuve practicando toda la tarde.', content: '¡Más que listos! Estuve practicando toda la tarde.' },
+        { sender: 'other', text: 'Perfecto, nos vemos a las 8pm para calentar.', content: 'Perfecto, nos vemos a las 8pm para calentar.' },
     ]
   },
   {
@@ -161,9 +176,9 @@ export const recentChats: Chat[] = [
     unread: true,
     lastMessageTimestamp: '18:42',
      messages: [
-        { sender: 'other', text: '¡Buena partida la de antes!' },
-        { sender: 'me', text: '¡Igualmente! Ese último squad casi nos complica.' },
-        { sender: 'other', text: 'Pero los dominamos. 🔥 ¿Jugamos otra más tarde?' },
+        { sender: 'other', text: '¡Buena partida la de antes!', content: '¡Buena partida la de antes!' },
+        { sender: 'me', text: '¡Igualmente! Ese último squad casi nos complica.', content: '¡Igualmente! Ese último squad casi nos complica.' },
+        { sender: 'other', text: 'Pero los dominamos. 🔥 ¿Jugamos otra más tarde?', content: 'Pero los dominamos. 🔥 ¿Jugamos otra más tarde?' },
     ]
   },
   {
@@ -173,7 +188,7 @@ export const recentChats: Chat[] = [
     unread: false,
     lastMessageTimestamp: 'Ayer',
      messages: [
-        { sender: 'other', text: 'Te envié una solicitud de amistad.' },
+        { sender: 'other', text: 'Te envié una solicitud de amistad.', content: 'Te envié una solicitud de amistad.' },
     ]
   },
   {
@@ -183,8 +198,8 @@ export const recentChats: Chat[] = [
     unread: false,
     lastMessageTimestamp: 'Ayer',
      messages: [
-        { sender: 'other', text: 'Necesitamos un cuarto para la práctica de esta noche, ¿te unes?' },
-        { sender: 'me', text: 'Claro, ¿a qué hora?' },
+        { sender: 'other', text: 'Necesitamos un cuarto para la práctica de esta noche, ¿te unes?', content: 'Necesitamos un cuarto para la práctica de esta noche, ¿te unes?' },
+        { sender: 'me', text: 'Claro, ¿a qué hora?', content: 'Claro, ¿a qué hora?' },
     ]
   },
 ];
@@ -198,75 +213,213 @@ export const addChat = (newChat: Chat) => {
 };
 
 
-const baseFriends: (Omit<PlayerProfileInput, 'location'> & {location: {lat: number, lon: number}})[] = [
+const baseFriends: PlayerProfile[] = [
     {
       id: 'p1',
-      name: 'Player1_Pro',
+      // Campos requeridos
+      displayName: 'Player1_Pro',
+      username: 'player1_pro',
       avatarUrl: 'https://placehold.co/100x100.png',
+      bio: 'Busco dúo para llegar a Conquistador. Activo principalmente por las noches.',
+      region: 'MX',
+      language: 'es',
+      mic: true,
+      roles: ['Asaltante'],
+      rankTier: 'Conquistador',
+      stats: { kda: 4.8, wins: 124, matches: 200 },
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      // Campos opcionales
+      name: 'Player1_Pro',
+      email: 'player1@example.com',
       rank: 'Conquistador',
+      level: 45,
       countryCode: 'MX',
-      stats: { wins: 124, kills: 2345, kdRatio: 4.8 },
+      role: 'Jugador',
       favoriteWeapons: ['M416', 'Kar98k'],
       playSchedule: 'Noches (20:00 - 00:00)',
       favoriteMap: 'erangel',
-      bio: 'Busco dúo para llegar a Conquistador. Activo principalmente por las noches.',
-      location: { lat: 19.4326, lon: -99.1332 }, // Mexico City
+      location: { lat: 19.4326, lon: -99.1332 },
     },
     {
       id: 'c2',
-      name: 'Ninja_Dude',
+      // Campos requeridos
+      displayName: 'Ninja_Dude',
+      username: 'ninja_dude',
       avatarUrl: 'https://placehold.co/40x40/32CD32/FFFFFF.png',
+      bio: 'Jugador agresivo, amante de Sanhok. Busco gente para rushear sin miedo.',
+      region: 'CO',
+      language: 'es',
+      mic: true,
+      roles: ['Asaltante'],
+      rankTier: 'As Dominador',
+      stats: { kda: 4.2, wins: 98, matches: 180 },
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      // Campos opcionales
+      name: 'Ninja_Dude',
+      email: 'ninja@example.com',
       rank: 'As Dominador',
+      level: 42,
       countryCode: 'CO',
-      stats: { wins: 98, kills: 1890, kdRatio: 4.2 },
+      role: 'Jugador',
       favoriteWeapons: ['AKM', 'SKS'],
       playSchedule: 'Fines de semana',
       favoriteMap: 'sanhok',
-      bio: 'Jugador agresivo, amante de Sanhok. Busco gente para rushear sin miedo.',
-      location: { lat: 4.7110, lon: -74.0721 }, // Bogotá
+      location: { lat: 4.7110, lon: -74.0721 },
     },
     {
       id: 'c3',
-      name: 'ShadowStriker',
+      // Campos requeridos
+      displayName: 'ShadowStriker',
+      username: 'shadow_striker',
       avatarUrl: 'https://placehold.co/40x40/8A2BE2/FFFFFF.png',
+      bio: 'Francotirador paciente. Me gusta controlar zonas y jugar táctico en Miramar.',
+      region: 'US',
+      language: 'en',
+      mic: true,
+      roles: ['Francotirador'],
+      rankTier: 'As',
+      stats: { kda: 3.5, wins: 75, matches: 150 },
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      // Campos opcionales
+      name: 'ShadowStriker',
+      email: 'shadow@example.com',
       rank: 'As',
+      level: 38,
       countryCode: 'US',
-      stats: { wins: 75, kills: 1500, kdRatio: 3.5 },
+      role: 'Jugador',
       favoriteWeapons: ['UMP45', 'M24'],
       playSchedule: 'Tardes (16:00 - 19:00)',
       favoriteMap: 'miramar',
-      bio: 'Francotirador paciente. Me gusta controlar zonas y jugar táctico en Miramar.',
-      location: { lat: 34.0522, lon: -118.2437 }, // Los Angeles
+      location: { lat: 34.0522, lon: -118.2437 },
     },
     {
       id: 'c4',
-      name: 'Phoenix_Queen',
+      // Campos requeridos
+      displayName: 'Phoenix_Queen',
+      username: 'phoenix_queen',
       avatarUrl: 'https://placehold.co/40x40/FF4500/FFFFFF.png',
+      bio: 'Juego por diversión pero me gusta ganar. Abierta a cualquier modo de juego.',
+      region: 'BR',
+      language: 'pt',
+      mic: true,
+      roles: ['Soporte'],
+      rankTier: 'Corona I',
+      stats: { kda: 3.1, wins: 60, matches: 120 },
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      // Campos opcionales
+      name: 'Phoenix_Queen',
+      email: 'phoenix@example.com',
       rank: 'Corona I',
+      level: 35,
       countryCode: 'BR',
-      stats: { wins: 60, kills: 1200, kdRatio: 3.1 },
+      role: 'Jugador',
       favoriteWeapons: ['DP-28', 'Vector'],
       playSchedule: 'Variable',
       favoriteMap: 'erangel',
-      bio: 'Juego por diversión pero me gusta ganar. Abierta a cualquier modo de juego.',
-      location: { lat: -23.5505, lon: -46.6333 }, // São Paulo
+      location: { lat: -23.5505, lon: -46.6333 },
     },
-     { id: 'f1', name: 'GamerX_Treme', avatarUrl: 'https://placehold.co/40x40/FF6347/FFFFFF.png', rank: 'Platino II', countryCode: 'CA', stats: { wins: 30, kills: 600, kdRatio: 2.5 }, favoriteWeapons: ['SCAR-L', 'UMP45'], playSchedule: 'Noches', favoriteMap: 'sanhok', bio: 'Mejorando cada día. Busco gente para subir de rango juntos.', location: { lat: 45.4215, lon: -75.6972 } }, // Ottawa
-     { id: 'f2', name: 'ProSlayer_99', avatarUrl: 'https://placehold.co/40x40/4682B4/FFFFFF.png', rank: 'Diamante V', countryCode: 'AR', stats: { wins: 55, kills: 1100, kdRatio: 2.9 }, favoriteWeapons: ['M762', 'Mini14'], playSchedule: 'Fines de semana', favoriteMap: 'miramar', bio: 'Conductor experto y buen support. ¡Vamos por esos Chicken Dinners!', location: { lat: -34.6037, lon: -58.3816 } }, // Buenos Aires
+    {
+      id: 'f1',
+      // Campos requeridos
+      displayName: 'GamerX_Treme',
+      username: 'gamerx_treme',
+      avatarUrl: 'https://placehold.co/40x40/FF6347/FFFFFF.png',
+      bio: 'Mejorando cada día. Busco gente para subir de rango juntos.',
+      region: 'CA',
+      language: 'en',
+      mic: true,
+      roles: ['Asaltante'],
+      rankTier: 'Platino II',
+      stats: { kda: 2.5, wins: 30, matches: 80 },
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      // Campos opcionales
+      name: 'GamerX_Treme',
+      email: 'gamerx@example.com',
+      rank: 'Platino II',
+      level: 28,
+      countryCode: 'CA',
+      role: 'Jugador',
+      favoriteWeapons: ['SCAR-L', 'UMP45'],
+      playSchedule: 'Noches',
+      favoriteMap: 'sanhok',
+      location: { lat: 45.4215, lon: -75.6972 }
+    },
+    {
+      id: 'f2',
+      // Campos requeridos
+      displayName: 'ProSlayer_99',
+      username: 'proslayer_99',
+      avatarUrl: 'https://placehold.co/40x40/4682B4/FFFFFF.png',
+      bio: 'Conductor experto y buen support. ¡Vamos por esos Chicken Dinners!',
+      region: 'AR',
+      language: 'es',
+      mic: true,
+      roles: ['Soporte'],
+      rankTier: 'Diamante V',
+      stats: { kda: 2.9, wins: 55, matches: 110 },
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      // Campos opcionales
+      name: 'ProSlayer_99',
+      email: 'proslayer@example.com',
+      rank: 'Diamante V',
+      level: 32,
+      countryCode: 'AR',
+      role: 'Jugador',
+      favoriteWeapons: ['M762', 'Mini14'],
+      playSchedule: 'Fines de semana',
+      favoriteMap: 'miramar',
+      location: { lat: -34.6037, lon: -58.3816 }
+    }
 ];
 
 
-export const friendsForComparison: (PlayerProfileInput & { favoriteMap: string, bio: string, role: 'Jugador' | 'Creador' | 'Admin', location: { lat: number, lon: number } })[] = baseFriends.map((friend) => {
+export const friendsForComparison: UserWithRole[] = baseFriends.map((friend) => {
     let role: 'Jugador' | 'Creador' | 'Admin' = 'Jugador';
     if (friend.id === 'p1') role = 'Admin';
     if (['c2', 'c3'].includes(friend.id)) role = 'Creador';
-    return { ...friend, role };
+    
+    // Transform PlayerProfile to PlayerProfileInput format
+    return {
+        id: friend.id,
+        name: friend.name || friend.displayName || '',
+        avatarUrl: friend.avatarUrl || '',
+        rank: friend.rank || friend.rankTier || '',
+        stats: {
+            wins: friend.stats.wins || 0,
+            kills: Math.round((friend.stats.kda || 0) * (friend.stats.matches || 0) * 0.3) || 0,
+            kdRatio: friend.stats.kda || 0
+        },
+        favoriteWeapons: friend.favoriteWeapons || [],
+        playSchedule: friend.playSchedule || '',
+        // Optional fields from PlayerProfileInput
+        kdRatio: friend.stats.kda,
+        favoriteMap: friend.favoriteMap || 'erangel',
+        bio: friend.bio || '',
+        countryCode: friend.countryCode || 'US',
+        location: friend.location || { lat: 0, lon: 0 },
+        email: friend.email || '',
+        level: friend.level || 1,
+        role: role,
+        fcmToken: undefined,
+        nickname: friend.displayName || '',
+        username: friend.username || '',
+        gameId: undefined,
+        currentServer: undefined,
+        gender: undefined,
+        age: undefined
+    };
 });
 
 export const initialUsers: UserWithRole[] = friendsForComparison;
 
 
-export let registeredTeams: Team[] = [
+export const registeredTeams: Team[] = [
   {
     id: 'team1',
     name: 'Los Invencibles',
@@ -285,7 +438,7 @@ export let registeredTeams: Team[] = [
   }
 ];
 
-export let reserveTeams: Team[] = [
+export const reserveTeams: Team[] = [
     {
         id: 'team3',
         name: 'Los Reservistas',
@@ -355,31 +508,43 @@ export const newsArticles: NewsArticle[] = [
 export const feedPosts: FeedPost[] = [
   {
     id: 'post1',
-    author: friendsForComparison.find(f => f.id === 'c2')!,
+    author: baseFriends.find(f => f.id === 'c2')!,
     timestamp: 'Hace 15 minutos',
     content: '¡Qué locura la nueva actualización! El modo de juego es increíble. ¿Alguien para probarlo?',
     likes: 12,
     comments: 3,
+    shares: 2,
     commentsList: [],
+    likedBy: [],
+    sharedBy: [],
+    interactions: []
   },
   {
     id: 'post2',
-    author: friendsForComparison.find(f => f.id === 'c4')!,
+    author: baseFriends.find(f => f.id === 'c4')!,
     timestamp: 'Hace 1 hora',
     content: 'Buscando un cuarto miembro para nuestro squad para el torneo de la "Copa Verano 2024". Requisito: Rango Diamante o superior. ¡MD si te interesa!',
     imageUrl: 'https://placehold.co/800x400.png',
     likes: 25,
     comments: 8,
+    shares: 5,
     commentsList: [],
+    likedBy: [],
+    sharedBy: [],
+    interactions: []
   },
   {
     id: 'post3',
-    author: friendsForComparison.find(f => f.id === 'c3')!,
+    author: baseFriends.find(f => f.id === 'c3')!,
     timestamp: 'Hace 3 horas',
     content: 'Finalmente llegué a As Dominador esta temporada. ¡El esfuerzo valió la pena! Gracias a mi dúo por el apoyo. 💪',
     likes: 42,
     comments: 11,
+    shares: 8,
     commentsList: [],
+    likedBy: [],
+    sharedBy: [],
+    interactions: []
   }
 ];
 
@@ -416,6 +581,46 @@ export const rechargeProviders: RechargeProvider[] = [
 export const developers: Developer[] = [
     { id: 'dev-01', name: 'Alice', status: 'Activo', apiKey: 'a1b2c3d4-e5f6-g7h8' },
     { id: 'dev-02', name: 'Bob', status: 'Inactivo', apiKey: 'i9j0k1l2-m3n4-o5p6' },
+];
+
+// Planes de suscripción
+export const subscriptionPlans = [
+    {
+        id: 'plan-basic',
+        name: 'Creador Básico',
+        description: 'Ideal para empezar tu carrera como creador de contenido',
+        price: 9.99,
+        duration: 30, // 30 días
+        features: [
+            'Creación de torneos ilimitados',
+            'Publicar hasta 3 servicios',
+            'Gestión básica de equipos',
+            'Chat grupal en torneos',
+            'Estadísticas básicas',
+            'Soporte por email',
+            'Badge de "Creador Verificado"'
+        ],
+        isActive: true
+    },
+    {
+        id: 'plan-premium',
+        name: 'Creador Pro',
+        description: 'Para creadores profesionales que buscan maximizar su alcance',
+        price: 19.99,
+        duration: 30, // 30 días
+        features: [
+            'Todo lo del Plan Básico',
+            'Servicios ilimitados',
+            'Personalización avanzada de torneos',
+            'Analytics detallados y métricas',
+            'Streaming integrado',
+            'Herramientas de marketing',
+            'Soporte prioritario 24/7',
+            'Comisiones reducidas en servicios',
+            'Promoción destacada en la plataforma'
+        ],
+        isActive: true
+    }
 ];
 
 export const services: Service[] = [
@@ -484,15 +689,15 @@ export const services: Service[] = [
 export const creators = friendsForComparison.filter(f => f.role === 'Creador' || f.role === 'Admin').map(f => ({ id: f.id, name: f.name }));
     
 // Finance data
-export let adminBankAccounts: BankAccount[] = [
-    { id: 'ba1', type: 'bank', bankName: 'Banco Regional', accountNumber: '...1234', holderName: 'SquadUp Corp', country: 'US' },
-    { id: 'ba2', type: 'bank', bankName: 'Metro Bank', accountNumber: '...5678', holderName: 'SquadUp Corp', country: 'US' },
-    { id: 'ba3', type: 'paypal', email: 'pagos@squadup.com', holderName: 'SquadUp Corp' },
+export const adminBankAccounts: BankAccount[] = [
+    { id: 'ba1', type: 'bank', bankName: 'Banco Regional', accountNumber: '...1234', holderName: 'SquadGO Corp', country: 'US' },
+  { id: 'ba2', type: 'bank', bankName: 'Metro Bank', accountNumber: '...5678', holderName: 'SquadGO Corp', country: 'US' },
+  { id: 'ba3', type: 'paypal', email: 'pagos@squadgo.com', holderName: 'SquadGO Corp' },
 ];
 
-export let creatorBankAccounts: BankAccount[] = [
-    { id: 'cba1', type: 'bank', bankName: 'Mi Banco Local', accountNumber: '...9876', holderName: playerProfile.name, country: 'MX' },
-    { id: 'cba2', type: 'paypal', email: playerProfile.email, holderName: playerProfile.name },
+export const creatorBankAccounts: BankAccount[] = [
+    { id: 'cba1', type: 'bank', bankName: 'Mi Banco Local', accountNumber: '...9876', holderName: playerProfile.name || 'Usuario', country: 'MX' },
+    { id: 'cba2', type: 'paypal', email: playerProfile.email || 'usuario@example.com', holderName: playerProfile.name || 'Usuario' },
 ];
 
 
@@ -501,3 +706,220 @@ export const initialTransactions: Transaction[] = [
     { id: 'txn2', date: '2024-07-27', description: 'Suscripción Creador Pro - ShadowStriker', amount: 4.99, type: 'Ingreso' },
     { id: 'txn3', date: '2024-07-25', description: 'Suscripción Creador Básico - Phoenix_Queen', amount: 2.99, type: 'Ingreso' },
 ];
+
+// Sistema de Match - Datos simulados
+export const connectionRequests: ConnectionRequest[] = [
+    {
+        id: 'req1',
+        fromUserId: 'c2',
+        toUserId: 'p1',
+        fromUser: baseFriends.find(f => f.id === 'c2')!,
+        toUser: playerProfile,
+        status: 'pending',
+        createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 horas atrás
+        message: '¡Hola! Me gustaría hacer match contigo para jugar algunas partidas.'
+    },
+    {
+        id: 'req2',
+        fromUserId: 'p1',
+        toUserId: 'c3',
+        fromUser: playerProfile,
+        toUser: baseFriends.find(f => f.id === 'c3')!,
+        status: 'pending',
+        createdAt: new Date(Date.now() - 1 * 60 * 60 * 1000), // 1 hora atrás
+        message: 'Tu perfil me parece interesante, ¿hacemos match?'
+    }
+];
+
+export const matches: Match[] = [
+    {
+        id: 'match1',
+        user1Id: 'p1',
+        user2Id: 'c4',
+        user1: playerProfile,
+        user2: baseFriends.find(f => f.id === 'c4')!,
+        createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 día atrás
+        chatId: 'c4',
+        isActive: true
+    }
+];
+
+// Funciones para manejar el sistema de match
+export const sendConnectionRequest = (fromUserId: string, toUserId: string, message?: string) => {
+    const fromUser = fromUserId === playerProfile.id ? playerProfile : baseFriends.find(f => f.id === fromUserId);
+    const toUser = toUserId === playerProfile.id ? playerProfile : baseFriends.find(f => f.id === toUserId);
+    
+    if (!fromUser || !toUser) return { type: 'error', error: 'Usuario no encontrado' };
+    
+    // Verificar si ya existe una solicitud
+    const existingRequest = connectionRequests.find(req => 
+        (req.fromUserId === fromUserId && req.toUserId === toUserId) ||
+        (req.fromUserId === toUserId && req.toUserId === fromUserId)
+    );
+    
+    if (existingRequest) {
+        return { type: 'already_exists', error: 'Ya existe una solicitud de conexión' };
+    }
+    
+    // Verificar si ya hay un match
+    const existingMatch = matches.find(match => 
+        (match.user1Id === fromUserId && match.user2Id === toUserId) ||
+        (match.user1Id === toUserId && match.user2Id === fromUserId)
+    );
+    
+    if (existingMatch) {
+        return { type: 'already_matched', error: 'Ya tienes match con este usuario' };
+    }
+    
+    // Verificar si el otro usuario ya envió una solicitud (match mutuo)
+    const mutualRequest = connectionRequests.find(req => 
+        req.fromUserId === toUserId && 
+        req.toUserId === fromUserId &&
+        req.status === 'pending'
+    );
+    
+    if (mutualRequest) {
+        // ¡Match! Ambos usuarios se han enviado solicitudes
+        const newMatch: Match = {
+            id: `match_${Date.now()}`,
+            user1Id: fromUserId,
+            user2Id: toUserId,
+            user1: fromUser,
+            user2: toUser,
+            createdAt: new Date(),
+            isActive: true
+        };
+        
+        matches.push(newMatch);
+        
+        // Marcar la solicitud existente como aceptada
+        mutualRequest.status = 'accepted';
+        
+        // Crear chat
+        const chatId = `chat_${Date.now()}`;
+        newMatch.chatId = chatId;
+        
+        addChat({
+            id: chatId,
+            name: toUser.displayName || toUser.name || 'Usuario',
+            avatarUrl: toUser.avatarUrl,
+            unread: true,
+            lastMessageTimestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            messages: [{
+                sender: 'system',
+                text: '¡Hicieron match! Ahora pueden chatear y jugar juntos.',
+                content: '¡Hicieron match! Ahora pueden chatear y jugar juntos.'
+            }]
+        });
+        
+        return { type: 'match', match: newMatch };
+    }
+    
+    // Solo enviar solicitud
+    const newRequest: ConnectionRequest = {
+        id: `req_${Date.now()}`,
+        fromUserId,
+        toUserId,
+        fromUser,
+        toUser,
+        status: 'pending',
+        createdAt: new Date(),
+        message
+    };
+    
+    connectionRequests.push(newRequest);
+    return { type: 'request_sent', request: newRequest };
+};
+
+export const acceptConnectionRequest = (requestId: string) => {
+    const request = connectionRequests.find(req => req.id === requestId);
+    if (!request) return { success: false, error: 'Solicitud no encontrada' };
+    
+    // Verificar si el otro usuario también ha enviado una solicitud (match mutuo)
+    const mutualRequest = connectionRequests.find(req => 
+        req.fromUserId === request.toUserId && 
+        req.toUserId === request.fromUserId &&
+        req.status === 'pending'
+    );
+    
+    if (mutualRequest) {
+        // ¡Match! Ambos usuarios se han enviado solicitudes
+        const newMatch: Match = {
+            id: `match_${Date.now()}`,
+            user1Id: request.fromUserId,
+            user2Id: request.toUserId,
+            user1: request.fromUser,
+            user2: request.toUser,
+            createdAt: new Date(),
+            isActive: true
+        };
+        
+        matches.push(newMatch);
+        
+        // Marcar ambas solicitudes como aceptadas
+        request.status = 'accepted';
+        mutualRequest.status = 'accepted';
+        
+        // Crear chat
+        const chatId = `chat_${Date.now()}`;
+        newMatch.chatId = chatId;
+        
+        addChat({
+            id: chatId,
+            name: request.fromUser.displayName || request.fromUser.name || 'Usuario',
+            avatarUrl: request.fromUser.avatarUrl,
+            unread: true,
+            lastMessageTimestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            messages: [{
+                sender: 'system',
+                text: '¡Hicieron match! Ahora pueden chatear y jugar juntos.',
+                content: '¡Hicieron match! Ahora pueden chatear y jugar juntos.'
+            }]
+        });
+        
+        return { success: true, match: newMatch, isMatch: true };
+    } else {
+        // Solo aceptar la solicitud, esperar la del otro usuario
+        request.status = 'accepted';
+        return { success: true, isMatch: false };
+    }
+};
+
+export const rejectConnectionRequest = (requestId: string) => {
+    const request = connectionRequests.find(req => req.id === requestId);
+    if (!request) return { success: false, error: 'Solicitud no encontrada' };
+    
+    request.status = 'rejected';
+    return { success: true };
+};
+
+export const getConnectionStatus = (userId: string, targetUserId: string): ConnectionStatusResult => {
+    const sentRequest = connectionRequests.find(req => 
+        req.fromUserId === userId && req.toUserId === targetUserId
+    );
+    
+    const existingMatch = matches.find(match => 
+        (match.user1Id === userId && match.user2Id === targetUserId) ||
+        (match.user1Id === targetUserId && match.user2Id === userId)
+    );
+    
+    return {
+        userId,
+        targetUserId,
+        hasRequested: !!sentRequest,
+        hasMatch: !!existingMatch,
+        matchId: existingMatch?.id
+    };
+};
+
+export const getPendingConnectionRequests = (userId: string) => {
+    return connectionRequests.filter(req => 
+        req.toUserId === userId && req.status === 'pending'
+    );
+};
+
+export const getUserMatches = (userId: string) => {
+    return matches.filter(match => 
+        (match.user1Id === userId || match.user2Id === userId) && match.isActive
+    );
+};

@@ -1,13 +1,14 @@
 
 "use client"
 
-import { useState } from "react";
+import { useState, useCallback, memo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { comparePlayers } from "@/ai/flows/playerComparisonFlow";
+// Importación dinámica para evitar errores en el cliente
 import type { PlayerComparison, PlayerComparisonInput, PlayerProfileInput } from "@/ai/schemas";
+import type { PlayerProfile, UserWithRole } from "@/lib/types";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Loader2, Sparkles, Users, Terminal, ShieldCheck, Swords, Brain, Eye } from "lucide-react";
 import { friendsForComparison } from "@/lib/data";
@@ -22,7 +23,7 @@ export default function ComparePlayersPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const handleCompare = async () => {
+    const handleCompare = useCallback(async () => {
         if (!player1Id || !player2Id) {
             setError("Por favor, selecciona dos jugadores para comparar.");
             return;
@@ -46,8 +47,48 @@ export default function ComparePlayersPage() {
                  return;
             }
             
-            const input: PlayerComparisonInput = { player1, player2 };
-            const result = await comparePlayers(input);
+            const input: PlayerComparisonInput = { 
+                player1: { 
+                    rank: player1.rank || 'Unranked',
+                    name: player1.name || 'Unknown',
+                    avatarUrl: player1.avatarUrl,
+                    id: player1.id,
+                    stats: {
+                        wins: player1.stats?.wins || 0,
+                        kills: player1.stats?.kills || 0,
+                        kdRatio: player1.stats?.kdRatio || 0       
+                    },
+                    favoriteWeapons: player1.favoriteWeapons || [],
+                    playSchedule: player1.playSchedule || 'Unknown'
+                }, 
+                player2: { 
+                    rank: player2.rank || 'Unranked',
+                    name: player2.name || 'Unknown',
+                    avatarUrl: player2.avatarUrl,
+                    id: player2.id,
+                    stats: {
+                        wins: player2.stats?.wins || 0,
+                        kills: player2.stats?.kills || 0,
+                        kdRatio: player2.stats?.kdRatio || 0
+                    },
+                    favoriteWeapons: player2.favoriteWeapons || [],
+                    playSchedule: player2.playSchedule || 'Unknown'
+                } 
+            };
+            
+            const response = await fetch('/api/compare-players', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(input),
+            });
+            
+            if (!response.ok) {
+                throw new Error('Error en la respuesta del servidor');
+            }
+            
+            const result = await response.json();
             setComparison(result);
         } catch (e: any) {
             setError("Hubo un error al generar la comparación. Por favor, inténtalo de nuevo.");
@@ -55,46 +96,57 @@ export default function ComparePlayersPage() {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [player1Id, player2Id]);
 
-    const renderPlayerCard = (player: PlayerProfileInput) => (
+    // Componente memoizado para tarjetas de jugadores
+    const PlayerCard = memo(({ player }: { player: UserWithRole }) => (
         <Card className="h-full flex flex-col">
             <CardHeader className="items-center text-center">
                 <Avatar className="w-20 h-20 mb-2">
                     <AvatarImage src={player.avatarUrl} data-ai-hint="gaming character"/>
-                    <AvatarFallback>{player.name.substring(0, 2)}</AvatarFallback>
+                    <AvatarFallback>{(player.name || '').substring(0, 2)}</AvatarFallback>
                 </Avatar>
                 <CardTitle>{player.name}</CardTitle>
                 <CardDescription>{player.rank}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4 text-sm flex-1">
-                 <div>
-                    <div className="flex justify-between mb-1"><span>Victorias</span><span className="font-semibold">{player.stats.wins}</span></div>
-                    <Progress value={(player.stats.wins / 200) * 100} className="h-2"/>
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <p className="font-semibold text-muted-foreground">K/D Ratio</p>
+                        <p className="text-lg font-bold">{player.stats?.kdRatio || 0}</p>
+                    </div>
+                    <div>
+                        <p className="font-semibold text-muted-foreground">Victorias</p>
+                        <p className="text-lg font-bold">{player.stats.wins}</p>
+                    </div>
+                    <div>
+                        <p className="font-semibold text-muted-foreground">Bajas</p>
+                        <p className="text-lg font-bold">{player.stats?.kills || 0}</p>
+                    </div>
+                    <div>
+                        <p className="font-semibold text-muted-foreground">Horario</p>
+                        <p className="text-sm font-bold">{player.playSchedule}</p>
+                    </div>
                 </div>
-                 <div>
-                    <div className="flex justify-between mb-1"><span>Bajas</span><span className="font-semibold">{player.stats.kills}</span></div>
-                    <Progress value={(player.stats.kills / 3000) * 100} className="h-2"/>
+                <div className="space-y-2">
+                    <p className="font-semibold text-muted-foreground">Armas Favoritas</p>
+                    <div className="flex flex-wrap gap-1">
+                        {(player.favoriteWeapons || []).map((weapon, index) => (
+                            <span key={index} className="bg-muted px-2 py-1 rounded text-xs">{weapon}</span>
+                        ))}
+                    </div>
                 </div>
-                 <div>
-                    <div className="flex justify-between mb-1"><span>Ratio K/D</span><span className="font-semibold">{player.stats.kdRatio}</span></div>
-                    <Progress value={(player.stats.kdRatio / 10) * 100} className="h-2"/>
-                </div>
-                <div className="text-xs text-muted-foreground pt-2">
-                    <p><strong>Armas preferidas:</strong> {player.favoriteWeapons.join(', ')}</p>
-                    <p><strong>Horario:</strong> {player.playSchedule}</p>
+                <div className="space-y-2">
+                    <p className="font-semibold text-muted-foreground">Mapas Favoritos</p>
+                    <div className="flex flex-wrap gap-1">
+                        <span className="bg-muted px-2 py-1 rounded text-xs capitalize">{player.favoriteMap}</span>
+                    </div>
                 </div>
             </CardContent>
-            <div className="p-4 pt-0">
-                <Button asChild variant="secondary" className="w-full">
-                    <Link href={`/profile/${player.id}`}>
-                        <Eye className="mr-2 h-4 w-4"/>
-                        Ver Perfil Público
-                    </Link>
-                </Button>
-            </div>
         </Card>
-    );
+    ));
+
+
 
     return (
         <div className="space-y-8">
@@ -165,8 +217,8 @@ export default function ComparePlayersPage() {
             {comparison && !isLoading && player1Id && player2Id && (
                 <div className="space-y-8 animate-in fade-in-50">
                     <div className="grid md:grid-cols-2 gap-8">
-                        {renderPlayerCard(friendsForComparison.find(f => f.id === player1Id)!)}
-                        {renderPlayerCard(friendsForComparison.find(f => f.id === player2Id)!)}
+                        <PlayerCard player={friendsForComparison.find(f => f.id === player1Id)!} />
+                        <PlayerCard player={friendsForComparison.find(f => f.id === player2Id)!} />
                     </div>
 
                     <Card>

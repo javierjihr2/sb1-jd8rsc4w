@@ -2,7 +2,7 @@
 
 "use client"
 
-import { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -24,9 +24,10 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
-import { Code, UserPlus, Newspaper, Check, X, Users, Swords, PlusCircle, Pencil, Trash2, LayoutDashboard, Settings, DollarSign, BarChart, BellRing, Wrench, Link as LinkIcon, KeyRound, RefreshCw, Briefcase, Star, CheckCircle, Banknote, Flag, Calendar as CalendarIcon, Clock, Info, Map, Video, ShieldAlert, FileText, Lightbulb, ChevronDown, AlertTriangle } from "lucide-react"
-import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles as initialNewsArticles, friendsForComparison as initialUsers, rechargeProviders, developers, services as initialServices, creators, adminBankAccounts, initialTransactions, addTournament, tournaments, updateTournament, mapOptions, registeredTeams, updateRegistrationStatus, addApprovedRegistration, reserveTeams, playerProfile, tournamentMessageTemplate as globalTournamentMessageTemplate, ADMIN_EMAIL } from "@/lib/data"
-import type { RegistrationRequest, Tournament, NewsArticle, Service, UserWithRole, BankAccount, Transaction, Team } from "@/lib/types"
+import { Code, UserPlus, Newspaper, Check, X, Users, Swords, PlusCircle, Pencil, Trash2, LayoutDashboard, Settings, DollarSign, BarChart, BellRing, Wrench, Link as LinkIcon, KeyRound, RefreshCw, Briefcase, Star, CheckCircle, Banknote, Flag, Calendar as CalendarIcon, Clock, Info, Map, Video, ShieldAlert, FileText, Lightbulb, ChevronDown, AlertTriangle, Shield, Palette, Upload, UserCheck, Trophy, Crown, Cog } from "lucide-react"
+import { initialRegistrationRequests, tournaments as initialTournaments, newsArticles as initialNewsArticles, friendsForComparison as initialUsers, rechargeProviders, developers, services as initialServices, creators, adminBankAccounts, initialTransactions, addTournament, tournaments, updateTournament, mapOptions, registeredTeams, updateRegistrationStatus, addApprovedRegistration, reserveTeams, playerProfile, tournamentMessageTemplate as globalTournamentMessageTemplate, ADMIN_EMAIL, subscriptionPlans } from "@/lib/data"
+import type { RegistrationRequest, Tournament, NewsArticle, Service, UserWithRole, BankAccount, Transaction, Team, Subscription, SubscriptionPlan, AdminWithdrawal, PlayerProfile } from "@/lib/types"
+import { getAllSubscriptions, grantFreeSubscription, getSubscriptionRevenue, createAdminWithdrawal, getAdminWithdrawals, updateWithdrawalStatus, createNewsArticle, getNewsArticles, updateNewsArticle, deleteNewsArticle, getTournamentRegistrations, updateRegistrationStatus as updateRegistrationStatusDB } from "@/lib/database"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -76,7 +77,7 @@ export default function AdminPage() {
   // State for finance withdrawal
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>(adminBankAccounts);
   const [isAddAccountOpen, setIsAddAccountOpen] = useState(false);
-  const [withdrawalAmount, setWithdrawalAmount] = useState<number | string>('');
+  const [withdrawalAmount, setWithdrawalAmount] = useState<string>('');
   const [selectedAccount, setSelectedAccount] = useState<string>('');
   const currentBalance = transactions.reduce((acc, t) => acc + t.amount, 0);
   
@@ -94,6 +95,77 @@ export default function AdminPage() {
   // State for message template
   const [messageTemplate, setMessageTemplate] = useState(globalTournamentMessageTemplate);
 
+  // State for subscriptions management
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+  const [subscriptionRevenue, setSubscriptionRevenue] = useState({ totalSubscriptions: 0, activeSubscriptions: 0, totalRevenue: 0 });
+  const [adminWithdrawals, setAdminWithdrawals] = useState<AdminWithdrawal[]>([]);
+  const [selectedUserId, setSelectedUserId] = useState<string>('');
+  const [selectedPlanId, setSelectedPlanId] = useState<string>('');
+  const [freeDuration, setFreeDuration] = useState<number>(30);
+  const [withdrawalAmountAdmin, setWithdrawalAmountAdmin] = useState<string>('');
+  const [selectedBankAccount, setSelectedBankAccount] = useState<string>('');
+  const [loadingSubscriptions, setLoadingSubscriptions] = useState(false);
+  
+  // State for news editing
+  const [editingArticle, setEditingArticle] = useState<NewsArticle | null>(null);
+  const [isEditNewsModalOpen, setIsEditNewsModalOpen] = useState(false);
+
+  // Load registration requests from database
+  const loadRegistrationRequests = async () => {
+    try {
+      const allRequests: RegistrationRequest[] = [];
+      
+      // Obtener solicitudes de todos los torneos
+      for (const tournament of currentTournaments) {
+        const registrations = await getTournamentRegistrations(tournament.id);
+        
+        // Transformar las solicitudes al formato esperado
+        const formattedRequests = registrations
+          .filter((reg: any) => reg.status === 'pending')
+          .map((reg: any) => ({
+            id: reg.id,
+            teamName: reg.teamData?.teamName || 'Equipo Sin Nombre',
+            teamTag: reg.teamData?.teamTag || 'TAG',
+            countryCode: reg.teamData?.countryCode || 'MX',
+            tournamentId: reg.tournamentId,
+            tournamentName: reg.teamData?.tournamentName || tournament.name,
+            status: 'Pendiente' as const,
+            players: [{
+              id: reg.userId,
+              name: reg.teamData?.playerName || 'Jugador',
+              avatarUrl: reg.teamData?.playerAvatarUrl || 'https://placehold.co/100x100.png'
+            }]
+          }));
+        
+        allRequests.push(...formattedRequests);
+      }
+      
+      setRequests(allRequests);
+    } catch (error) {
+      console.error('Error loading registration requests:', error);
+    }
+  };
+
+  // Load news articles from database on component mount
+  useEffect(() => {
+    const loadNewsArticles = async () => {
+      try {
+        const articles = await getNewsArticles(50); // Load up to 50 articles
+        setNewsArticles(articles);
+      } catch (error) {
+        console.error('Error loading news articles:', error);
+        // Fallback to initial data if database fails
+        setNewsArticles(initialNewsArticles);
+      }
+    };
+    loadNewsArticles();
+    loadRegistrationRequests();
+  }, [currentTournaments]);
+
+  // Recargar solicitudes cuando se actualice un torneo
+  useEffect(() => {
+    loadRegistrationRequests();
+  }, []);
 
   const handleCreateProfile = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -103,24 +175,117 @@ export default function AdminPage() {
     })
   }
 
-  const handleCreateArticle = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleCreateArticle = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const formData = new FormData(event.currentTarget);
-    const newArticle: NewsArticle = {
-        id: `news${newsArticles.length + 1}`,
+    
+    const articleData = {
         title: formData.get('article-title') as string,
         summary: formData.get('article-summary') as string,
         category: formData.get('article-category') as string,
         date: new Date().toISOString().split('T')[0],
         imageUrl: 'https://placehold.co/800x400.png',
+        content: formData.get('article-summary') as string, // Using summary as content for now
+        author: user?.displayName || 'Admin',
+        authorId: user?.uid || 'admin'
     };
-    setNewsArticles(prev => [newArticle, ...prev]);
-    toast({
-      title: "Artículo Creado",
-      description: "El nuevo artículo de noticias ha sido publicado.",
-    });
-    (event.target as HTMLFormElement).reset();
+
+    try {
+      const result = await createNewsArticle(articleData);
+      
+      if (result.success) {
+        // Reload articles from database to get the updated list
+        const updatedArticles = await getNewsArticles(50);
+        setNewsArticles(updatedArticles);
+        
+        toast({
+          title: "Artículo Creado",
+          description: "El nuevo artículo de noticias ha sido publicado y guardado permanentemente.",
+        });
+        (event.target as HTMLFormElement).reset();
+      } else {
+        throw new Error('Failed to create article');
+      }
+    } catch (error) {
+      console.error('Error creating article:', error);
+      toast({
+        title: "Error",
+        description: "No se pudo crear el artículo. Inténtalo de nuevo.",
+        variant: "destructive"
+      });
+    }
   }
+
+  const handleEditArticle = (article: NewsArticle) => {
+    setEditingArticle(article);
+    setIsEditNewsModalOpen(true);
+  };
+
+  const handleUpdateArticle = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!editingArticle) return;
+
+    const formData = new FormData(event.currentTarget);
+    const updates = {
+      title: formData.get('edit-article-title') as string,
+      summary: formData.get('edit-article-summary') as string,
+      category: formData.get('edit-article-category') as string,
+      content: formData.get('edit-article-summary') as string,
+    };
+
+    try {
+      const result = await updateNewsArticle(editingArticle.id, updates);
+      
+      if (result.success) {
+        // Reload articles from database
+        const updatedArticles = await getNewsArticles(50);
+        setNewsArticles(updatedArticles);
+        
+        setIsEditNewsModalOpen(false);
+        setEditingArticle(null);
+        
+        toast({
+          title: "Artículo Actualizado",
+          description: "El artículo ha sido actualizado correctamente.",
+        });
+      } else {
+        throw new Error('Failed to update article');
+      }
+    } catch (error) {
+      console.error('Error updating article:', error);
+      toast({
+        title: "Error",
+        description: "No se pudo actualizar el artículo. Inténtalo de nuevo.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleDeleteArticle = async (articleId: string) => {
+    try {
+      const result = await deleteNewsArticle(articleId);
+      
+      if (result.success) {
+        // Reload articles from database
+        const updatedArticles = await getNewsArticles(50);
+        setNewsArticles(updatedArticles);
+        
+        toast({
+          title: "Artículo Eliminado",
+          description: "El artículo ha sido eliminado correctamente.",
+        });
+      } else {
+        throw new Error('Failed to delete article');
+      }
+    } catch (error) {
+      console.error('Error deleting article:', error);
+      toast({
+        title: "Error",
+        description: "No se pudo eliminar el artículo. Inténtalo de nuevo.",
+        variant: "destructive"
+      });
+    }
+  };
   
   const handleTournamentSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -138,7 +303,7 @@ export default function AdminPage() {
         prize: formData.get('t-prize') as string,
         mode: formData.get('t-mode') as 'Solo' | 'Dúo' | 'Escuadra',
         region: formData.get('t-region') as 'N.A.' | 'S.A.',
-        type: tournamentType as any,
+        type: tournamentType as 'Competitivo' | 'Por Puntos' | 'Evento WOW' | 'Amistoso' | 'Scrim',
         description: formData.get('t-description') as string,
         maxTeams: parseInt(formData.get('t-max-teams') as string),
         startTime: formData.get('t-time') as string,
@@ -149,6 +314,13 @@ export default function AdminPage() {
         maxWithdrawalTime: formData.get('t-max-withdrawal-time') as string,
         maxReserves: parseInt(formData.get('t-max-reserves') as string) || 0,
         messageTemplate: formData.get('t-message-template') as string || undefined,
+        // Controles de administrador
+        matchId: formData.get('t-match-id') as string,
+        matchPassword: formData.get('t-match-password') as string,
+        server: formData.get('t-server') as string,
+        perspective: formData.get('t-perspective') as string,
+        adminNotes: formData.get('t-admin-notes') as string,
+        spectatorMode: formData.get('t-spectator-mode') === 'on',
     };
     
     if (editingTournament) {
@@ -220,7 +392,7 @@ export default function AdminPage() {
     const newService: Service = {
         id: `s${services.length + 1}`,
         creatorId: selectedCreator.id,
-        creatorName: selectedCreator.name,
+        creatorName: selectedCreator.name || '',
         uid: formData.get('s-uid') as string,
         serviceTitle: finalServiceTitle,
         description: formData.get('s-description') as string,
@@ -263,7 +435,9 @@ export default function AdminPage() {
     // In a real app, this would save to a db. Here, we update the imported variable.
     // NOTE: This is a simplified approach for demonstration. A real app would use a state management solution or API calls.
     // For the purpose of this simulation, we will directly mutate the imported variable.
-    require('@/lib/data').tournamentMessageTemplate = messageTemplate;
+    // Using dynamic import to avoid 'require is not defined' error in browser
+    // Note: Cannot assign to read-only property 'tournamentMessageTemplate'
+    // This would need to be handled differently in a real application
 
     toast({
       title: "Ajustes Guardados",
@@ -271,7 +445,151 @@ export default function AdminPage() {
     })
   }
 
-  const handleRequest = (requestId: string, action: "Aprobado" | "Rechazado") => {
+  // Load subscription data on component mount
+  React.useEffect(() => {
+    const loadSubscriptionData = async () => {
+      setLoadingSubscriptions(true);
+      try {
+        const [allSubs, revenue, withdrawals] = await Promise.all([
+          getAllSubscriptions(),
+          getSubscriptionRevenue(),
+          getAdminWithdrawals()
+        ]);
+        setSubscriptions(allSubs);
+        setSubscriptionRevenue(revenue);
+        setAdminWithdrawals(withdrawals);
+      } catch (error) {
+        console.error('Error loading subscription data:', error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "No se pudieron cargar los datos de suscripciones.",
+        });
+      } finally {
+        setLoadingSubscriptions(false);
+      }
+    };
+
+    loadSubscriptionData();
+  }, []);
+
+  // Handle granting free subscription
+  const handleGrantFreeSubscription = async () => {
+    if (!selectedUserId || !selectedPlanId) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Por favor, selecciona un usuario y un plan.",
+      });
+      return;
+    }
+
+    try {
+      await grantFreeSubscription(selectedUserId, selectedPlanId, freeDuration);
+      toast({
+        title: "Suscripción Otorgada",
+        description: `Se otorgó una suscripción gratuita por ${freeDuration} días.`,
+      });
+      
+      // Reload subscription data
+      const [allSubs, revenue] = await Promise.all([
+        getAllSubscriptions(),
+        getSubscriptionRevenue()
+      ]);
+      setSubscriptions(allSubs);
+      setSubscriptionRevenue(revenue);
+      
+      // Reset form
+      setSelectedUserId('');
+      setSelectedPlanId('');
+      setFreeDuration(30);
+    } catch (error) {
+      console.error('Error granting free subscription:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudo otorgar la suscripción gratuita.",
+      });
+    }
+  };
+
+  // Handle admin withdrawal
+  const handleAdminWithdrawal = async () => {
+    if (!withdrawalAmountAdmin || !selectedBankAccount) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Por favor, ingresa un monto y selecciona una cuenta.",
+      });
+      return;
+    }
+
+    const amount = parseFloat(withdrawalAmountAdmin);
+    if (amount <= 0 || amount > subscriptionRevenue.totalRevenue) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "El monto debe ser mayor a 0 y no exceder los ingresos disponibles.",
+      });
+      return;
+    }
+
+    try {
+      await createAdminWithdrawal({
+        amount,
+        bankAccountId: selectedBankAccount,
+        status: 'pending',
+        requestedAt: new Date().toISOString()
+      });
+      toast({
+        title: "Retiro Solicitado",
+        description: `Se solicitó un retiro de $${amount.toFixed(2)}.`,
+      });
+      
+      // Reload data
+      const [revenue, withdrawals] = await Promise.all([
+        getSubscriptionRevenue(),
+        getAdminWithdrawals()
+      ]);
+      setSubscriptionRevenue(revenue);
+      setAdminWithdrawals(withdrawals);
+      
+      // Reset form
+      setWithdrawalAmountAdmin('');
+      setSelectedBankAccount('');
+    } catch (error) {
+      console.error('Error creating withdrawal:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudo procesar el retiro.",
+      });
+    }
+  };
+
+  // Handle withdrawal status update
+  const handleUpdateWithdrawalStatus = async (withdrawalId: string, status: 'completed' | 'failed') => {
+    try {
+      await updateWithdrawalStatus(withdrawalId, status);
+      toast({
+        title: "Estado Actualizado",
+        description: `El retiro ha sido ${status === 'completed' ? 'completado' : 'cancelado'}.`,
+      });
+      
+      // Reload withdrawals
+      const withdrawals = await getAdminWithdrawals();
+      setAdminWithdrawals(withdrawals);
+    } catch (error) {
+      console.error('Error updating withdrawal status:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudo actualizar el estado del retiro.",
+      });
+    }
+  };
+
+  const handleRequest = async (requestId: string, action: "Aprobado" | "Rechazado") => {
     const request = requests.find(req => req.id === requestId);
     if (!request) return;
 
@@ -290,33 +608,54 @@ export default function AdminPage() {
       players: request.players,
     };
 
-    if (action === 'Aprobado') {
-        const mainSlotsFull = registeredTeams.length >= (tournament.maxTeams || 25);
-        const reserveSlotsAvailable = reserveTeams.length < (tournament.maxReserves || 0);
+    try {
+      if (action === 'Aprobado') {
+          const mainSlotsFull = registeredTeams.length >= (tournament.maxTeams || 25);
+          const reserveSlotsAvailable = reserveTeams.length < (tournament.maxReserves || 0);
 
-        if (!mainSlotsFull) {
-            registeredTeams.push(newTeam);
-            updateRegistrationStatus(tournament.id, 'approved', registeringUserId);
-            addApprovedRegistration({ userId: registeringUserId, tournamentId: tournament.id, status: 'approved' });
-            setRequests(prev => prev.map(req => req.id === requestId ? { ...req, status: 'Aprobado' } : req));
-            toast({ title: `Solicitud Aprobada`, description: `El equipo ${request.teamName} ha sido añadido al torneo.` });
-        } else if (reserveSlotsAvailable) {
-            reserveTeams.push(newTeam);
-            updateRegistrationStatus(tournament.id, 'reserve', registeringUserId);
-            addApprovedRegistration({ userId: registeringUserId, tournamentId: tournament.id, status: 'reserve' });
-            setRequests(prev => prev.map(req => req.id === requestId ? { ...req, status: 'Reserva' } : req));
-            toast({ title: `Inscrito como Reserva`, description: `El equipo ${request.teamName} ha sido añadido a la lista de reserva.` });
-        } else {
-            toast({ variant: "destructive", title: "Torneo Lleno", description: "No hay más slots disponibles, ni principales ni de reserva." });
-            return; // No se hace nada si no hay espacio
-        }
-        // Notificar al chat para que se actualice la lista
-        window.dispatchEvent(new Event('tournamentUpdated'));
+          if (!mainSlotsFull) {
+              // Actualizar en la base de datos
+              await updateRegistrationStatusDB(tournament.id, requestId, 'approved');
+              
+              registeredTeams.push(newTeam);
+              updateRegistrationStatus(tournament.id, 'approved', registeringUserId);
+              addApprovedRegistration({ userId: registeringUserId, tournamentId: tournament.id, status: 'approved' });
+              setRequests(prev => prev.filter(req => req.id !== requestId));
+              toast({ title: `Solicitud Aprobada`, description: `El equipo ${request.teamName} ha sido añadido al torneo.` });
+          } else if (reserveSlotsAvailable) {
+              // Actualizar en la base de datos
+              await updateRegistrationStatusDB(tournament.id, requestId, 'approved');
+              
+              reserveTeams.push(newTeam);
+              updateRegistrationStatus(tournament.id, 'reserve', registeringUserId);
+              addApprovedRegistration({ userId: registeringUserId, tournamentId: tournament.id, status: 'reserve' });
+              setRequests(prev => prev.filter(req => req.id !== requestId));
+              toast({ title: `Inscrito como Reserva`, description: `El equipo ${request.teamName} ha sido añadido a la lista de reserva.` });
+          } else {
+              toast({ variant: "destructive", title: "Torneo Lleno", description: "No hay más slots disponibles, ni principales ni de reserva." });
+              return; // No se hace nada si no hay espacio
+          }
+          // Notificar al chat para que se actualice la lista
+          window.dispatchEvent(new Event('tournamentUpdated'));
 
-    } else { // Rechazado
-        updateRegistrationStatus(tournament.id, 'rejected', registeringUserId);
-        setRequests(prev => prev.map(req => req.id === requestId ? { ...req, status: 'Rechazado' } : req));
-        toast({ title: `Solicitud Rechazada`, description: `El equipo ${request.teamName} ha sido rechazado.` });
+      } else { // Rechazado
+          // Actualizar en la base de datos
+          await updateRegistrationStatusDB(tournament.id, requestId, 'rejected');
+          
+          updateRegistrationStatus(tournament.id, 'rejected', registeringUserId);
+          setRequests(prev => prev.filter(req => req.id !== requestId));
+          toast({ title: `Solicitud Rechazada`, description: `El equipo ${request.teamName} ha sido rechazado.` });
+      }
+      
+      // Recargar las solicitudes para reflejar los cambios
+      await loadRegistrationRequests();
+    } catch (error) {
+      console.error('Error updating registration status:', error);
+      toast({ 
+        variant: "destructive", 
+        title: "Error", 
+        description: "No se pudo actualizar el estado de la solicitud." 
+      });
     }
   }
 
@@ -332,7 +671,7 @@ export default function AdminPage() {
             id: `ba-${Date.now()}`,
             type: 'paypal',
             email: formData.get('paypal-email') as string,
-            holderName: "SquadUp Corp",
+            holderName: "SquadGO Corp",
         };
     } else {
          newAccount = {
@@ -355,7 +694,7 @@ export default function AdminPage() {
   const handleWithdrawal = () => {
     // This function is now only for demonstration in the AlertDialog.
     // The actual withdrawal logic is disabled.
-    const amount = parseFloat(withdrawalAmount as string);
+    const amount = parseFloat(withdrawalAmount);
     // ... rest of the logic remains for UI display but won't execute transactions
      toast({
       title: "Transferencia Iniciada",
@@ -585,6 +924,83 @@ export default function AdminPage() {
                     </div>
                 )}
             </div>
+            {(tournamentType === 'competitivo' || tournamentType === 'scrim' || tournamentType === 'wow') && (
+                <div className="space-y-4 p-4 border rounded-lg bg-gradient-to-r from-orange-50 to-red-50 animate-in fade-in-50">
+                    <Label className="font-semibold flex items-center gap-2 text-orange-700">
+                        <Shield className="h-5 w-5"/> Controles de Administrador
+                    </Label>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="t-match-id">ID de Partida</Label>
+                            <Input 
+                                id="t-match-id" 
+                                name="t-match-id" 
+                                placeholder="Ej: 123456789" 
+                                defaultValue={defaultValues?.matchId} 
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="t-match-password">Contraseña de Partida</Label>
+                            <Input 
+                                id="t-match-password" 
+                                name="t-match-password" 
+                                placeholder="Ej: SQUAD2024" 
+                                defaultValue={defaultValues?.matchPassword} 
+                            />
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="t-server">Servidor</Label>
+                            <Select name="t-server" defaultValue={defaultValues?.server}>
+                                <SelectTrigger id="t-server">
+                                    <SelectValue placeholder="Seleccionar servidor" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="NA-East">Norteamérica Este</SelectItem>
+                                    <SelectItem value="NA-West">Norteamérica Oeste</SelectItem>
+                                    <SelectItem value="SA-North">Sudamérica Norte</SelectItem>
+                                    <SelectItem value="SA-South">Sudamérica Sur</SelectItem>
+                                    <SelectItem value="Brazil">Brasil</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="t-perspective">Perspectiva</Label>
+                            <Select name="t-perspective" defaultValue={defaultValues?.perspective || "TPP"}>
+                                <SelectTrigger id="t-perspective">
+                                    <SelectValue placeholder="Seleccionar perspectiva" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="TPP">Tercera Persona (TPP)</SelectItem>
+                                    <SelectItem value="FPP">Primera Persona (FPP)</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="t-admin-notes">Notas del Administrador</Label>
+                        <Textarea 
+                            id="t-admin-notes" 
+                            name="t-admin-notes" 
+                            placeholder="Notas internas para el equipo administrativo..." 
+                            defaultValue={defaultValues?.adminNotes}
+                            className="min-h-[80px]"
+                        />
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <Switch 
+                            id="t-spectator-mode" 
+                            name="t-spectator-mode"
+                            defaultChecked={defaultValues?.spectatorMode || false}
+                        />
+                        <Label htmlFor="t-spectator-mode" className="text-sm">
+                            Habilitar modo espectador para streamers
+                        </Label>
+                    </div>
+                </div>
+            )}
+            
             <Collapsible>
               <CollapsibleTrigger className="flex w-full items-center justify-between rounded-lg border p-3 text-sm font-semibold text-primary data-[state=open]:bg-muted/50">
                 <span>Personalizar Plantilla de Mensaje (Opcional)</span>
@@ -601,7 +1017,7 @@ export default function AdminPage() {
                       defaultValue={defaultValues?.messageTemplate || globalTournamentMessageTemplate}
                     />
                     <p className="text-xs text-muted-foreground">
-                      Si editas este campo, este torneo usará esta plantilla en lugar de la global. Puedes usar las mismas etiquetas (ej: {'\'{{header}}\''}).
+                      Si editas este campo, este torneo usará esta plantilla en lugar de la global. Puedes usar las mismas etiquetas (ej: {'{{'} header {'}}' }).
                     </p>
                   </div>
               </CollapsibleContent>
@@ -644,15 +1060,77 @@ export default function AdminPage() {
         </div>
       
        <Tabs defaultValue="dashboard" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 md:grid-cols-7">
-            <TabsTrigger value="dashboard"><LayoutDashboard className="mr-2"/>Dashboard</TabsTrigger>
-            <TabsTrigger value="users"><Users className="mr-2"/>Usuarios</TabsTrigger>
-            <TabsTrigger value="tournaments"><Swords className="mr-2"/>Torneos</TabsTrigger>
-            <TabsTrigger value="services"><Briefcase className="mr-2"/>Servicios</TabsTrigger>
-            <TabsTrigger value="finances"><DollarSign className="mr-2"/>Finanzas</TabsTrigger>
-            <TabsTrigger value="news"><Newspaper className="mr-2"/>Noticias</TabsTrigger>
-            <TabsTrigger value="settings"><Settings className="mr-2"/>Ajustes</TabsTrigger>
-        </TabsList>
+         <div className="w-full mb-8">
+             <div className="overflow-x-auto">
+                 <TabsList className="inline-flex h-auto w-full min-w-fit bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
+                     <div className="grid grid-cols-4 sm:grid-cols-4 md:grid-cols-8 gap-1 w-full">
+                         <TabsTrigger 
+                             value="dashboard" 
+                             className="flex flex-col items-center justify-center px-1.5 py-2 bg-white dark:bg-gray-700 rounded-md hover:bg-blue-50 dark:hover:bg-gray-600 data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all duration-200 min-h-[50px] text-center min-w-0"
+                         >
+                             <LayoutDashboard className="h-3.5 w-3.5 mb-0.5 flex-shrink-0"/>
+                             <span className="text-[9px] sm:text-[10px] font-medium leading-none truncate w-full">Dashboard</span>
+                         </TabsTrigger>
+                         
+                         <TabsTrigger 
+                             value="users" 
+                             className="flex flex-col items-center justify-center px-1.5 py-2 bg-white dark:bg-gray-700 rounded-md hover:bg-green-50 dark:hover:bg-gray-600 data-[state=active]:bg-green-500 data-[state=active]:text-white transition-all duration-200 min-h-[50px] text-center min-w-0"
+                         >
+                             <Users className="h-3.5 w-3.5 mb-0.5 flex-shrink-0"/>
+                             <span className="text-[9px] sm:text-[10px] font-medium leading-none truncate w-full">Usuarios</span>
+                         </TabsTrigger>
+                         
+                         <TabsTrigger 
+                             value="tournaments" 
+                             className="flex flex-col items-center justify-center px-1.5 py-2 bg-white dark:bg-gray-700 rounded-md hover:bg-purple-50 dark:hover:bg-gray-600 data-[state=active]:bg-purple-500 data-[state=active]:text-white transition-all duration-200 min-h-[50px] text-center min-w-0"
+                         >
+                             <Swords className="h-3.5 w-3.5 mb-0.5 flex-shrink-0"/>
+                             <span className="text-[9px] sm:text-[10px] font-medium leading-none truncate w-full">Torneos</span>
+                         </TabsTrigger>
+                         
+                         <TabsTrigger 
+                             value="subscriptions" 
+                             className="flex flex-col items-center justify-center px-1.5 py-2 bg-white dark:bg-gray-700 rounded-md hover:bg-amber-50 dark:hover:bg-gray-600 data-[state=active]:bg-amber-500 data-[state=active]:text-white transition-all duration-200 min-h-[50px] text-center min-w-0"
+                         >
+                             <Star className="h-3.5 w-3.5 mb-0.5 flex-shrink-0"/>
+                             <span className="text-[9px] sm:text-[10px] font-medium leading-none truncate w-full">Premium</span>
+                         </TabsTrigger>
+                         
+                         <TabsTrigger 
+                             value="services" 
+                             className="flex flex-col items-center justify-center px-1.5 py-2 bg-white dark:bg-gray-700 rounded-md hover:bg-indigo-50 dark:hover:bg-gray-600 data-[state=active]:bg-indigo-500 data-[state=active]:text-white transition-all duration-200 min-h-[50px] text-center min-w-0"
+                         >
+                             <Briefcase className="h-3.5 w-3.5 mb-0.5 flex-shrink-0"/>
+                             <span className="text-[9px] sm:text-[10px] font-medium leading-none truncate w-full">Servicios</span>
+                         </TabsTrigger>
+                         
+                         <TabsTrigger 
+                             value="finances" 
+                             className="flex flex-col items-center justify-center px-1.5 py-2 bg-white dark:bg-gray-700 rounded-md hover:bg-emerald-50 dark:hover:bg-gray-600 data-[state=active]:bg-emerald-500 data-[state=active]:text-white transition-all duration-200 min-h-[50px] text-center min-w-0"
+                         >
+                             <DollarSign className="h-3.5 w-3.5 mb-0.5 flex-shrink-0"/>
+                             <span className="text-[9px] sm:text-[10px] font-medium leading-none truncate w-full">Finanzas</span>
+                         </TabsTrigger>
+                         
+                         <TabsTrigger 
+                             value="news" 
+                             className="flex flex-col items-center justify-center px-1.5 py-2 bg-white dark:bg-gray-700 rounded-md hover:bg-rose-50 dark:hover:bg-gray-600 data-[state=active]:bg-rose-500 data-[state=active]:text-white transition-all duration-200 min-h-[50px] text-center min-w-0"
+                         >
+                             <Newspaper className="h-3.5 w-3.5 mb-0.5 flex-shrink-0"/>
+                             <span className="text-[9px] sm:text-[10px] font-medium leading-none truncate w-full">Noticias</span>
+                         </TabsTrigger>
+                         
+                         <TabsTrigger 
+                             value="settings" 
+                             className="flex flex-col items-center justify-center px-1.5 py-2 bg-white dark:bg-gray-700 rounded-md hover:bg-slate-50 dark:hover:bg-gray-600 data-[state=active]:bg-slate-500 data-[state=active]:text-white transition-all duration-200 min-h-[50px] text-center min-w-0"
+                         >
+                             <Settings className="h-3.5 w-3.5 mb-0.5 flex-shrink-0"/>
+                             <span className="text-[9px] sm:text-[10px] font-medium leading-none truncate w-full">Ajustes</span>
+                         </TabsTrigger>
+                     </div>
+                 </TabsList>
+             </div>
+         </div>
         
         <TabsContent value="dashboard" className="mt-6">
             <Card>
@@ -730,7 +1208,7 @@ export default function AdminPage() {
                                             <div className="flex items-center gap-2">
                                                 <Avatar className="h-8 w-8">
                                                     <AvatarImage src={user.avatarUrl} />
-                                                    <AvatarFallback>{user.name.substring(0,2)}</AvatarFallback>
+                                                    <AvatarFallback>{(user.name || '').substring(0,2)}</AvatarFallback>
                                                 </Avatar>
                                                 <span className="font-medium">{user.name}</span>
                                             </div>
@@ -749,6 +1227,60 @@ export default function AdminPage() {
                                     ))}
                                 </TableBody>
                             </Table>
+                        </CardContent>
+                    </Card>
+                    
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <Palette className="h-5 w-5 text-primary" />
+                                Fondos Personalizados
+                            </CardTitle>
+                            <CardDescription>
+                                Gestiona los fondos personalizados para las noticias por categoría.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="space-y-3">
+                                    <Label className="text-sm font-medium">eSports</Label>
+                                    <div className="relative">
+                                        <div className="w-full h-20 rounded-lg bg-gradient-to-r from-red-500 to-orange-500 border-2 border-dashed border-muted-foreground/30 flex items-center justify-center cursor-pointer hover:border-primary transition-colors">
+                                            <span className="text-white text-xs font-medium">Subir Fondo</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="space-y-3">
+                                    <Label className="text-sm font-medium">Actualizaciones</Label>
+                                    <div className="relative">
+                                        <div className="w-full h-20 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 border-2 border-dashed border-muted-foreground/30 flex items-center justify-center cursor-pointer hover:border-primary transition-colors">
+                                            <span className="text-white text-xs font-medium">Subir Fondo</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="space-y-3">
+                                    <Label className="text-sm font-medium">Eventos</Label>
+                                    <div className="relative">
+                                        <div className="w-full h-20 rounded-lg bg-gradient-to-r from-green-500 to-teal-500 border-2 border-dashed border-muted-foreground/30 flex items-center justify-center cursor-pointer hover:border-primary transition-colors">
+                                            <span className="text-white text-xs font-medium">Subir Fondo</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="space-y-3">
+                                    <Label className="text-sm font-medium">Guías</Label>
+                                    <div className="relative">
+                                        <div className="w-full h-20 rounded-lg bg-gradient-to-r from-yellow-500 to-orange-500 border-2 border-dashed border-muted-foreground/30 flex items-center justify-center cursor-pointer hover:border-primary transition-colors">
+                                            <span className="text-white text-xs font-medium">Subir Fondo</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="pt-4 border-t">
+                                <Button className="w-full" variant="outline">
+                                    <Upload className="h-4 w-4 mr-2" />
+                                    Guardar Cambios de Fondos
+                                </Button>
+                            </div>
                         </CardContent>
                     </Card>
                 </div>
@@ -1208,7 +1740,7 @@ export default function AdminPage() {
                                                         </div>
                                                         <div className="space-y-2">
                                                             <Label htmlFor="holder-name">Nombre del Titular</Label>
-                                                            <Input id="holder-name" name="holder-name" defaultValue="SquadUp Corp" required />
+                                                            <Input id="holder-name" name="holder-name" defaultValue="SquadGO Corp" required />
                                                         </div>
                                                         <div className="space-y-2">
                                                             <Label htmlFor="account-number">Número de Cuenta</Label>
@@ -1264,8 +1796,24 @@ export default function AdminPage() {
                                         </div>
                                     </div>
                                     <div className="flex gap-2">
-                                        <Button size="sm" variant="outline"><Pencil className="h-4 w-4 mr-1"/>Editar</Button>
-                                        <Button size="sm" variant="destructive"><Trash2 className="h-4 w-4 mr-1"/>Eliminar</Button>
+                                        <Button size="sm" variant="outline" onClick={() => handleEditArticle(article)}><Pencil className="h-4 w-4 mr-1"/>Editar</Button>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button size="sm" variant="destructive"><Trash2 className="h-4 w-4 mr-1"/>Eliminar</Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        Esta acción no se puede deshacer. El artículo será eliminado permanentemente.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                                    <AlertDialogAction onClick={() => handleDeleteArticle(article.id)}>Eliminar</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                     </div>
                                 </div>
                             ))}
@@ -1350,7 +1898,7 @@ export default function AdminPage() {
                            <h3 className="font-semibold flex items-center gap-2"><Wrench className="h-5 w-5 text-primary"/>Configuraciones de la Aplicación</h3>
                            <div className="space-y-2">
                                 <Label htmlFor="welcome-message">Mensaje de Bienvenida para Nuevos Usuarios</Label>
-                                <Input id="welcome-message" defaultValue="¡Bienvenido a SquadUp! Encuentra a tu equipo ideal." />
+                                <Input id="welcome-message" defaultValue="¡Bienvenido a SquadGO! Encuentra a tu equipo ideal." />
                            </div>
                            <div className="space-y-2">
                                 <Label htmlFor="matchmaking-rank">Rango Mínimo para Matchmaking</Label>
@@ -1389,20 +1937,20 @@ export default function AdminPage() {
                                     Usa estas etiquetas en tu plantilla. Serán reemplazadas por los datos reales del torneo:
                                 </p>
                                 <code className="text-xs grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-4 gap-y-1 mt-2">
-                                    <span>{'\'{{header}}\''}</span>
-                                    <span>{'\'{{organizerName}}\''}</span>
-                                    <span>{'\'{{tournamentName}}\''}</span>
-                                    <span>{'\'{{date}}\''}</span>
-                                    <span>{'\'{{startTime}}\''}</span>
-                                    <span>{'\'{{timeZoneFlag}}\''}</span>
-                                    <span>{'\'{{infoSendText}}\''}</span>
-                                    <span>{'\'{{maxWithdrawalText}}\''}</span>
-                                    <span>{'\'{{mapsList}}\''}</span>
-                                    <span>{'\'{{slotsList}}\''}</span>
-                                    <span>{'\'{{registeredCount}}\''}</span>
-                                    <span>{'\'{{maxSlots}}\''}</span>
-                                    <span>{'\'{{reserveText}}\''}</span>
-                                    <span>{'\'{{streamLink}}\''}</span>
+                                    <span>{"'{{header}}'"}</span>
+                                     <span>{"'{{organizerName}}'"}</span>
+                                     <span>{"'{{tournamentName}}'"}</span>
+                                     <span>{"'{{date}}'"}</span>
+                                     <span>{"'{{startTime}}'"}</span>
+                                     <span>{"'{{timeZoneFlag}}'"}</span>
+                                     <span>{"'{{infoSendText}}'"}</span>
+                                     <span>{"'{{maxWithdrawalText}}'"}</span>
+                                     <span>{"'{{mapsList}}'"}</span>
+                                     <span>{"'{{slotsList}}'"}</span>
+                                     <span>{"'{{registeredCount}}'"}</span>
+                                     <span>{"'{{maxSlots}}'"}</span>
+                                     <span>{"'{{reserveText}}'"}</span>
+                                     <span>{"'{{streamLink}}'"}</span>
                                 </code>
                             </div>
                         </div>
@@ -1463,8 +2011,353 @@ export default function AdminPage() {
             </Card>
         </TabsContent>
 
+        {/* Subscriptions Tab */}
+        <TabsContent value="subscriptions" className="space-y-6">
+          <div className="grid gap-6">
+            {/* Subscription Statistics */}
+            <div className="grid gap-4 md:grid-cols-3">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Total Suscripciones</CardTitle>
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{subscriptionRevenue.totalSubscriptions}</div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Suscripciones Activas</CardTitle>
+                  <CheckCircle className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{subscriptionRevenue.activeSubscriptions}</div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Ingresos Totales</CardTitle>
+                  <DollarSign className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">${subscriptionRevenue.totalRevenue.toFixed(2)}</div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Grant Free Subscription */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Otorgar Suscripción Gratuita</CardTitle>
+                <CardDescription>
+                  Concede una suscripción gratuita a un usuario por un período específico.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid gap-4 md:grid-cols-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="user-select">Usuario</Label>
+                    <Select value={selectedUserId} onValueChange={setSelectedUserId}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccionar usuario" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {users.filter(u => u.role === 'Jugador').map((user) => (
+                          <SelectItem key={user.id} value={user.id}>
+                            {user.name} ({user.email})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="plan-select">Plan</Label>
+                    <Select value={selectedPlanId} onValueChange={setSelectedPlanId}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccionar plan" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {subscriptionPlans.map((plan) => (
+                          <SelectItem key={plan.id} value={plan.id}>
+                            {plan.name} - ${plan.price}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="duration">Duración (días)</Label>
+                    <Input
+                      id="duration"
+                      type="number"
+                      value={freeDuration}
+                      onChange={(e) => setFreeDuration(parseInt(e.target.value) || 30)}
+                      min="1"
+                      max="365"
+                    />
+                  </div>
+                </div>
+                <Button onClick={handleGrantFreeSubscription} className="w-full">
+                  <Star className="mr-2 h-4 w-4" />
+                  Otorgar Suscripción Gratuita
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Admin Withdrawal */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Retiro de Ingresos</CardTitle>
+                <CardDescription>
+                  Retira los ingresos generados por las suscripciones a tu cuenta bancaria.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="withdrawal-amount">Monto a Retirar</Label>
+                    <Input
+                      id="withdrawal-amount"
+                      type="number"
+                      placeholder="0.00"
+                      value={withdrawalAmountAdmin}
+                      onChange={(e) => setWithdrawalAmountAdmin(e.target.value)}
+                      min="0"
+                      max={subscriptionRevenue.totalRevenue}
+                      step="0.01"
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      Disponible: ${subscriptionRevenue.totalRevenue.toFixed(2)}
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="bank-account">Cuenta Bancaria</Label>
+                    <Select value={selectedBankAccount} onValueChange={setSelectedBankAccount}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccionar cuenta" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {bankAccounts.map((account) => (
+                          <SelectItem key={account.id} value={account.id}>
+                            {account.bankName} - ****{account.accountNumber?.slice(-4) || 'N/A'}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <Button onClick={handleAdminWithdrawal} className="w-full">
+                  <Banknote className="mr-2 h-4 w-4" />
+                  Solicitar Retiro
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Subscription List */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Lista de Suscripciones</CardTitle>
+                <CardDescription>
+                  Todas las suscripciones activas y expiradas en el sistema.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {loadingSubscriptions ? (
+                  <div className="flex items-center justify-center py-8">
+                    <RefreshCw className="h-6 w-6 animate-spin" />
+                    <span className="ml-2">Cargando suscripciones...</span>
+                  </div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Usuario</TableHead>
+                        <TableHead>Plan</TableHead>
+                        <TableHead>Estado</TableHead>
+                        <TableHead>Fecha Inicio</TableHead>
+                        <TableHead>Fecha Fin</TableHead>
+                        <TableHead>Precio</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {subscriptions.map((subscription) => {
+                        const user = users.find(u => u.id === subscription.userId);
+                        const plan = subscriptionPlans.find(p => p.id === subscription.planId);
+                        return (
+                          <TableRow key={subscription.id}>
+                            <TableCell>
+                              <div className="flex items-center space-x-2">
+                                <Avatar className="h-8 w-8">
+                                  <AvatarImage src={user?.avatarUrl} />
+                                  <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
+                                </Avatar>
+                                <span>{user?.name || 'Usuario no encontrado'}</span>
+                              </div>
+                            </TableCell>
+                            <TableCell>{plan?.name || 'Plan no encontrado'}</TableCell>
+                            <TableCell>
+                              <Badge variant={subscription.status === 'active' ? 'default' : 'secondary'}>
+                                {subscription.status === 'active' ? 'Activa' : 'Expirada'}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>{new Date(subscription.startDate).toLocaleDateString()}</TableCell>
+                            <TableCell>{new Date(subscription.endDate).toLocaleDateString()}</TableCell>
+                            <TableCell>${plan?.price?.toFixed(2) || '0.00'}</TableCell>
+                          </TableRow>
+                        );
+                      })}
+                      {subscriptions.length === 0 && (
+                        <TableRow>
+                          <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                            No hay suscripciones registradas
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Withdrawal History */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Historial de Retiros</CardTitle>
+                <CardDescription>
+                  Historial de todos los retiros solicitados y procesados.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Fecha</TableHead>
+                      <TableHead>Monto</TableHead>
+                      <TableHead>Cuenta</TableHead>
+                      <TableHead>Estado</TableHead>
+                      <TableHead>Acciones</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {adminWithdrawals.map((withdrawal) => {
+                      const account = bankAccounts.find(a => a.id === withdrawal.bankAccountId);
+                      return (
+                        <TableRow key={withdrawal.id}>
+                          <TableCell>{new Date(withdrawal.requestedAt).toLocaleDateString()}</TableCell>
+                          <TableCell>${withdrawal.amount.toFixed(2)}</TableCell>
+                          <TableCell>
+                            {account ? `${account.bankName} - ****${account.accountNumber?.slice(-4) || 'N/A'}` : 'Cuenta no encontrada'}
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={
+                              withdrawal.status === 'completed' ? 'default' :
+                              withdrawal.status === 'pending' ? 'secondary' : 'destructive'
+                            }>
+                              {withdrawal.status === 'completed' ? 'Completado' :
+                               withdrawal.status === 'pending' ? 'Pendiente' : 'Cancelado'}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            {withdrawal.status === 'pending' && (
+                              <div className="flex space-x-2">
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleUpdateWithdrawalStatus(withdrawal.id, 'completed')}
+                                >
+                                  <Check className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => handleUpdateWithdrawalStatus(withdrawal.id, 'failed')}
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                    {adminWithdrawals.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                          No hay retiros registrados
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
        </Tabs>
+
+       {/* Edit News Modal */}
+       <Dialog open={isEditNewsModalOpen} onOpenChange={setIsEditNewsModalOpen}>
+         <DialogContent className="sm:max-w-[600px]">
+           <DialogHeader>
+             <DialogTitle>Editar Artículo</DialogTitle>
+             <DialogDescription>
+               Modifica los detalles del artículo de noticias.
+             </DialogDescription>
+           </DialogHeader>
+           {editingArticle && (
+             <form onSubmit={handleUpdateArticle} className="space-y-4">
+               <div className="space-y-2">
+                 <Label htmlFor="edit-article-title">Título</Label>
+                 <Input
+                   id="edit-article-title"
+                   name="edit-article-title"
+                   defaultValue={editingArticle.title}
+                   required
+                 />
+               </div>
+               <div className="space-y-2">
+                 <Label htmlFor="edit-article-category">Categoría</Label>
+                 <Select name="edit-article-category" defaultValue={editingArticle.category}>
+                   <SelectTrigger>
+                     <SelectValue placeholder="Selecciona una categoría" />
+                   </SelectTrigger>
+                   <SelectContent>
+                     <SelectItem value="Esports">Esports</SelectItem>
+                     <SelectItem value="Tecnología">Tecnología</SelectItem>
+                     <SelectItem value="Gaming">Gaming</SelectItem>
+                     <SelectItem value="Noticias">Noticias</SelectItem>
+                     <SelectItem value="Actualizaciones">Actualizaciones</SelectItem>
+                   </SelectContent>
+                 </Select>
+               </div>
+               <div className="space-y-2">
+                 <Label htmlFor="edit-article-summary">Resumen</Label>
+                 <Textarea
+                   id="edit-article-summary"
+                   name="edit-article-summary"
+                   defaultValue={editingArticle.summary}
+                   placeholder="Escribe un resumen del artículo..."
+                   className="min-h-[100px]"
+                   required
+                 />
+               </div>
+               <DialogFooter>
+                 <Button type="button" variant="outline" onClick={() => setIsEditNewsModalOpen(false)}>
+                   Cancelar
+                 </Button>
+                 <Button type="submit">
+                   Actualizar Artículo
+                 </Button>
+               </DialogFooter>
+             </form>
+           )}
+         </DialogContent>
+       </Dialog>
       
     </div>
   )
 }
+
+
+
+

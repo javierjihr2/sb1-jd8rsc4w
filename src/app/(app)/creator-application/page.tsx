@@ -65,7 +65,7 @@ export default function CreatorApplicationPage() {
                 <div className="inline-block p-4 bg-primary/10 rounded-full">
                     <Rocket className="w-12 h-12 text-primary"/>
                 </div>
-                <h1 className="text-3xl md:text-4xl font-bold">Conviértete en Creador de SquadUp</h1>
+                <h1 className="text-3xl md:text-4xl font-bold">Conviértete en Creador de SquadGO</h1>
                 <p className="text-muted-foreground max-w-2xl mx-auto">
                     Únete a nuestro programa exclusivo para creadores y ofrece tus habilidades a miles de jugadores. Monetiza tu talento y construye tu reputación en la comunidad.
                 </p>
@@ -161,7 +161,7 @@ export default function CreatorApplicationPage() {
                                 <Label htmlFor="service-idea">Biografía del Creador y Servicios Ofrecidos</Label>
                                  <Textarea 
                                     id="service-idea"
-                                    placeholder="Describe tu experiencia en el juego, tus logros más importantes y qué tipo de servicios únicos puedes ofrecer a la comunidad de SquadUp..."
+                                    placeholder="Describe tu experiencia en el juego, tus logros más importantes y qué tipo de servicios únicos puedes ofrecer a la comunidad de SquadGO..."
                                     required
                                     className="min-h-[120px]"
                                 />

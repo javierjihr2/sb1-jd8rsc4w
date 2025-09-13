@@ -1,0 +1,20 @@
+{
+	"appId": "com.squadgo.battle",
+	"appName": "SquadGO",
+	"webDir": "out",
+	"plugins": {
+		"SplashScreen": {
+			"launchShowDuration": 2000,
+			"launchAutoHide": true,
+			"backgroundColor": "#FF6B35",
+			"androidSplashResourceName": "splash"
+		},
+		"PushNotifications": {
+			"presentationOptions": [
+				"badge",
+				"sound",
+				"alert"
+			]
+		}
+	}
+}

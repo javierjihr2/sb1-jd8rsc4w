@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -9,7 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { services as initialServices } from "@/lib/data";
+import { getServices, orderService } from "@/lib/database";
+import { useAuth } from "@/app/auth-provider";
 import { Briefcase, CheckCircle, Filter, MessageSquare, Search, Star, Medal, Eye } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -18,15 +19,76 @@ import { ServiceDetailDialog } from "@/components/service-detail-dialog";
 
 export default function ServicesPage() {
     const { toast } = useToast();
-    const [services] = useState<Service[]>(initialServices);
+    const { user } = useAuth();
+    const [services, setServices] = useState<Service[]>([]);
+    const [loading, setLoading] = useState(true);
     const [selectedService, setSelectedService] = useState<Service | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
-    const handleContact = (creatorName: string) => {
-        toast({
-            title: "Solicitud de Contacto Enviada",
-            description: `Se ha notificado a ${creatorName}. ¡Pronto se pondrá en contacto contigo a través del chat!`,
-        });
-        setSelectedService(null); // Cierra el dialogo al contactar
+    const categories = [
+        { value: 'all', label: 'Todas las categorías' },
+        { value: 'coaching', label: 'Coaching' },
+        { value: 'analysis', label: 'Análisis de Partidas' },
+        { value: 'teammate', label: 'Compañero Pro' },
+        { value: 'igl', label: 'IGL (Líder)' }
+    ];
+
+    useEffect(() => {
+        loadServices();
+    }, [selectedCategory]);
+
+    const loadServices = async () => {
+        try {
+            setLoading(true);
+            const fetchedServices = await getServices(
+                selectedCategory === 'all' ? undefined : selectedCategory,
+                undefined,
+                20
+            );
+            setServices(fetchedServices);
+        } catch (error) {
+            console.error('Error loading services:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const filteredServices = services.filter(service =>
+        service.serviceTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        service.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        service.creatorName.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const handleContact = async (creatorName: string) => {
+        if (!user || !selectedService) {
+            toast({
+                title: "Error",
+                description: "Debes iniciar sesión para contactar a un creador.",
+                variant: "destructive"
+            });
+            return;
+        }
+
+        try {
+            await orderService(selectedService.id, user.uid, {
+                description: `Solicitud de contacto para: ${selectedService.serviceTitle}`,
+                amount: selectedService.price
+            });
+            
+            toast({
+                title: "Solicitud de Contacto Enviada",
+                description: `Se ha notificado a ${creatorName}. ¡Pronto se pondrá en contacto contigo a través del chat!`,
+            });
+            setSelectedService(null);
+        } catch (error) {
+            console.error('Error contacting creator:', error);
+            toast({
+                title: "Error",
+                description: "No se pudo enviar la solicitud. Inténtalo de nuevo.",
+                variant: "destructive"
+            });
+        }
     };
     
     return (
@@ -43,29 +105,73 @@ export default function ServicesPage() {
             <div className="flex flex-col md:flex-row items-center justify-center gap-4 p-4 rounded-lg bg-card border">
                  <div className="relative w-full md:w-auto md:flex-1">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                    <Input placeholder="Buscar servicios (ej: 'puntería')" className="pl-10" />
+                    <Input 
+                        placeholder="Buscar servicios (ej: 'puntería')" 
+                        className="pl-10" 
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
                 </div>
-                <Select>
+                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                     <SelectTrigger className="w-full md:w-[240px]">
                         <SelectValue placeholder="Filtrar por categoría" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="coaching">Coaching</SelectItem>
-                        <SelectItem value="analysis">Análisis de Partidas</SelectItem>
-                        <SelectItem value="teammate">Compañero Pro</SelectItem>
-                        <SelectItem value="igl">IGL (Líder)</SelectItem>
+                        {categories.map(category => (
+                            <SelectItem key={category.value} value={category.value}>
+                                {category.label}
+                            </SelectItem>
+                        ))}
                     </SelectContent>
                 </Select>
-                 <Button className="w-full md:w-auto">
+                <Button className="w-full md:w-auto" onClick={loadServices}>
                     <Filter className="mr-2 h-4 w-4" />
                     Aplicar
-                 </Button>
+                </Button>
             </div>
 
+            {!loading && filteredServices.length === 0 && (
+                <div className="text-center py-12">
+                    <div className="text-muted-foreground">
+                        <Briefcase className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                        <p>No se encontraron servicios</p>
+                        <p className="text-sm">Intenta con otros términos de búsqueda o categoría</p>
+                    </div>
+                </div>
+            )}
 
-            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                {services.map(service => (
-                    <Card 
+
+
+
+            {loading ? (
+                <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                    {[...Array(6)].map((_, i) => (
+                        <Card key={i} className="animate-pulse">
+                            <CardHeader>
+                                <div className="flex items-center gap-4">
+                                    <div className="w-14 h-14 bg-muted rounded-full" />
+                                    <div className="space-y-2">
+                                        <div className="h-4 bg-muted rounded w-24" />
+                                        <div className="h-3 bg-muted rounded w-16" />
+                                    </div>
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="space-y-2">
+                                    <div className="h-4 bg-muted rounded" />
+                                    <div className="h-3 bg-muted rounded w-3/4" />
+                                </div>
+                            </CardContent>
+                            <CardFooter>
+                                <div className="h-10 bg-muted rounded w-full" />
+                            </CardFooter>
+                        </Card>
+                    ))}
+                </div>
+            ) : (
+                <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                    {filteredServices.map(service => (
+                        <Card 
                         key={service.id} 
                         className={cn(
                             "flex flex-col overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer",
@@ -81,7 +187,7 @@ export default function ServicesPage() {
                             <div className="flex-1">
                                 <CardTitle className="text-base flex items-center gap-2">
                                     {service.creatorName}
-                                    {service.isVerified && <CheckCircle className="h-4 w-4 text-green-500" title="Verificado"/>}
+                                    {service.isVerified && <CheckCircle className="h-4 w-4 text-green-500"/>}
                                 </CardTitle>
                                 <CardDescription className="text-xs">
                                      {service.isFeatured ? (
@@ -112,11 +218,12 @@ export default function ServicesPage() {
                                 Ver Detalles
                             </Button>
                         </CardFooter>
-                    </Card>
-                ))}
-            </div>
+                        </Card>
+                    ))}
+                </div>
+            )}
 
-             <div className="text-center text-muted-foreground text-sm space-y-2 pt-8">
+            <div className="text-center text-muted-foreground text-sm space-y-2 pt-8">
                 <p><strong>Aviso de Seguridad:</strong> Todas las comunicaciones y acuerdos de pago se realizan directamente entre el usuario y el creador. La aplicación no se hace responsable de las transacciones.</p>
                 <p>¿Quieres ofrecer tus servicios? <Link href="/creator-application" className="text-primary underline">Aplica para ser creador</Link> para empezar.</p>
             </div>

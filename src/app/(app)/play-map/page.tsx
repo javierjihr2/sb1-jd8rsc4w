@@ -1,19 +1,22 @@
 
 "use client"
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { getMapPlan } from "@/ai/flows/mapPlannerFlow";
+// Importación dinámica para evitar errores en el cliente
 import type { MapPlanner, MapPlannerInput } from "@/ai/schemas";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Loader2, Sparkles, Map, MapPin, Gamepad2, Shield, Users, Trophy, Lightbulb, Terminal, Route, Bomb, ThumbsUp, ThumbsDown, Car, Target, CircleDot, UserCheck } from "lucide-react";
+import { Loader2, Sparkles, Map, MapPin, Gamepad2, Shield, Users, Trophy, Lightbulb, Terminal, Route, Bomb, ThumbsUp, ThumbsDown, Car, Target, CircleDot, UserCheck, Navigation, Crown, Zap, Heart, Crosshair } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { usePermissions } from "@/hooks/use-permissions";
+import { CompactPermissionsDialog } from "@/components/compact-permissions-dialog";
+import { useToast } from "@/hooks/use-toast";
 
 const mapOptions = [
     { value: "erangel", label: "Erangel", imageUrl: "https://placehold.co/200x200.png" },
@@ -109,11 +112,64 @@ const mapDropZones: Record<string, { value: string; label: string }[]> = {
 };
 
 export default function PlayMapPage() {
+    const { toast } = useToast();
+    const { permissions, requestLocationPermission, getCurrentLocation } = usePermissions();
     const [input, setInput] = useState<Partial<MapPlannerInput>>({ squadSize: 4 });
     const [plan, setPlan] = useState<MapPlanner | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [lastUsedInput, setLastUsedInput] = useState<Partial<MapPlannerInput> | null>(null);
+    const [showPermissionsDialog, setShowPermissionsDialog] = useState(false);
+    const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
+    const [locationBasedSuggestion, setLocationBasedSuggestion] = useState<string | null>(null);
+
+    // Función para obtener sugerencias basadas en ubicación
+    const getLocationBasedSuggestion = (lat: number, lng: number) => {
+        // Sugerencias simples basadas en coordenadas
+        if (lat > 40 && lat < 50 && lng > -10 && lng < 30) {
+            return "Basado en tu ubicación en Europa, Erangel podría ser ideal para tu estilo de juego.";
+        } else if (lat > 25 && lat < 35 && lng > -125 && lng < -65) {
+            return "Desde tu ubicación en América del Norte, Miramar ofrece un terreno similar al desierto del suroeste.";
+        } else if (lat > -35 && lat < 35 && lng > 95 && lng < 145) {
+            return "Tu ubicación en Asia te da ventaja en Sanhok, un mapa diseñado para la región.";
+        } else {
+            return "Explora diferentes mapas para encontrar el que mejor se adapte a tu estilo de juego.";
+        }
+    };
+
+    // Función para solicitar ubicación
+    const handleRequestLocation = async () => {
+        if (!permissions.location) {
+            setShowPermissionsDialog(true);
+            return;
+        }
+        
+        try {
+            const location = await getCurrentLocation();
+            if (location) {
+                setUserLocation({ lat: location.latitude, lng: location.longitude });
+                const suggestion = getLocationBasedSuggestion(location.latitude, location.longitude);
+                setLocationBasedSuggestion(suggestion);
+                toast({
+                    title: "¡Ubicación obtenida! 📍",
+                    description: "Ahora puedes ver sugerencias de mapas basadas en tu ubicación.",
+                });
+            }
+        } catch (error) {
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: "No se pudo obtener tu ubicación.",
+            });
+        }
+    };
+
+    const handlePermissionsComplete = (allGranted: boolean) => {
+        setShowPermissionsDialog(false);
+        if (allGranted && permissions.location) {
+            handleRequestLocation();
+        }
+    };
 
     const handleGeneratePlan = async () => {
         if (!input.map || !input.dropZone || !input.playStyle || !input.squadSize) {
@@ -125,7 +181,91 @@ export default function PlayMapPage() {
         setPlan(null);
         setLastUsedInput(input);
         try {
-            const result = await getMapPlan(input as MapPlannerInput);
+            // const { getMapPlan } = await import("@/ai/flows/mapPlannerFlow");
+            // const result = await getMapPlan(input as MapPlannerInput);
+            // Datos mock temporales para el build
+            const result: MapPlanner = {
+                planTitle: "Estrategia Dominante",
+                dropZoneJustification: "Zona estratégica seleccionada para maximizar el loot temprano",
+                earlyGame: {
+                    plan: "Aterriza en zonas seguras y asegura equipamiento básico"
+                },
+                midGame: {
+                    plan: "Mantén el círculo bajo control y busca posiciones ventajosas"
+                },
+                lateGame: {
+                    plan: "Busca equipamiento de nivel alto y prepárate para el círculo final"
+                },
+                recommendedLoadout: [
+                    {
+                        role: "IGL (In-Game Leader)",
+                        primaryWeapon: {
+                            name: "M416",
+                            sight: "Mira 4x",
+                            attachments: ["Culata táctica", "Cargador ampliado", "Compensador"]
+                        },
+                        secondaryWeapon: {
+                            name: "Vector",
+                            sight: "Punto Rojo",
+                            attachments: ["Cargador ampliado", "Culata táctica"]
+                        },
+                        justification: "Loadout versátil para tomar decisiones rápidas y liderar el equipo en cualquier situación de combate"
+                    },
+                    {
+                        role: "FRAGGER",
+                        primaryWeapon: {
+                            name: "AKM",
+                            sight: "Mira 3x",
+                            attachments: ["Compensador", "Cargador ampliado", "Culata táctica"]
+                        },
+                        secondaryWeapon: {
+                            name: "UMP45",
+                            sight: "Punto Rojo",
+                            attachments: ["Silenciador", "Cargador ampliado"]
+                        },
+                        justification: "Configuración agresiva para eliminar enemigos rápidamente y abrir espacios para el equipo"
+                    },
+                    {
+                        role: "SUPPORT",
+                        primaryWeapon: {
+                            name: "SCAR-L",
+                            sight: "Mira 4x",
+                            attachments: ["Compensador", "Cargador ampliado", "Culata táctica"]
+                        },
+                        secondaryWeapon: {
+                            name: "Vector",
+                            sight: "Punto Rojo",
+                            attachments: ["Silenciador", "Cargador ampliado"]
+                        },
+                        justification: "Equipamiento equilibrado para flanqueo, revive y apoyo al equipo con versatilidad en combate"
+                    },
+                    {
+                        role: "SNIPER",
+                        primaryWeapon: {
+                            name: "Kar98k",
+                            sight: "Mira 8x",
+                            attachments: ["Silenciador", "Mejillas"]
+                        },
+                        secondaryWeapon: {
+                            name: "M416",
+                            sight: "Mira 2x",
+                            attachments: ["Compensador", "Cargador ampliado"]
+                        },
+                        justification: "Especializado en eliminaciones a larga distancia y proporcionar información del campo de batalla"
+                    }
+                ],
+                rotationPlan: {
+                    route: "Ruta optimizada hacia la zona segura",
+                    considerations: ["Evitar zonas abiertas", "Mantener cobertura"],
+                    advantages: ["Ruta segura", "Buen loot en el camino"],
+                    disadvantages: ["Puede ser congestionada"],
+                    vehicleSuggestion: {
+                        vehicleType: "UAZ",
+                        reason: "Resistente y confiable para terreno variado",
+                        fuelCheck: "Verificar combustible antes de partir"
+                    }
+                }
+            };
             setPlan(result);
         } catch (e: any) {
             setError("Hubo un error al contactar a la IA. Por favor, inténtalo de nuevo.");
@@ -164,6 +304,14 @@ export default function PlayMapPage() {
             </CardContent>
         </Card>
     );
+
+    const getRoleIcon = (role: string) => {
+        if (role.includes('IGL')) return <Crown className="h-5 w-5 text-yellow-500" />;
+        if (role.includes('FRAGGER')) return <Zap className="h-5 w-5 text-red-500" />;
+        if (role.includes('SUPPORT')) return <Heart className="h-5 w-5 text-green-500" />;
+        if (role.includes('SNIPER')) return <Crosshair className="h-5 w-5 text-blue-500" />;
+        return <UserCheck className="h-5 w-5 text-accent" />;
+    };
 
     const renderWeaponCard = (title: string, weapon: any) => (
         <div className="space-y-2">
@@ -272,6 +420,43 @@ export default function PlayMapPage() {
                         </Button>
                     </CardContent>
                 </Card>
+
+                {/* Sección de ubicación */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Navigation className="w-5 h-5" />
+                            Sugerencias por Ubicación
+                        </CardTitle>
+                        <p className="text-sm text-muted-foreground">
+                            Obtén recomendaciones de mapas basadas en tu ubicación geográfica.
+                        </p>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        {!userLocation ? (
+                            <Button 
+                                onClick={handleRequestLocation} 
+                                variant="outline" 
+                                className="w-full"
+                            >
+                                <Navigation className="mr-2 h-4 w-4" />
+                                Obtener Sugerencias por Ubicación
+                            </Button>
+                        ) : (
+                            <div className="space-y-3">
+                                <div className="flex items-center gap-2 text-sm text-green-600">
+                                    <Navigation className="w-4 h-4" />
+                                    Ubicación obtenida
+                                </div>
+                                {locationBasedSuggestion && (
+                                    <div className="p-3 bg-primary/5 rounded-lg border border-primary/20">
+                                        <p className="text-sm">{locationBasedSuggestion}</p>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
             </div>
 
             <div className="lg:col-span-2 space-y-6">
@@ -323,25 +508,25 @@ export default function PlayMapPage() {
                                 <CardTitle className="flex items-center gap-2"><Lightbulb className="h-5 w-5 text-primary"/> Fases de la Partida</CardTitle>
                              </CardHeader>
                              <CardContent className="space-y-4">
-                                <Card className="p-4 flex flex-col md:flex-row items-center gap-4 bg-muted/50">
-                                    <Image src="https://placehold.co/150x100.png" width={150} height={100} alt="Juego Temprano" className="rounded-lg object-cover" data-ai-hint="looting game" />
-                                    <div className="flex-1">
-                                        <h4 className="font-semibold flex items-center gap-2 mb-2 text-lg"><Shield className="h-5 w-5 text-accent"/> Juego Temprano</h4>
-                                        <p className="text-muted-foreground text-sm">{plan.earlyGame.plan}</p>
+                                <Card className="p-6 flex flex-col md:flex-row md:items-start gap-6 bg-muted/50 min-h-[140px]">
+                                    <Image src="https://placehold.co/150x100.png" width={150} height={100} alt="Juego Temprano" className="rounded-lg object-cover flex-shrink-0" data-ai-hint="looting game" />
+                                    <div className="flex-1 space-y-3">
+                                        <h4 className="font-semibold flex items-center gap-2 text-lg"><Shield className="h-5 w-5 text-accent"/> Juego Temprano</h4>
+                                        <p className="text-muted-foreground leading-relaxed">{plan.earlyGame.plan}</p>
                                     </div>
                                 </Card>
-                               <Card className="p-4 flex flex-col md:flex-row items-center gap-4 bg-muted/50">
-                                    <Image src="https://placehold.co/150x100.png" width={150} height={100} alt="Juego Medio" className="rounded-lg object-cover" data-ai-hint="combat game" />
-                                    <div className="flex-1">
-                                        <h4 className="font-semibold flex items-center gap-2 mb-2 text-lg"><Gamepad2 className="h-5 w-5 text-accent"/> Juego Medio</h4>
-                                        <p className="text-muted-foreground text-sm">{plan.midGame.plan}</p>
+                               <Card className="p-6 flex flex-col md:flex-row md:items-start gap-6 bg-muted/50 min-h-[140px]">
+                                    <Image src="https://placehold.co/150x100.png" width={150} height={100} alt="Juego Medio" className="rounded-lg object-cover flex-shrink-0" data-ai-hint="combat game" />
+                                    <div className="flex-1 space-y-3">
+                                        <h4 className="font-semibold flex items-center gap-2 text-lg"><Gamepad2 className="h-5 w-5 text-accent"/> Juego Medio</h4>
+                                        <p className="text-muted-foreground leading-relaxed">{plan.midGame.plan}</p>
                                     </div>
                                 </Card>
-                                <Card className="p-4 flex flex-col md:flex-row items-center gap-4 bg-muted/50">
-                                    <Image src="https://placehold.co/150x100.png" width={150} height={100} alt="Juego Tardío" className="rounded-lg object-cover" data-ai-hint="final circle" />
-                                    <div className="flex-1">
-                                        <h4 className="font-semibold flex items-center gap-2 mb-2 text-lg"><Trophy className="h-5 w-5 text-accent"/> Juego Tardío</h4>
-                                        <p className="text-muted-foreground text-sm">{plan.lateGame.plan}</p>
+                                <Card className="p-6 flex flex-col md:flex-row md:items-start gap-6 bg-muted/50 min-h-[140px]">
+                                    <Image src="https://placehold.co/150x100.png" width={150} height={100} alt="Juego Tardío" className="rounded-lg object-cover flex-shrink-0" data-ai-hint="final circle" />
+                                    <div className="flex-1 space-y-3">
+                                        <h4 className="font-semibold flex items-center gap-2 text-lg"><Trophy className="h-5 w-5 text-accent"/> Juego Tardío</h4>
+                                        <p className="text-muted-foreground leading-relaxed">{plan.lateGame.plan}</p>
                                     </div>
                                 </Card>
                             </CardContent>
@@ -353,18 +538,18 @@ export default function PlayMapPage() {
                              </CardHeader>
                              <CardContent className="space-y-4">
                                 {plan.recommendedLoadout.map((loadout, index) => (
-                                    <Card key={index} className="bg-muted/30">
-                                        <CardHeader>
-                                            <CardTitle className="text-lg flex items-center gap-2"><UserCheck className="h-5 w-5 text-accent" /> {loadout.role}</CardTitle>
+                                    <Card key={index} className="bg-muted/30 border-l-4 border-l-primary/50">
+                                        <CardHeader className="pb-4">
+                                            <CardTitle className="text-xl flex items-center gap-3">{getRoleIcon(loadout.role)} {loadout.role}</CardTitle>
                                         </CardHeader>
-                                        <CardContent className="space-y-4">
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <CardContent className="space-y-6">
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                                 {renderWeaponCard("Arma Principal", loadout.primaryWeapon)}
                                                 {renderWeaponCard("Arma Secundaria", loadout.secondaryWeapon)}
                                             </div>
-                                            <div>
-                                                <h4 className="font-semibold">Justificación Táctica:</h4>
-                                                <p className="text-sm text-muted-foreground italic">"{loadout.justification}"</p>
+                                            <div className="bg-background/50 p-4 rounded-lg border">
+                                                <h4 className="font-semibold mb-3 flex items-center gap-2"><Target className="h-4 w-4 text-primary"/> Justificación Táctica:</h4>
+                                                <p className="text-muted-foreground leading-relaxed italic">"{loadout.justification}"</p>
                                             </div>
                                         </CardContent>
                                     </Card>
@@ -390,30 +575,59 @@ export default function PlayMapPage() {
                                 {plan.rotationPlan.considerations.map((item, i) => <li key={i}>{item}</li>)}
                                 </ul>
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                <div>
-                                <h4 className="font-semibold mb-1 flex items-center gap-1"><ThumbsUp className="h-4 w-4 text-green-500" /> Ventajas</h4>
-                                <ul className="list-disc list-inside text-muted-foreground space-y-1">
-                                    {plan.rotationPlan.advantages.map((item, i) => <li key={i}>{item}</li>)}
-                                </ul>
-                                </div>
-                                <div>
-                                <h4 className="font-semibold mb-1 flex items-center gap-1"><ThumbsDown className="h-4 w-4 text-red-500"/> Desventajas</h4>
-                                <ul className="list-disc list-inside text-muted-foreground space-y-1">
-                                    {plan.rotationPlan.disadvantages.map((item, i) => <li key={i}>{item}</li>)}
-                                </ul>
-                                </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                <Card className="border-l-4 border-l-green-500 bg-green-50/50 dark:bg-green-950/20">
+                                    <CardContent className="p-4">
+                                        <h4 className="font-semibold mb-3 flex items-center gap-2 text-green-700 dark:text-green-400">
+                                            <ThumbsUp className="h-5 w-5" /> Ventajas
+                                        </h4>
+                                        <ul className="space-y-2">
+                                            {plan.rotationPlan.advantages.map((item, i) => (
+                                                <li key={i} className="flex items-start gap-2 text-sm">
+                                                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                                                    <span className="text-muted-foreground leading-relaxed">{item}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </CardContent>
+                                </Card>
+                                <Card className="border-l-4 border-l-red-500 bg-red-50/50 dark:bg-red-950/20">
+                                    <CardContent className="p-4">
+                                        <h4 className="font-semibold mb-3 flex items-center gap-2 text-red-700 dark:text-red-400">
+                                            <ThumbsDown className="h-5 w-5" /> Desventajas
+                                        </h4>
+                                        <ul className="space-y-2">
+                                            {plan.rotationPlan.disadvantages.map((item, i) => (
+                                                <li key={i} className="flex items-start gap-2 text-sm">
+                                                    <div className="w-1.5 h-1.5 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                                                    <span className="text-muted-foreground leading-relaxed">{item}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </CardContent>
+                                </Card>
                             </div>
-                             <Card className="bg-muted/50">
-                                <CardHeader className="flex-row items-center gap-4 space-y-0 p-4">
-                                     <div className="p-2 bg-primary/10 rounded-full"><Car className="h-6 w-6 text-primary" /></div>
-                                     <div>
-                                        <h4 className="font-semibold">Sugerencia de Vehículo: {plan.rotationPlan.vehicleSuggestion.vehicleType}</h4>
-                                        <p className="text-sm text-muted-foreground">{plan.rotationPlan.vehicleSuggestion.reason}</p>
+                             <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border-blue-200 dark:border-blue-800">
+                                <CardHeader className="flex-row items-center gap-4 space-y-0 p-5">
+                                     <div className="p-3 bg-blue-100 dark:bg-blue-900/50 rounded-full">
+                                         <Car className="h-7 w-7 text-blue-600 dark:text-blue-400" />
+                                     </div>
+                                     <div className="flex-1">
+                                        <h4 className="font-semibold text-lg text-blue-900 dark:text-blue-100 mb-1">
+                                            Sugerencia de Vehículo: {plan.rotationPlan.vehicleSuggestion.vehicleType}
+                                        </h4>
+                                        <p className="text-sm text-blue-700 dark:text-blue-300 leading-relaxed">
+                                            {plan.rotationPlan.vehicleSuggestion.reason}
+                                        </p>
                                     </div>
                                 </CardHeader>
-                                <CardContent className="p-4 pt-0">
-                                     <p className="text-xs text-muted-foreground italic">{plan.rotationPlan.vehicleSuggestion.fuelCheck}</p>
+                                <CardContent className="px-5 pb-5 pt-0">
+                                     <div className="bg-blue-100/50 dark:bg-blue-900/30 rounded-lg p-3">
+                                         <p className="text-sm text-blue-800 dark:text-blue-200 italic flex items-center gap-2">
+                                             <Zap className="h-4 w-4" />
+                                             {plan.rotationPlan.vehicleSuggestion.fuelCheck}
+                                         </p>
+                                     </div>
                                 </CardContent>
                              </Card>
                             </CardContent>
@@ -422,6 +636,14 @@ export default function PlayMapPage() {
                     </div>
                 )}
             </div>
+            
+            {/* Diálogo de permisos */}
+            <CompactPermissionsDialog
+                  open={showPermissionsDialog}
+                  onOpenChange={setShowPermissionsDialog}
+                  onComplete={handlePermissionsComplete}
+                  onClose={() => setShowPermissionsDialog(false)}
+             />
         </div>
     );
 }

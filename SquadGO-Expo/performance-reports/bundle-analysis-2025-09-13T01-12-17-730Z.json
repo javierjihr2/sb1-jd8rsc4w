@@ -1,0 +1,627 @@
+{
+  "timestamp": "2025-09-13T01:08:17.020Z",
+  "bundles": [
+    {
+      "name": "_expo\\static\\js\\web\\entry-162ab5a68aa81c07f1f268307a2720b5.js",
+      "size": 5845214,
+      "sizeFormatted": "5.57 MB",
+      "type": "javascript",
+      "gzipSize": 1753564
+    },
+    {
+      "name": "_expo\\static\\js\\web\\firebase-d41d8cd98f00b204e9800998ecf8427e.js",
+      "size": 0,
+      "sizeFormatted": "0 B",
+      "type": "javascript",
+      "gzipSize": 0
+    },
+    {
+      "name": "_expo\\static\\js\\web\\firestore-connection-manager-d41d8cd98f00b204e9800998ecf8427e.js",
+      "size": 0,
+      "sizeFormatted": "0 B",
+      "type": "javascript",
+      "gzipSize": 0
+    },
+    {
+      "name": "_expo\\static\\js\\web\\firestore-utils-d41d8cd98f00b204e9800998ecf8427e.js",
+      "size": 0,
+      "sizeFormatted": "0 B",
+      "type": "javascript",
+      "gzipSize": 0
+    },
+    {
+      "name": "_expo\\static\\js\\web\\index-d41d8cd98f00b204e9800998ecf8427e.js",
+      "size": 0,
+      "sizeFormatted": "0 B",
+      "type": "javascript",
+      "gzipSize": 0
+    },
+    {
+      "name": "_expo\\static\\js\\web\\monitoring-d41d8cd98f00b204e9800998ecf8427e.js",
+      "size": 0,
+      "sizeFormatted": "0 B",
+      "type": "javascript",
+      "gzipSize": 0
+    }
+  ],
+  "assets": [
+    {
+      "name": "adaptive-icon.png",
+      "size": 17547,
+      "sizeFormatted": "17.14 KB",
+      "type": "image",
+      "optimizable": false
+    },
+    {
+      "name": "favicon.png",
+      "size": 1466,
+      "sizeFormatted": "1.43 KB",
+      "type": "image",
+      "optimizable": false
+    },
+    {
+      "name": "icon.png",
+      "size": 22380,
+      "sizeFormatted": "21.86 KB",
+      "type": "image",
+      "optimizable": false
+    },
+    {
+      "name": "logo-animated.svg",
+      "size": 4257,
+      "sizeFormatted": "4.16 KB",
+      "type": "image",
+      "optimizable": false
+    },
+    {
+      "name": "logo.png",
+      "size": 1460454,
+      "sizeFormatted": "1.39 MB",
+      "type": "image",
+      "optimizable": true
+    },
+    {
+      "name": "notification-icon.png",
+      "size": 435,
+      "sizeFormatted": "435 B",
+      "type": "image",
+      "optimizable": false
+    },
+    {
+      "name": "splash-icon.png",
+      "size": 17547,
+      "sizeFormatted": "17.14 KB",
+      "type": "image",
+      "optimizable": false
+    },
+    {
+      "name": "splash-screen.svg",
+      "size": 4507,
+      "sizeFormatted": "4.4 KB",
+      "type": "image",
+      "optimizable": false
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "firebase",
+      "version": "^10.12.2",
+      "size": 85194185,
+      "sizeFormatted": "81.25 MB",
+      "type": "production"
+    },
+    {
+      "name": "react-native",
+      "version": "0.74.5",
+      "size": 71528203,
+      "sizeFormatted": "68.21 MB",
+      "type": "production"
+    },
+    {
+      "name": "@react-native-firebase/app",
+      "version": "^23.3.1",
+      "size": 42870354,
+      "sizeFormatted": "40.88 MB",
+      "type": "production"
+    },
+    {
+      "name": "typescript",
+      "version": "~5.8.3",
+      "size": 22867703,
+      "sizeFormatted": "21.81 MB",
+      "type": "development"
+    },
+    {
+      "name": "date-fns",
+      "version": "^4.1.0",
+      "size": 22601076,
+      "sizeFormatted": "21.55 MB",
+      "type": "production"
+    },
+    {
+      "name": "detox",
+      "version": "^20.13.5",
+      "size": 15549368,
+      "sizeFormatted": "14.83 MB",
+      "type": "development"
+    },
+    {
+      "name": "prettier",
+      "version": "^3.1.0",
+      "size": 8458264,
+      "sizeFormatted": "8.07 MB",
+      "type": "development"
+    },
+    {
+      "name": "expo",
+      "version": "~51.0.28",
+      "size": 7487689,
+      "sizeFormatted": "7.14 MB",
+      "type": "production"
+    },
+    {
+      "name": "eslint",
+      "version": "^8.55.0",
+      "size": 4580867,
+      "sizeFormatted": "4.37 MB",
+      "type": "development"
+    },
+    {
+      "name": "react-dom",
+      "version": "18.2.0",
+      "size": 4502126,
+      "sizeFormatted": "4.29 MB",
+      "type": "production"
+    },
+    {
+      "name": "react-native-gesture-handler",
+      "version": "~2.16.1",
+      "size": 3524218,
+      "sizeFormatted": "3.36 MB",
+      "type": "production"
+    },
+    {
+      "name": "react-native-web",
+      "version": "~0.19.10",
+      "size": 3028648,
+      "sizeFormatted": "2.89 MB",
+      "type": "production"
+    },
+    {
+      "name": "react-native-svg",
+      "version": "^15.2.0",
+      "size": 2836431,
+      "sizeFormatted": "2.71 MB",
+      "type": "production"
+    },
+    {
+      "name": "@typescript-eslint/eslint-plugin",
+      "version": "^6.21.0",
+      "size": 2692431,
+      "sizeFormatted": "2.57 MB",
+      "type": "development"
+    },
+    {
+      "name": "jest-expo",
+      "version": "~50.0.1",
+      "size": 1706240,
+      "sizeFormatted": "1.63 MB",
+      "type": "development"
+    },
+    {
+      "name": "i18n-js",
+      "version": "^4.4.3",
+      "size": 1702120,
+      "sizeFormatted": "1.62 MB",
+      "type": "production"
+    },
+    {
+      "name": "expo-notifications",
+      "version": "~0.28.15",
+      "size": 1286241,
+      "sizeFormatted": "1.23 MB",
+      "type": "production"
+    },
+    {
+      "name": "react-native-screens",
+      "version": "3.31.1",
+      "size": 1275489,
+      "sizeFormatted": "1.22 MB",
+      "type": "production"
+    },
+    {
+      "name": "eslint-plugin-react",
+      "version": "^7.37.5",
+      "size": 1183138,
+      "sizeFormatted": "1.13 MB",
+      "type": "development"
+    },
+    {
+      "name": "expo-router",
+      "version": "~3.5.14",
+      "size": 1066899,
+      "sizeFormatted": "1.02 MB",
+      "type": "production"
+    },
+    {
+      "name": "react-native-qrcode-svg",
+      "version": "^6.3.15",
+      "size": 958130,
+      "sizeFormatted": "935.67 KB",
+      "type": "production"
+    },
+    {
+      "name": "expo-av",
+      "version": "~14.0.6",
+      "size": 893111,
+      "sizeFormatted": "872.18 KB",
+      "type": "production"
+    },
+    {
+      "name": "expo-camera",
+      "version": "~15.0.14",
+      "size": 825428,
+      "sizeFormatted": "806.08 KB",
+      "type": "production"
+    },
+    {
+      "name": "@babel/core",
+      "version": "^7.25.2",
+      "size": 795974,
+      "sizeFormatted": "777.32 KB",
+      "type": "development"
+    },
+    {
+      "name": "patch-package",
+      "version": "^8.0.0",
+      "size": 741859,
+      "sizeFormatted": "724.47 KB",
+      "type": "development"
+    },
+    {
+      "name": "@testing-library/react-native",
+      "version": "^12.4.2",
+      "size": 720401,
+      "sizeFormatted": "703.52 KB",
+      "type": "development"
+    },
+    {
+      "name": "lint-staged",
+      "version": "^15.2.0",
+      "size": 620921,
+      "sizeFormatted": "606.37 KB",
+      "type": "development"
+    },
+    {
+      "name": "@react-native-community/netinfo",
+      "version": "11.3.1",
+      "size": 539078,
+      "sizeFormatted": "526.44 KB",
+      "type": "production"
+    },
+    {
+      "name": "@types/react",
+      "version": "^18.3.24",
+      "size": 441579,
+      "sizeFormatted": "431.23 KB",
+      "type": "development"
+    },
+    {
+      "name": "@react-native-async-storage/async-storage",
+      "version": "1.23.1",
+      "size": 430736,
+      "sizeFormatted": "420.64 KB",
+      "type": "production"
+    },
+    {
+      "name": "react-native-chart-kit",
+      "version": "^6.12.0",
+      "size": 399072,
+      "sizeFormatted": "389.72 KB",
+      "type": "production"
+    },
+    {
+      "name": "@react-native-picker/picker",
+      "version": "2.7.5",
+      "size": 391986,
+      "sizeFormatted": "382.8 KB",
+      "type": "production"
+    },
+    {
+      "name": "expo-location",
+      "version": "~17.0.1",
+      "size": 353241,
+      "sizeFormatted": "344.96 KB",
+      "type": "production"
+    },
+    {
+      "name": "react",
+      "version": "18.2.0",
+      "size": 316108,
+      "sizeFormatted": "308.7 KB",
+      "type": "production"
+    },
+    {
+      "name": "@react-native-firebase/analytics",
+      "version": "^23.3.1",
+      "size": 289221,
+      "sizeFormatted": "282.44 KB",
+      "type": "production"
+    },
+    {
+      "name": "expo-image-picker",
+      "version": "~15.1.0",
+      "size": 274332,
+      "sizeFormatted": "267.9 KB",
+      "type": "production"
+    },
+    {
+      "name": "expo-device",
+      "version": "~6.0.2",
+      "size": 241466,
+      "sizeFormatted": "235.81 KB",
+      "type": "production"
+    },
+    {
+      "name": "react-native-safe-area-context",
+      "version": "4.10.5",
+      "size": 238262,
+      "sizeFormatted": "232.68 KB",
+      "type": "production"
+    },
+    {
+      "name": "@react-native-community/datetimepicker",
+      "version": "8.0.1",
+      "size": 219192,
+      "sizeFormatted": "214.05 KB",
+      "type": "production"
+    },
+    {
+      "name": "@react-native-firebase/crashlytics",
+      "version": "^23.3.1",
+      "size": 164873,
+      "sizeFormatted": "161.01 KB",
+      "type": "production"
+    },
+    {
+      "name": "@babel/preset-env",
+      "version": "^7.28.3",
+      "size": 153961,
+      "sizeFormatted": "150.35 KB",
+      "type": "development"
+    },
+    {
+      "name": "@react-native-firebase/perf",
+      "version": "^23.3.1",
+      "size": 146978,
+      "sizeFormatted": "143.53 KB",
+      "type": "production"
+    },
+    {
+      "name": "expo-localization",
+      "version": "~15.0.3",
+      "size": 133200,
+      "sizeFormatted": "130.08 KB",
+      "type": "production"
+    },
+    {
+      "name": "babel-preset-expo",
+      "version": "~13.0.0",
+      "size": 128619,
+      "sizeFormatted": "125.6 KB",
+      "type": "development"
+    },
+    {
+      "name": "eslint-plugin-react-hooks",
+      "version": "^4.6.2",
+      "size": 117662,
+      "sizeFormatted": "114.9 KB",
+      "type": "development"
+    },
+    {
+      "name": "expo-linking",
+      "version": "~6.3.1",
+      "size": 110003,
+      "sizeFormatted": "107.42 KB",
+      "type": "production"
+    },
+    {
+      "name": "jest-watch-typeahead",
+      "version": "^2.2.2",
+      "size": 104381,
+      "sizeFormatted": "101.93 KB",
+      "type": "development"
+    },
+    {
+      "name": "expo-secure-store",
+      "version": "~13.0.2",
+      "size": 103630,
+      "sizeFormatted": "101.2 KB",
+      "type": "production"
+    },
+    {
+      "name": "@types/jest",
+      "version": "^29.5.8",
+      "size": 78772,
+      "sizeFormatted": "76.93 KB",
+      "type": "development"
+    },
+    {
+      "name": "expo-local-authentication",
+      "version": "~14.0.1",
+      "size": 78263,
+      "sizeFormatted": "76.43 KB",
+      "type": "production"
+    },
+    {
+      "name": "expo-linear-gradient",
+      "version": "~13.0.2",
+      "size": 71681,
+      "sizeFormatted": "70 KB",
+      "type": "production"
+    },
+    {
+      "name": "expo-crypto",
+      "version": "~13.0.2",
+      "size": 71202,
+      "sizeFormatted": "69.53 KB",
+      "type": "production"
+    },
+    {
+      "name": "@testing-library/jest-native",
+      "version": "^5.4.3",
+      "size": 64207,
+      "sizeFormatted": "62.7 KB",
+      "type": "development"
+    },
+    {
+      "name": "expo-document-picker",
+      "version": "~12.0.2",
+      "size": 62357,
+      "sizeFormatted": "60.9 KB",
+      "type": "production"
+    },
+    {
+      "name": "expo-blur",
+      "version": "~13.0.2",
+      "size": 57907,
+      "sizeFormatted": "56.55 KB",
+      "type": "production"
+    },
+    {
+      "name": "expo-dev-client",
+      "version": "~4.0.29",
+      "size": 56728,
+      "sizeFormatted": "55.4 KB",
+      "type": "production"
+    },
+    {
+      "name": "eslint-plugin-react-native",
+      "version": "^4.1.0",
+      "size": 52738,
+      "sizeFormatted": "51.5 KB",
+      "type": "development"
+    },
+    {
+      "name": "jest-junit",
+      "version": "^16.0.0",
+      "size": 45887,
+      "sizeFormatted": "44.81 KB",
+      "type": "development"
+    },
+    {
+      "name": "expo-status-bar",
+      "version": "~1.12.1",
+      "size": 43683,
+      "sizeFormatted": "42.66 KB",
+      "type": "production"
+    },
+    {
+      "name": "@babel/plugin-transform-runtime",
+      "version": "^7.28.3",
+      "size": 38116,
+      "sizeFormatted": "37.22 KB",
+      "type": "development"
+    },
+    {
+      "name": "expo-haptics",
+      "version": "~13.0.1",
+      "size": 36083,
+      "sizeFormatted": "35.24 KB",
+      "type": "production"
+    },
+    {
+      "name": "chalk",
+      "version": "^4.1.2",
+      "size": 35047,
+      "sizeFormatted": "34.23 KB",
+      "type": "development"
+    },
+    {
+      "name": "@babel/preset-typescript",
+      "version": "^7.27.1",
+      "size": 25778,
+      "sizeFormatted": "25.17 KB",
+      "type": "development"
+    },
+    {
+      "name": "@typescript-eslint/parser",
+      "version": "^6.21.0",
+      "size": 17793,
+      "sizeFormatted": "17.38 KB",
+      "type": "development"
+    },
+    {
+      "name": "husky",
+      "version": "^8.0.3",
+      "size": 6442,
+      "sizeFormatted": "6.29 KB",
+      "type": "development"
+    },
+    {
+      "name": "jest",
+      "version": "^29.7.0",
+      "size": 5006,
+      "sizeFormatted": "4.89 KB",
+      "type": "development"
+    },
+    {
+      "name": "@babel/plugin-proposal-class-properties",
+      "version": "^7.18.6",
+      "size": 3338,
+      "sizeFormatted": "3.26 KB",
+      "type": "development"
+    }
+  ],
+  "warnings": [
+    {
+      "type": "threshold_exceeded",
+      "message": "Bundle total excede el umbral (5 MB)",
+      "current": "5.57 MB",
+      "threshold": "5 MB"
+    },
+    {
+      "type": "large_chunk",
+      "message": "Bundle '_expo\\static\\js\\web\\entry-162ab5a68aa81c07f1f268307a2720b5.js' es muy grande",
+      "current": "5.57 MB",
+      "threshold": "1 MB"
+    },
+    {
+      "type": "large_asset",
+      "message": "Asset 'logo.png' es muy grande",
+      "current": "1.39 MB",
+      "threshold": "500 KB"
+    }
+  ],
+  "errors": [],
+  "summary": {
+    "totalBundleSize": 5845214,
+    "totalAssetSize": 1528593,
+    "totalDependencySize": 317646122,
+    "totalSize": 7373807,
+    "bundleCount": 6,
+    "assetCount": 8,
+    "dependencyCount": 67,
+    "largestBundle": {
+      "name": "_expo\\static\\js\\web\\entry-162ab5a68aa81c07f1f268307a2720b5.js",
+      "size": 5845214,
+      "sizeFormatted": "5.57 MB",
+      "type": "javascript",
+      "gzipSize": 1753564
+    },
+    "largestAsset": {
+      "name": "logo.png",
+      "size": 1460454,
+      "sizeFormatted": "1.39 MB",
+      "type": "image",
+      "optimizable": true
+    },
+    "largestDependency": {
+      "name": "firebase",
+      "version": "^10.12.2",
+      "size": 85194185,
+      "sizeFormatted": "81.25 MB",
+      "type": "production"
+    }
+  }
+}

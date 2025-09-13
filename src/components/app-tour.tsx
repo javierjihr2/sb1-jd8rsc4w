@@ -12,7 +12,7 @@ const tourOptions = {
       enabled: true
     },
     classes: 'shepherd-custom',
-    scrollTo: { behavior: 'smooth', block: 'center' }
+    scrollTo: { behavior: 'smooth' as ScrollBehavior, block: 'center' as ScrollLogicalPosition }
   },
   useModalOverlay: true
 };
@@ -22,10 +22,10 @@ const steps = [
     id: 'intro',
     text: `
       <div class="shepherd-header">
-        <h3 class="shepherd-title">¡Bienvenido a SquadUp!</h3>
+        <h3 class="shepherd-title">¡Bienvenido a SquadGO!</h3>
       </div>
       <div class="shepherd-content">
-        <p>¡Qué emoción tenerte a bordo! Prepárate para llevar tu juego al siguiente nivel. Este rápido tour te mostrará las herramientas clave para dominar el campo de batalla.</p>
+        <p>¡Qué emoción tenerte a bordo! Descubre cómo convertirte en un <strong>Creador de Contenido</strong> y monetizar tu pasión por PUBG Mobile. Este tour te mostrará todas las herramientas para crear torneos, ofrecer servicios y construir tu comunidad.</p>
       </div>
     `,
     buttons: [
@@ -45,7 +45,7 @@ const steps = [
     id: 'nav-dashboard',
     attachTo: {
       element: '#nav-dashboard',
-      on: 'right'
+      on: 'right' as const
     },
     title: 'Tu Centro de Mando',
     text: 'Este es el Inicio, tu base de operaciones. Aquí verás las últimas noticias, la actividad de tus amigos y los próximos torneos de un vistazo.',
@@ -66,10 +66,10 @@ const steps = [
     id: 'nav-tournaments',
     attachTo: {
       element: '#nav-tournaments',
-      on: 'right'
+      on: 'right' as const
     },
-    title: 'Compite por la Gloria',
-    text: '¡Aquí está la acción! Explora, inscríbete y compite en torneos. ¡La gloria y los premios te esperan!',
+    title: 'Crea y Gestiona Torneos',
+    text: '¡El corazón de tu negocio como creador! Aquí puedes <strong>crear torneos ilimitados</strong>, gestionar inscripciones, configurar premios y construir tu comunidad. Como creador, tendrás herramientas avanzadas para personalizar cada detalle.',
     buttons: [
        {
         classes: 'shepherd-button-secondary',
@@ -87,7 +87,7 @@ const steps = [
     id: 'nav-matchmaking',
     attachTo: {
       element: '#nav-matchmaking',
-      on: 'right'
+      on: 'right' as const
     },
     title: 'Encuentra a tu Dúo Ideal',
     text: '¿Cansado de jugar solo? Usa el "MATCH PUBGM" para descubrir nuevos jugadores, analizar su compatibilidad contigo y romper el hielo con la ayuda de la IA.',
@@ -108,11 +108,95 @@ const steps = [
     id: 'nav-equipment',
     attachTo: {
       element: '#nav-equipment',
-      on: 'right'
+      on: 'right' as const
     },
-    title: 'El Taller de Precisión',
-    text: 'La victoria se forja aquí. Obtén configuraciones de sensibilidad y controles generadas por IA y optimizadas para tu dispositivo y estilo de juego.',
+    title: 'Servicios Premium para Creadores',
+    text: 'Como creador, puedes <strong>ofrecer servicios de coaching</strong>, análisis de sensibilidades personalizadas y configuraciones optimizadas. Monetiza tu experiencia ayudando a otros jugadores a mejorar su rendimiento.',
      buttons: [
+      {
+        classes: 'shepherd-button-secondary',
+        text: 'Atrás',
+        type: 'back'
+      },
+      {
+        classes: 'shepherd-button-primary',
+        text: 'Siguiente',
+        type: 'next'
+      }
+    ]
+  },
+  {
+    id: 'creator-chat',
+    title: 'Sistema de Chat para Creadores',
+    text: `
+      <div class="shepherd-content">
+        <p><strong>Conecta con tu audiencia:</strong></p>
+        <ul style="margin: 10px 0; padding-left: 20px;">
+          <li>• Chat en tiempo real durante torneos</li>
+          <li>• Comunicación directa con participantes</li>
+          <li>• Moderación avanzada de mensajes</li>
+          <li>• Notificaciones de mensajes importantes</li>
+        </ul>
+        <p>Construye relaciones sólidas con tu comunidad.</p>
+      </div>
+    `,
+    buttons: [
+      {
+        classes: 'shepherd-button-secondary',
+        text: 'Atrás',
+        type: 'back'
+      },
+      {
+        classes: 'shepherd-button-primary',
+        text: 'Siguiente',
+        type: 'next'
+      }
+    ]
+  },
+  {
+    id: 'creator-lists',
+    title: 'Gestión de Listas y Equipos',
+    text: `
+      <div class="shepherd-content">
+        <p><strong>Organiza tu comunidad:</strong></p>
+        <ul style="margin: 10px 0; padding-left: 20px;">
+          <li>• Crea listas de jugadores favoritos</li>
+          <li>• Gestiona equipos para torneos</li>
+          <li>• Sistema de ranking personalizado</li>
+          <li>• Invitaciones automáticas a eventos</li>
+        </ul>
+        <p>Mantén a tu audiencia organizada y comprometida.</p>
+      </div>
+    `,
+    buttons: [
+      {
+        classes: 'shepherd-button-secondary',
+        text: 'Atrás',
+        type: 'back'
+      },
+      {
+        classes: 'shepherd-button-primary',
+        text: 'Siguiente',
+        type: 'next'
+      }
+    ]
+  },
+  {
+    id: 'creator-monetization',
+    title: 'Monetización y Crecimiento',
+    text: `
+      <div class="shepherd-content">
+        <p><strong>Convierte tu pasión en ingresos:</strong></p>
+        <ul style="margin: 10px 0; padding-left: 20px;">
+          <li>• <strong>Plan Creador Básico ($9.99/mes):</strong> Torneos ilimitados, servicios básicos</li>
+          <li>• <strong>Plan Creador Pro ($19.99/mes):</strong> Analytics avanzados, streaming integrado</li>
+          <li>• Comisiones reducidas en servicios premium</li>
+          <li>• Promoción en la plataforma</li>
+        </ul>
+        <p>¡Empieza hoy y construye tu imperio gaming!</p>
+      </div>
+    `,
+    buttons: [
       {
         classes: 'shepherd-button-secondary',
         text: 'Atrás',
@@ -129,10 +213,10 @@ const steps = [
     id: 'user-nav',
     attachTo: {
       element: '.user-nav-trigger',
-      on: 'bottom'
+      on: 'bottom' as const
     },
-    title: 'Tu Perfil y Ajustes',
-    text: 'Desde aquí puedes acceder a tu perfil público, configurar los ajustes de la aplicación, cambiar el tema y cerrar sesión.',
+    title: 'Tu Perfil de Creador',
+    text: 'Gestiona tu perfil de creador, revisa tus estadísticas, configura tus servicios y accede a herramientas avanzadas. ¡Todo lo que necesitas para hacer crecer tu negocio!',
     buttons: [
       {
         classes: 'shepherd-button-secondary',
@@ -141,7 +225,7 @@ const steps = [
       },
       {
         classes: 'shepherd-button-primary',
-        text: 'Finalizar',
+        text: '¡Comenzar como Creador!',
         type: 'complete'
       }
     ]
@@ -155,17 +239,17 @@ function TourInstance() {
     const tour = useContext(ShepherdTourContext);
 
     useEffect(() => {
-        const tourCompleted = localStorage.getItem('squadup_tour_completed');
+        const tourCompleted = localStorage.getItem('squadgo_tour_completed');
 
         // Delay to ensure the DOM is ready and hydrated
         const timer = setTimeout(() => {
             if (tour && !tourCompleted) {
                 tour.start();
                 tour.on('complete', () => {
-                    localStorage.setItem('squadup_tour_completed', 'true');
+                    localStorage.setItem('squadgo_tour_completed', 'true');
                 });
                 tour.on('cancel', () => {
-                     localStorage.setItem('squadup_tour_completed', 'true');
+                     localStorage.setItem('squadgo_tour_completed', 'true');
                 })
             }
         }, 1500); 

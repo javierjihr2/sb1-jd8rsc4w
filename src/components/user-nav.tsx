@@ -1,6 +1,7 @@
 
 "use client"
 
+import { useState, useEffect } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
@@ -20,20 +21,104 @@ import { useAuth } from "@/app/auth-provider"
 import { auth } from "@/lib/firebase"
 import { signOut } from "firebase/auth"
 import { useRouter } from "next/navigation"
+import type { PlayerProfile } from "@/lib/types"
 
 export function UserNav() {
   const { setTheme, theme } = useTheme()
   const { user } = useAuth()
   const router = useRouter()
+  const [currentProfile, setCurrentProfile] = useState<PlayerProfile>(playerProfile)
+
+  // Función para cargar perfil desde localStorage con múltiples fuentes
+  const loadLocalProfile = (): PlayerProfile | null => {
+    if (typeof window === 'undefined') return null
+    try {
+      const userId = user?.uid
+      if (!userId) return null
+      
+      // Try to load from multiple sources for maximum reliability
+      const keys = [
+        `profile_${userId}`,
+        `profile_backup_${userId}`,
+        `pending_profile_${userId}`,
+        'currentProfile' // Legacy fallback
+      ]
+      
+      let mostRecentProfile = null
+      let mostRecentTimestamp = 0
+      
+      for (const key of keys) {
+        try {
+          const saved = localStorage.getItem(key)
+          if (saved) {
+            const profile = JSON.parse(saved)
+            const timestamp = profile.lastModified || profile.lastUpdate || 0
+            if (timestamp > mostRecentTimestamp) {
+              mostRecentTimestamp = timestamp
+              mostRecentProfile = profile
+            }
+          }
+        } catch (error) {
+          console.warn(`Error loading profile from ${key}:`, error)
+        }
+      }
+      
+      return mostRecentProfile
+    } catch (error) {
+      console.log('Error loading profile from localStorage:', error)
+      return null
+    }
+  }
+
+  // Cargar perfil desde localStorage al montar el componente
+  useEffect(() => {
+    const localProfile = loadLocalProfile()
+    if (localProfile) {
+      setCurrentProfile(localProfile)
+    }
+  }, [user?.uid])
+
+  // Escuchar cambios en localStorage para actualizar el perfil automáticamente
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (user?.uid && (
+        e.key === `profile_${user.uid}` ||
+        e.key === `profile_backup_${user.uid}` ||
+        e.key === `pending_profile_${user.uid}` ||
+        e.key === 'currentProfile'
+      )) {
+        const localProfile = loadLocalProfile()
+        if (localProfile) {
+          setCurrentProfile(localProfile)
+        }
+      }
+    }
+
+    // Listener personalizado para cambios desde la misma pestaña
+    const handleCustomProfileUpdate = (event: CustomEvent) => {
+      const { userId, profile } = event.detail
+      if (userId === user?.uid && profile) {
+        setCurrentProfile(profile)
+      }
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+    window.addEventListener('profileUpdated', handleCustomProfileUpdate as EventListener)
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      window.removeEventListener('profileUpdated', handleCustomProfileUpdate as EventListener)
+    }
+  }, [user?.uid])
 
   const handleSignOut = async () => {
     await signOut(auth);
     router.push('/login');
   }
 
-  const userDisplayName = user?.displayName || playerProfile.name;
-  const userDisplayEmail = user?.email || playerProfile.email;
-  const userDisplayAvatar = user?.photoURL || playerProfile.avatarUrl;
+  const userDisplayName = user?.displayName || currentProfile.name;
+  const userDisplayEmail = user?.email || currentProfile.email;
+  const userDisplayAvatar = user?.photoURL || currentProfile.avatarUrl || '';
   
   const isAdmin = user?.email === ADMIN_EMAIL;
 
@@ -44,7 +129,7 @@ export function UserNav() {
         <Button variant="ghost" className="relative h-8 w-8 rounded-full user-nav-trigger">
           <Avatar className="h-9 w-9">
             <AvatarImage src={userDisplayAvatar} alt={`@${userDisplayName}`} data-ai-hint="gaming character" />
-            <AvatarFallback>{userDisplayName.substring(0, 2)}</AvatarFallback>
+            <AvatarFallback>{userDisplayName?.substring(0, 2) || 'U'}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>

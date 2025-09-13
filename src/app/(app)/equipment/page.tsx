@@ -5,15 +5,12 @@ import { useState } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Wrench, PlusCircle, Trash2, Smartphone, Gamepad2, Loader2, Sparkles, ThumbsUp, ThumbsDown, CheckCircle, Brain, Terminal, ClipboardCopy, Target, Rss } from "lucide-react";
+import { Wrench, PlusCircle, Trash2, Smartphone, Gamepad2, Loader2, Sparkles, ThumbsUp, ThumbsDown, CheckCircle, Brain, Terminal, Target, Rss } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup } from "@/components/ui/select";
-import { getSensitivity } from "@/ai/flows/sensitivityFlow";
-import { getControls } from "@/ai/flows/controlsFlow";
-import { getWeaponSensitivity } from "@/ai/flows/weaponSensitivityFlow";
 import type { Sensitivity, SensitivityInput, Controls, ControlsInput, WeaponSensitivity } from "@/ai/schemas";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -175,6 +172,7 @@ export default function EquipmentPage() {
         setSensitivity(null);
         setLastUsedSensitivityInput(sensitivityInput);
         try {
+            const { getSensitivity } = await import("@/ai/flows/sensitivityFlow");
             const result = await getSensitivity(sensitivityInput as SensitivityInput);
             setSensitivity(result);
         } catch (e: any) {
@@ -185,15 +183,7 @@ export default function EquipmentPage() {
         }
     };
     
-    const handleCopyCode = (code: string) => {
-        if(code) {
-            navigator.clipboard.writeText(code);
-            toast({
-                title: "Copiado",
-                description: "El código de sensibilidad ha sido copiado al portapapeles."
-            })
-        }
-    }
+
 
     const handleGenerateControls = async () => {
         if (!controlsInput.fingerCount || !controlsInput.deviceType) {
@@ -205,6 +195,7 @@ export default function EquipmentPage() {
         setControls(null);
         setLastUsedControlsInput(controlsInput);
         try {
+            const { getControls } = await import("@/ai/flows/controlsFlow");
             const result = await getControls(controlsInput as ControlsInput);
             setControls(result);
         } catch (e: any) {
@@ -216,8 +207,7 @@ export default function EquipmentPage() {
     };
 
     const handleGenerateWeaponSensitivity = async () => {
-        const fullSensitivityProfile = sensitivityInput as SensitivityInput;
-        if (!fullSensitivityProfile.deviceType || !fullSensitivityProfile.deviceBrand || !fullSensitivityProfile.device || !fullSensitivityProfile.screenSize || !fullSensitivityProfile.playStyle || !fullSensitivityProfile.gyroscope || !weaponCategory || !weaponName) {
+        if (!sensitivityInput.deviceType || !sensitivityInput.deviceBrand || !sensitivityInput.device || !sensitivityInput.screenSize || !sensitivityInput.playStyle || !sensitivityInput.gyroscope || !weaponCategory || !weaponName) {
             setWeaponSensitivityError("Por favor, configura tu perfil de sensibilidad completo en la pestaña 'Sensibilidad' y selecciona un arma para continuar.");
             return;
         }
@@ -227,8 +217,9 @@ export default function EquipmentPage() {
         setWeaponSensitivity(null);
 
         try {
+            const { getWeaponSensitivity } = await import("@/ai/flows/weaponSensitivityFlow");
             const result = await getWeaponSensitivity({
-                ...fullSensitivityProfile,
+                ...(sensitivityInput as SensitivityInput),
                 weaponCategory: weaponCategory!,
                 weaponName: weaponName!
             });
@@ -254,7 +245,7 @@ export default function EquipmentPage() {
     }
 
     const handleDeviceBrandChange = (value: string) => {
-        setSensitivityInput(prev => ({
+        setSensitivityInput((prev: typeof sensitivityInput) => ({
             ...prev,
             deviceBrand: value,
             device: undefined,
@@ -267,14 +258,14 @@ export default function EquipmentPage() {
         const brand = sensitivityInput.deviceBrand as keyof typeof deviceList[typeof type];
         const modelData = deviceList[type][brand].find(d => d.value === value);
 
-        setSensitivityInput(prev => ({
+        setSensitivityInput((prev: typeof sensitivityInput) => ({
             ...prev,
             device: value,
             screenSize: modelData?.screenSize,
         }));
     }
 
-    const SensitivityTable = ({ title, data }: { title: string, data: any }) => (
+    const SensitivityTable = ({ title, data }: { title: string, data: Record<string, number> }) => (
         <div>
             <h3 className="text-lg font-semibold text-primary mb-2">{title}</h3>
             <div className="border rounded-lg">
@@ -308,7 +299,7 @@ export default function EquipmentPage() {
             </CardHeader>
             <CardContent>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {[...Array(3)].map((_, i) => (
+                    {[...Array(3)].map((_, i: number) => (
                         <div key={i} className="space-y-4">
                             <Skeleton className="h-8 w-1/2" />
                             <div className="border rounded-lg p-2">
@@ -365,7 +356,7 @@ export default function EquipmentPage() {
             </CardHeader>
             <CardContent>
                 <div className="grid md:grid-cols-2 gap-6">
-                    {[...Array(2)].map((_, i) => (
+                    {[...Array(2)].map((_, i: number) => (
                         <div key={i} className="space-y-4">
                             <Skeleton className="h-8 w-1/2" />
                             <div className="border rounded-lg p-2">
@@ -450,14 +441,14 @@ export default function EquipmentPage() {
                                     </div>
                                     <div className="space-y-2">
                                         <Label htmlFor="playstyle">Estilo de Juego Preferido</Label>
-                                        <Select onValueChange={(value) => setSensitivityInput(prev => ({ ...prev, playStyle: value }))} value={sensitivityInput.playStyle}>
+                                        <Select onValueChange={(value: string) => setSensitivityInput((prev: Partial<SensitivityInput>) => ({ ...prev, playStyle: value }))} value={sensitivityInput.playStyle}>
                                             <SelectTrigger id="playstyle"><SelectValue placeholder="Selecciona tu estilo" /></SelectTrigger>
                                             <SelectContent><SelectItem value="cercano">Combate Cercano</SelectItem><SelectItem value="media">Media Distancia</SelectItem><SelectItem value="larga">Larga Distancia (Francotirador)</SelectItem><SelectItem value="versatil">Versátil (Mixto)</SelectItem></SelectContent>
                                         </Select>
                                     </div>
                                     <div className="space-y-2">
                                         <Label htmlFor="gyroscope">¿Usas Giroscopio?</Label>
-                                        <Select onValueChange={(value) => setSensitivityInput(prev => ({ ...prev, gyroscope: value }))} value={sensitivityInput.gyroscope}>
+                                        <Select onValueChange={(value: string) => setSensitivityInput((prev: Partial<SensitivityInput>) => ({ ...prev, gyroscope: value }))} value={sensitivityInput.gyroscope}>
                                             <SelectTrigger id="gyroscope"><SelectValue placeholder="Selecciona una opción" /></SelectTrigger>
                                             <SelectContent><SelectItem value="si">Sí</SelectItem><SelectItem value="no">No</SelectItem></SelectContent>
                                         </Select>
@@ -493,11 +484,7 @@ export default function EquipmentPage() {
                                             <SensitivityTable title="Sensibilidad de ADS" data={sensitivity.ads} />
                                             {sensitivity.gyroscope && <SensitivityTable title="Sensibilidad de Giroscopio" data={sensitivity.gyroscope} />}
                                         </div>
-                                        <div>
-                                            <h3 className="text-lg font-semibold text-primary mb-2">Código de Sensibilidad</h3>
-                                            <div className="flex items-center gap-2"><Input value={sensitivity.code} readOnly className="bg-muted"/><Button variant="outline" size="icon" onClick={() => handleCopyCode(sensitivity.code)}><ClipboardCopy className="h-4 w-4"/></Button></div>
-                                            <p className="text-xs text-muted-foreground mt-2">Puedes usar este código para importar la configuración directamente en el juego.</p>
-                                        </div>
+
                                     </CardContent>
                                 </Card>
                             )}
@@ -516,14 +503,14 @@ export default function EquipmentPage() {
                             <CardContent className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 items-start">
                                 <div className="space-y-2">
                                     <Label htmlFor="device-type-controls">Tipo de Dispositivo</Label>
-                                    <Select onValueChange={(value) => setControlsInput(prev => ({...prev, deviceType: value}))} value={controlsInput.deviceType}>
+                                    <Select onValueChange={(value: string) => setControlsInput((prev: Partial<ControlsInput>) => ({...prev, deviceType: value}))} value={controlsInput.deviceType}>
                                         <SelectTrigger id="device-type-controls"><SelectValue placeholder="Selecciona un dispositivo" /></SelectTrigger>
                                         <SelectContent><SelectItem value="Telefono">Teléfono</SelectItem><SelectItem value="Tablet">Tablet</SelectItem></SelectContent>
                                     </Select>
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="finger-count">Número de Dedos</Label>
-                                    <Select onValueChange={(value) => setControlsInput(prev => ({...prev, fingerCount: parseInt(value)}))} value={controlsInput.fingerCount?.toString()}>
+                                    <Select onValueChange={(value: string) => setControlsInput((prev: Partial<ControlsInput>) => ({...prev, fingerCount: parseInt(value)}))} value={controlsInput.fingerCount?.toString()}>
                                         <SelectTrigger id="finger-count"><SelectValue placeholder="Selecciona el número de dedos" /></SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="2">2 Dedos (Pulgares)</SelectItem>
@@ -575,19 +562,19 @@ export default function EquipmentPage() {
                                         <div>
                                             <h3 className="font-semibold text-lg flex items-center gap-2 mb-2"><ThumbsUp className="h-5 w-5 text-green-500"/> Ventajas</h3>
                                             <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                                                {controls.advantages.map((adv, i) => <li key={i}>{adv}</li>)}
+                                                {controls.advantages.map((adv: string, i: number) => <li key={i}>{adv}</li>)}
                                             </ul>
                                         </div>
                                         <div>
                                             <h3 className="font-semibold text-lg flex items-center gap-2 mb-2"><ThumbsDown className="h-5 w-5 text-red-500"/> Desventajas</h3>
                                             <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                                                {controls.disadvantages.map((dis, i) => <li key={i}>{dis}</li>)}
+                                                {controls.disadvantages.map((dis: string, i: number) => <li key={i}>{dis}</li>)}
                                             </ul>
                                         </div>
                                         <div>
                                             <h3 className="font-semibold text-lg flex items-center gap-2 mb-2"><CheckCircle className="h-5 w-5 text-primary"/> Consejos para Dominarlo</h3>
                                             <div className="space-y-3">
-                                            {controls.tips.map((tip, i) => (
+                                            {controls.tips.map((tip: any, i: number) => (
                                                 <div key={i} className="p-3 bg-muted/50 rounded-lg">
                                                     <p className="font-semibold text-card-foreground">{tip.title}</p>
                                                     <p className="text-sm text-muted-foreground">{tip.description}</p>
@@ -614,7 +601,7 @@ export default function EquipmentPage() {
                                 <CardContent className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 items-end">
                                     <div className="space-y-2">
                                         <Label>Categoría de Arma</Label>
-                                        <Select onValueChange={(value) => { setWeaponCategory(value); setWeaponName(null); }}>
+                                        <Select onValueChange={(value: string) => { setWeaponCategory(value); setWeaponName(null); }}>
                                             <SelectTrigger><SelectValue placeholder="Selecciona categoría" /></SelectTrigger>
                                             <SelectContent>
                                                 {Object.keys(weaponList).map(cat => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}
@@ -646,16 +633,13 @@ export default function EquipmentPage() {
                                             <SensitivityTable title="Sensibilidad de Cámara" data={weaponSensitivity.camera} />
                                             <SensitivityTable title="Sensibilidad de ADS" data={weaponSensitivity.ads} />
                                         </div>
-                                         <div>
-                                            <h3 className="text-lg font-semibold text-primary mb-2">Código de Sensibilidad (Arma)</h3>
-                                            <div className="flex items-center gap-2"><Input value={weaponSensitivity.code} readOnly className="bg-muted"/><Button variant="outline" size="icon" onClick={() => handleCopyCode(weaponSensitivity.code)}><ClipboardCopy className="h-4 w-4"/></Button></div>
-                                        </div>
+
                                     </CardFooter>
                                 )}
                             </Card>
 
                             <div className="grid gap-6 md:grid-cols-2">
-                                {initialLoadouts.map((loadout) => (
+                                {initialLoadouts.map((loadout: any) => (
                                     <Card key={loadout.id}>
                                         <CardHeader>
                                             <CardTitle className="flex justify-between items-center">

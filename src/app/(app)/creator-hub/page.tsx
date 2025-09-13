@@ -1,8 +1,9 @@
 
 "use client"
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/app/auth-provider";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -25,7 +26,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { services as initialServices, playerProfile, creatorBankAccounts as initialCreatorBankAccounts, initialTransactions } from "@/lib/data";
-import type { Service, Transaction, BankAccount } from "@/lib/types";
+import type { Service, Transaction, BankAccount, PlayerProfile } from "@/lib/types";
 import { Palette, PlusCircle, Pencil, Trash2, CheckCircle, Star, DollarSign, LayoutDashboard, Briefcase, Banknote, MessageSquare, Settings, BarChart, FileText, Youtube, Twitch, Instagram, AlertTriangle } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -47,9 +48,85 @@ import { Icons } from "@/components/icons";
 
 export default function CreatorHubPage() {
   const { toast } = useToast();
+  const { user } = useAuth();
+  const [currentProfile, setCurrentProfile] = useState<PlayerProfile | null>(null);
   const [myServices, setMyServices] = useState<Service[]>(
-    initialServices.filter(s => s.creatorId === playerProfile.id)
+    initialServices.filter(s => s.creatorId === (currentProfile?.id || playerProfile.id))
   );
+
+  // Load current profile from localStorage with multiple sources
+  useEffect(() => {
+    const loadProfile = () => {
+      try {
+        if (!user?.uid) return
+        
+        // Try to load from multiple sources for maximum reliability
+        const keys = [
+          `profile_${user.uid}`,
+          `profile_backup_${user.uid}`,
+          `pending_profile_${user.uid}`,
+          'currentProfile' // Legacy fallback
+        ]
+        
+        let mostRecentProfile = null
+        let mostRecentTimestamp = 0
+        
+        for (const key of keys) {
+          try {
+            const saved = localStorage.getItem(key)
+            if (saved) {
+              const profile = JSON.parse(saved)
+              const timestamp = profile.lastModified || profile.lastUpdate || 0
+              if (timestamp > mostRecentTimestamp) {
+                mostRecentTimestamp = timestamp
+                mostRecentProfile = profile
+              }
+            }
+          } catch (error) {
+            console.warn(`Error loading profile from ${key}:`, error)
+          }
+        }
+        
+        if (mostRecentProfile) {
+          setCurrentProfile(mostRecentProfile)
+        }
+      } catch (error) {
+        console.error('Error loading profile:', error)
+      }
+    }
+    
+    loadProfile()
+    
+    // Listen for profile updates
+    const handleStorageChange = (e: StorageEvent) => {
+      if (user?.uid && (
+        e.key === `profile_${user.uid}` ||
+        e.key === `profile_backup_${user.uid}` ||
+        e.key === `pending_profile_${user.uid}` ||
+        e.key === 'currentProfile'
+      )) {
+        loadProfile()
+      }
+    }
+    
+    const handleProfileUpdate = () => {
+      loadProfile()
+    }
+    
+    window.addEventListener('storage', handleStorageChange)
+    window.addEventListener('profileUpdated', handleProfileUpdate)
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      window.removeEventListener('profileUpdated', handleProfileUpdate)
+    }
+  }, [])
+
+  // Update myServices when profile changes
+  useEffect(() => {
+    const profileId = currentProfile?.id || playerProfile.id
+    setMyServices(initialServices.filter(s => s.creatorId === profileId))
+  }, [currentProfile])
 
   const [serviceTitle, setServiceTitle] = useState("");
   const [customServiceTitle, setCustomServiceTitle] = useState("");
@@ -79,10 +156,10 @@ export default function CreatorHubPage() {
 
     const newService: Service = {
       id: `s${Date.now()}`,
-      creatorId: playerProfile.id,
-      creatorName: playerProfile.name,
-      avatarUrl: playerProfile.avatarUrl,
-      uid: playerProfile.id,
+      creatorId: currentProfile?.id || playerProfile.id,
+      creatorName: currentProfile?.name || playerProfile.name || '',
+      avatarUrl: currentProfile?.avatarUrl || playerProfile.avatarUrl,
+      uid: currentProfile?.id || playerProfile.id,
       serviceTitle: finalServiceTitle,
       description: description,
       price: parseFloat(price) || 0,
@@ -140,7 +217,7 @@ export default function CreatorHubPage() {
             id: `cba-${Date.now()}`,
             type: 'paypal',
             email: formData.get('paypal-email') as string,
-            holderName: playerProfile.name,
+            holderName: activeProfile.name || '',
         };
     } else {
          newAccount = {
@@ -171,7 +248,9 @@ export default function CreatorHubPage() {
    }
 
 
-  if (playerProfile.role !== 'Admin' && playerProfile.role !== 'Creador') {
+  const activeProfile = currentProfile || playerProfile;
+  
+  if (activeProfile.role !== 'Admin' && activeProfile.role !== 'Creador') {
       return (
            <div className="flex items-center justify-center h-[calc(100vh-200px)]">
               <Card className="max-w-md w-full text-center">
@@ -546,7 +625,7 @@ export default function CreatorHubPage() {
                                                         </div>
                                                         <div className="space-y-2">
                                                             <Label htmlFor="holder-name">Nombre del Titular</Label>
-                                                            <Input id="holder-name" name="holder-name" defaultValue={playerProfile.name} required />
+                                                            <Input id="holder-name" name="holder-name" defaultValue={activeProfile.name} required />
                                                         </div>
                                                         <div className="space-y-2">
                                                             <Label htmlFor="account-number">Número de Cuenta</Label>
@@ -608,7 +687,7 @@ export default function CreatorHubPage() {
                 <CardContent className="space-y-6">
                      <div className="space-y-2">
                         <Label htmlFor="creator-bio">Biografía del Creador</Label>
-                        <Textarea id="creator-bio" defaultValue={playerProfile.bio} className="min-h-[120px]" placeholder="Describe tu experiencia, tus logros más importantes y tu filosofía como jugador y creador."/>
+                        <Textarea id="creator-bio" defaultValue={activeProfile.bio} className="min-h-[120px]" placeholder="Describe tu experiencia, tus logros más importantes y tu filosofía como jugador y creador."/>
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="youtube-url">Canal de YouTube</Label>

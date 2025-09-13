@@ -52,7 +52,7 @@ export default function RechargePage() {
             </div>
              <div className="text-center text-muted-foreground text-sm">
                 <p>Por favor, asegúrate de que estás en el sitio web correcto antes de realizar cualquier transacción.</p>
-                <p>SquadUp: Mobile Battles no se hace responsable de las compras realizadas en sitios de terceros.</p>
+                <p>SquadGO no se hace responsable de las compras realizadas en sitios de terceros.</p>
             </div>
         </div>
     )

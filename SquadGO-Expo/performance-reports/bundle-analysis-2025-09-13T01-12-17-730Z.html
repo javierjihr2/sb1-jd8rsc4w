@@ -1,0 +1,290 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bundle Analysis Report</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .summary { background: #f5f5f5; padding: 15px; border-radius: 5px; }
+        .warning { background: #fff3cd; border: 1px solid #ffeaa7; padding: 10px; margin: 10px 0; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; padding: 10px; margin: 10px 0; }
+        table { border-collapse: collapse; width: 100%; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .large { color: #d63384; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Bundle Analysis Report</h1>
+    <p>Generated: 2025-09-13T01:08:17.020Z</p>
+    
+    <div class="summary">
+        <h2>Summary</h2>
+        <p><strong>Total Bundle Size:</strong> 5.57 MB</p>
+        <p><strong>Total Asset Size:</strong> 1.46 MB</p>
+        <p><strong>Total Size:</strong> 7.03 MB</p>
+        <p><strong>Bundle Count:</strong> 6</p>
+        <p><strong>Asset Count:</strong> 8</p>
+    </div>
+    
+    <div class="warning"><strong>threshold_exceeded:</strong> Bundle total excede el umbral (5 MB)</div><div class="warning"><strong>large_chunk:</strong> Bundle '_expo\static\js\web\entry-162ab5a68aa81c07f1f268307a2720b5.js' es muy grande</div><div class="warning"><strong>large_asset:</strong> Asset 'logo.png' es muy grande</div>
+    
+    
+    <h2>Bundles</h2>
+    <table>
+        <tr><th>Name</th><th>Size</th><th>Type</th><th>Gzip (est.)</th></tr>
+        
+            <tr>
+                <td>_expo\static\js\web\entry-162ab5a68aa81c07f1f268307a2720b5.js</td>
+                <td class="large">5.57 MB</td>
+                <td>javascript</td>
+                <td>1.67 MB</td>
+            </tr>
+        
+            <tr>
+                <td>_expo\static\js\web\firebase-d41d8cd98f00b204e9800998ecf8427e.js</td>
+                <td class="">0 B</td>
+                <td>javascript</td>
+                <td>0 B</td>
+            </tr>
+        
+            <tr>
+                <td>_expo\static\js\web\firestore-connection-manager-d41d8cd98f00b204e9800998ecf8427e.js</td>
+                <td class="">0 B</td>
+                <td>javascript</td>
+                <td>0 B</td>
+            </tr>
+        
+            <tr>
+                <td>_expo\static\js\web\firestore-utils-d41d8cd98f00b204e9800998ecf8427e.js</td>
+                <td class="">0 B</td>
+                <td>javascript</td>
+                <td>0 B</td>
+            </tr>
+        
+            <tr>
+                <td>_expo\static\js\web\index-d41d8cd98f00b204e9800998ecf8427e.js</td>
+                <td class="">0 B</td>
+                <td>javascript</td>
+                <td>0 B</td>
+            </tr>
+        
+            <tr>
+                <td>_expo\static\js\web\monitoring-d41d8cd98f00b204e9800998ecf8427e.js</td>
+                <td class="">0 B</td>
+                <td>javascript</td>
+                <td>0 B</td>
+            </tr>
+        
+    </table>
+    
+    <h2>Assets</h2>
+    <table>
+        <tr><th>Name</th><th>Size</th><th>Type</th><th>Optimizable</th></tr>
+        
+            <tr>
+                <td>adaptive-icon.png</td>
+                <td class="">17.14 KB</td>
+                <td>image</td>
+                <td>No</td>
+            </tr>
+        
+            <tr>
+                <td>favicon.png</td>
+                <td class="">1.43 KB</td>
+                <td>image</td>
+                <td>No</td>
+            </tr>
+        
+            <tr>
+                <td>icon.png</td>
+                <td class="">21.86 KB</td>
+                <td>image</td>
+                <td>No</td>
+            </tr>
+        
+            <tr>
+                <td>logo-animated.svg</td>
+                <td class="">4.16 KB</td>
+                <td>image</td>
+                <td>No</td>
+            </tr>
+        
+            <tr>
+                <td>logo.png</td>
+                <td class="large">1.39 MB</td>
+                <td>image</td>
+                <td>Yes</td>
+            </tr>
+        
+            <tr>
+                <td>notification-icon.png</td>
+                <td class="">435 B</td>
+                <td>image</td>
+                <td>No</td>
+            </tr>
+        
+            <tr>
+                <td>splash-icon.png</td>
+                <td class="">17.14 KB</td>
+                <td>image</td>
+                <td>No</td>
+            </tr>
+        
+            <tr>
+                <td>splash-screen.svg</td>
+                <td class="">4.4 KB</td>
+                <td>image</td>
+                <td>No</td>
+            </tr>
+        
+    </table>
+    
+    <h2>Top Dependencies</h2>
+    <table>
+        <tr><th>Name</th><th>Version</th><th>Size</th><th>Type</th></tr>
+        
+            <tr>
+                <td>firebase</td>
+                <td>^10.12.2</td>
+                <td>81.25 MB</td>
+                <td>production</td>
+            </tr>
+        
+            <tr>
+                <td>react-native</td>
+                <td>0.74.5</td>
+                <td>68.21 MB</td>
+                <td>production</td>
+            </tr>
+        
+            <tr>
+                <td>@react-native-firebase/app</td>
+                <td>^23.3.1</td>
+                <td>40.88 MB</td>
+                <td>production</td>
+            </tr>
+        
+            <tr>
+                <td>typescript</td>
+                <td>~5.8.3</td>
+                <td>21.81 MB</td>
+                <td>development</td>
+            </tr>
+        
+            <tr>
+                <td>date-fns</td>
+                <td>^4.1.0</td>
+                <td>21.55 MB</td>
+                <td>production</td>
+            </tr>
+        
+            <tr>
+                <td>detox</td>
+                <td>^20.13.5</td>
+                <td>14.83 MB</td>
+                <td>development</td>
+            </tr>
+        
+            <tr>
+                <td>prettier</td>
+                <td>^3.1.0</td>
+                <td>8.07 MB</td>
+                <td>development</td>
+            </tr>
+        
+            <tr>
+                <td>expo</td>
+                <td>~51.0.28</td>
+                <td>7.14 MB</td>
+                <td>production</td>
+            </tr>
+        
+            <tr>
+                <td>eslint</td>
+                <td>^8.55.0</td>
+                <td>4.37 MB</td>
+                <td>development</td>
+            </tr>
+        
+            <tr>
+                <td>react-dom</td>
+                <td>18.2.0</td>
+                <td>4.29 MB</td>
+                <td>production</td>
+            </tr>
+        
+            <tr>
+                <td>react-native-gesture-handler</td>
+                <td>~2.16.1</td>
+                <td>3.36 MB</td>
+                <td>production</td>
+            </tr>
+        
+            <tr>
+                <td>react-native-web</td>
+                <td>~0.19.10</td>
+                <td>2.89 MB</td>
+                <td>production</td>
+            </tr>
+        
+            <tr>
+                <td>react-native-svg</td>
+                <td>^15.2.0</td>
+                <td>2.71 MB</td>
+                <td>production</td>
+            </tr>
+        
+            <tr>
+                <td>@typescript-eslint/eslint-plugin</td>
+                <td>^6.21.0</td>
+                <td>2.57 MB</td>
+                <td>development</td>
+            </tr>
+        
+            <tr>
+                <td>jest-expo</td>
+                <td>~50.0.1</td>
+                <td>1.63 MB</td>
+                <td>development</td>
+            </tr>
+        
+            <tr>
+                <td>i18n-js</td>
+                <td>^4.4.3</td>
+                <td>1.62 MB</td>
+                <td>production</td>
+            </tr>
+        
+            <tr>
+                <td>expo-notifications</td>
+                <td>~0.28.15</td>
+                <td>1.23 MB</td>
+                <td>production</td>
+            </tr>
+        
+            <tr>
+                <td>react-native-screens</td>
+                <td>3.31.1</td>
+                <td>1.22 MB</td>
+                <td>production</td>
+            </tr>
+        
+            <tr>
+                <td>eslint-plugin-react</td>
+                <td>^7.37.5</td>
+                <td>1.13 MB</td>
+                <td>development</td>
+            </tr>
+        
+            <tr>
+                <td>expo-router</td>
+                <td>~3.5.14</td>
+                <td>1.02 MB</td>
+                <td>production</td>
+            </tr>
+        
+    </table>
+</body>
+</html>
+    

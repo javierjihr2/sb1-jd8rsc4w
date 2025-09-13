@@ -1,0 +1,8 @@
+<svg width="192" height="192" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="192" height="192" rx="24" fill="#3B82F6"/>
+  <path d="M96 48C78.3269 48 64 62.3269 64 80V96C64 113.673 78.3269 128 96 128C113.673 128 128 113.673 128 96V80C128 62.3269 113.673 48 96 48Z" fill="white"/>
+  <path d="M96 64C87.1634 64 80 71.1634 80 80V96C80 104.837 87.1634 112 96 112C104.837 112 112 104.837 112 96V80C112 71.1634 104.837 64 96 64Z" fill="#3B82F6"/>
+  <circle cx="96" cy="88" r="8" fill="white"/>
+  <path d="M48 144H144C148.418 144 152 140.418 152 136C152 131.582 148.418 128 144 128H48C43.5817 128 40 131.582 40 136C40 140.418 43.5817 144 48 144Z" fill="white"/>
+  <text x="96" y="168" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="16" font-weight="bold">SquadUp</text>
+</svg>

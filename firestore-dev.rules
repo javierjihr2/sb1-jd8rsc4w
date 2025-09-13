@@ -1,0 +1,214 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===== FUNCIONES DE UTILIDAD PARA DESARROLLO =====
+    
+    function isSignedIn() { return request.auth != null; }
+    function isOwner(uid) { return isSignedIn() && request.auth.uid == uid; }
+    
+    // Función simplificada para administradores en desarrollo
+    function isAdmin() {
+      return isSignedIn() && (
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        exists(/databases/$(database)/documents/superAdmins/$(request.auth.uid))
+      );
+    }
+    
+    // Validaciones básicas para desarrollo
+    function isValidString(value, maxLength) {
+      return value is string && value.size() <= maxLength && value.size() > 0;
+    }
+    
+    function isValidEmail(email) {
+      return email is string && email.matches('.*@.*\\..*') && email.size() <= 255;
+    }
+    
+    // Validación básica de contenido (menos estricta en desarrollo)
+    function isSafeContent(content) {
+      return content is string && content.size() <= 10000;
+    }
+    
+    // ===== REGLAS DE DESARROLLO =====
+    
+    // Reglas para usuarios (más permisivas)
+    match /users/{uid} {
+      allow read: if isSignedIn(); // Permitir lectura a todos los usuarios autenticados
+      allow create: if isOwner(uid) && 
+                       request.resource.data.keys().hasAll(['email', 'displayName']) &&
+                       isValidEmail(request.resource.data.email) &&
+                       isValidString(request.resource.data.displayName, 100);
+      allow update: if isOwner(uid) || isAdmin();
+      allow delete: if isOwner(uid) || isAdmin();
+    }
+    
+    // Reglas para perfiles públicos
+    match /publicProfiles/{uid} {
+      allow read: if true; // Público en desarrollo
+      allow write: if isOwner(uid) || isAdmin();
+    }
+    
+    // Reglas para publicaciones (más permisivas)
+    match /posts/{postId} {
+      allow read: if true; // Lectura pública en desarrollo
+      allow create: if isSignedIn() && 
+                       request.resource.data.keys().hasAll(['title', 'content', 'authorId']) &&
+                       request.resource.data.authorId == request.auth.uid &&
+                       isValidString(request.resource.data.title, 200) &&
+                       isSafeContent(request.resource.data.content);
+      allow update: if isSignedIn() && 
+                       (request.auth.uid == resource.data.authorId || isAdmin());
+      allow delete: if isSignedIn() && 
+                       (request.auth.uid == resource.data.authorId || isAdmin());
+      
+      // Comentarios
+      match /comments/{commentId} {
+        allow read: if true;
+        allow create: if isSignedIn() && 
+                         request.resource.data.authorId == request.auth.uid &&
+                         isSafeContent(request.resource.data.content);
+        allow update: if isSignedIn() && 
+                         (request.auth.uid == resource.data.authorId || isAdmin());
+        allow delete: if isSignedIn() && 
+                         (request.auth.uid == resource.data.authorId || isAdmin());
+      }
+      
+      // Likes
+      match /likes/{uid} {
+        allow read: if true;
+        allow create, delete: if isOwner(uid);
+      }
+    }
+    
+    // Reglas para bookmarks
+    match /users/{uid}/bookmarks/{postId} {
+      allow read, create, delete: if isOwner(uid) || isAdmin();
+    }
+    
+    // Reglas para torneos (más permisivas)
+    match /tournaments/{tid} {
+      allow read: if true; // Lectura pública en desarrollo
+      allow create: if isSignedIn() && 
+                       request.resource.data.keys().hasAll(['name', 'ownerId']) &&
+                       request.resource.data.ownerId == request.auth.uid &&
+                       isValidString(request.resource.data.name, 100);
+      allow update: if isSignedIn() && 
+                       (request.auth.uid == resource.data.ownerId || isAdmin());
+      allow delete: if isSignedIn() && 
+                       (request.auth.uid == resource.data.ownerId || isAdmin());
+      
+      // Participantes
+      match /participants/{pid} {
+        allow read: if true;
+        allow create: if isSignedIn() && 
+                         request.resource.data.userId == request.auth.uid;
+        allow update: if isSignedIn() && 
+                         (request.auth.uid == resource.data.userId || 
+                          request.auth.uid == get(/databases/$(database)/documents/tournaments/$(tid)).data.ownerId ||
+                          isAdmin());
+        allow delete: if isSignedIn() && 
+                         (request.auth.uid == resource.data.userId ||
+                          request.auth.uid == get(/databases/$(database)/documents/tournaments/$(tid)).data.ownerId ||
+                          isAdmin());
+      }
+      
+      // Matches
+      match /matches/{mid} {
+        allow read: if true;
+        allow create, update: if isSignedIn() && 
+                                 (request.auth.uid == get(/databases/$(database)/documents/tournaments/$(tid)).data.ownerId ||
+                                  isAdmin());
+        allow delete: if isSignedIn() && 
+                         (request.auth.uid == get(/databases/$(database)/documents/tournaments/$(tid)).data.ownerId ||
+                          isAdmin());
+      }
+    }
+    
+    // Reglas para tickets de matchmaking
+    match /matchTickets/{ticketId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && 
+                       request.resource.data.userId == request.auth.uid;
+      allow update: if isSignedIn() && 
+                       (request.auth.uid == resource.data.userId || isAdmin());
+      allow delete: if isSignedIn() && 
+                       (request.auth.uid == resource.data.userId || isAdmin());
+    }
+    
+    // Reglas para matches
+    match /matches/{matchId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && 
+                       request.auth.uid in request.resource.data.participants;
+      allow update: if isSignedIn() && 
+                       (request.auth.uid in resource.data.participants || isAdmin());
+      allow delete: if isSignedIn() && 
+                       (request.auth.uid in resource.data.participants || isAdmin());
+    }
+    
+    // Reglas para notificaciones
+    match /users/{uid}/notifications/{nid} {
+      allow read, update, delete: if isOwner(uid) || isAdmin();
+      allow create: if isSignedIn(); // Más permisivo en desarrollo
+    }
+    
+    // Reglas para administradores
+    match /admins/{adminId} {
+      allow read: if isSignedIn();
+      allow create, update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+    
+    // Reglas para super administradores
+    match /superAdmins/{adminId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin(); // Más permisivo en desarrollo
+    }
+    
+    // Reglas para configuración (más permisivas)
+    match /config/{configId} {
+      allow read: if true; // Lectura pública en desarrollo
+      allow write: if isAdmin();
+    }
+    
+    // Reglas para estadísticas
+    match /stats/{statId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+    
+    // Reglas para logs de administración
+    match /adminLogs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isAdmin() && 
+                       request.resource.data.adminId == request.auth.uid;
+      allow update, delete: if isAdmin(); // Más permisivo en desarrollo
+    }
+    
+    // Reglas para reportes
+    match /reports/{reportId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && 
+                       request.resource.data.reportedBy == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+    
+    // Reglas para sesiones de usuario
+    match /userSessions/{sessionId} {
+      allow read, write: if isSignedIn();
+    }
+    
+    // Reglas para testing y desarrollo
+    match /test/{document=**} {
+      allow read, write: if isSignedIn(); // Colección de pruebas
+    }
+    
+    match /dev/{document=**} {
+      allow read, write: if isSignedIn(); // Colección de desarrollo
+    }
+    
+    // Denegar acceso a cualquier otra colección no especificada
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

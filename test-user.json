@@ -1,0 +1,11 @@
+{
+  "users": [
+    {
+      "localId": "test-user-123",
+      "email": "test@squadgo.com",
+      "emailVerified": true,
+      "displayName": "Usuario de Prueba",
+      "disabled": false
+    }
+  ]
+}

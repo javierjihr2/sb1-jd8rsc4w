@@ -13,6 +13,7 @@ import {
   signInWithPopup,
 } from "firebase/auth"
 import { auth } from "@/lib/firebase"
+import { logAuthFailure, logInvalidInput } from "@/lib/security-logger"
 import { Icons } from "@/components/icons"
 import { Button } from "@/components/ui/button"
 import {
@@ -31,6 +32,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Terminal, KeyRound, Shield } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import Link from "next/link"
+import Image from "next/image"
 
 const GoogleIcon = () => (
     <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
@@ -61,26 +63,138 @@ export default function LoginPage() {
   const [password, setPassword] = useState("")
   const [country, setCountry] = useState("")
   const [error, setError] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleAuthAction = async (action: "login" | "register") => {
-    setError(null)
-    if (action === 'register' && !country) {
-      setError("Por favor, selecciona tu país de origen.");
+    if (isLoading) return;
+    
+    setIsLoading(true);
+    setError(null);
+
+    // Validación básica
+    if (!email || !password) {
+      const errorMsg = 'Por favor, completa todos los campos.';
+      setError(errorMsg);
+      toast({ 
+        title: 'Campos requeridos', 
+        description: errorMsg,
+        variant: 'destructive'
+      });
+      setIsLoading(false);
       return;
     }
+    
+    // Validación básica de formato de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      const errorMsg = "El formato del email no es válido. Por favor, ingresa un correo electrónico válido.";
+      setError(errorMsg);
+      toast({
+        title: "Email inválido",
+        description: errorMsg,
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    // Validación de contraseña segura
+    if (password.length < 6) {
+      const errorMsg = "La contraseña debe tener al menos 6 caracteres.";
+      setError(errorMsg);
+      toast({
+        title: "Contraseña muy corta",
+        description: errorMsg,
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
+    }
+    
+    if (action === 'register' && !country) {
+      setError("Por favor, selecciona tu país de origen.");
+      setIsLoading(false);
+      return;
+    }
+    
     try {
-      if (action === "login") {
-        await signInWithEmailAndPassword(auth, email, password)
-      } else {
-        await createUserWithEmailAndPassword(auth, email, password)
+      // Verificar que Firebase esté inicializado
+      if (!auth) {
+        throw new Error('Firebase no está inicializado');
       }
-      toast({ title: action === 'login' ? 'Inicio de Sesión Exitoso' : 'Registro Exitoso', description: '¡Bienvenido a SquadUp!' })
-      router.push("/dashboard")
+      
+      if (action === "login") {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        if (userCredential.user) {
+          toast({ title: 'Inicio de Sesión Exitoso', description: '¡Bienvenido de vuelta!' });
+          console.log('✅ Login exitoso, redirigiendo a dashboard');
+          // Usar push en lugar de replace para mejor navegación
+          router.push('/dashboard');
+        }
+      } else {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        if (userCredential.user) {
+          toast({ title: 'Registro Exitoso', description: '¡Ahora completa tu perfil!' });
+          console.log('✅ Registro exitoso, redirigiendo a profile-setup');
+          router.push('/profile-setup');
+        }
+      }
     } catch (err: any) {
-      setError(err.message)
+      console.error('Error de autenticación:', err);
+      
+      // Manejo específico de errores comunes con mensajes más claros
+      let errorMessage = '';
+      switch (err.code) {
+        case 'auth/email-already-in-use':
+          errorMessage = '❌ Este correo electrónico ya está registrado. Intenta iniciar sesión en su lugar.';
+          break;
+        case 'auth/weak-password':
+          errorMessage = '❌ La contraseña debe tener al menos 6 caracteres.';
+          break;
+        case 'auth/invalid-email':
+          errorMessage = '❌ El formato del correo electrónico no es válido.';
+          break;
+        case 'auth/user-not-found':
+          errorMessage = '❌ No existe una cuenta con este correo electrónico. ¿Necesitas crear una cuenta nueva?';
+          break;
+        case 'auth/wrong-password':
+          errorMessage = '❌ La contraseña es incorrecta. Por favor, verifica tu contraseña e inténtalo de nuevo.';
+          break;
+        case 'auth/invalid-credential':
+          errorMessage = '❌ Las credenciales proporcionadas son inválidas. Verifica tu correo y contraseña.';
+          break;
+        case 'auth/too-many-requests':
+          errorMessage = '⏰ Demasiados intentos fallidos. Intenta de nuevo más tarde.';
+          break;
+        case 'auth/network-request-failed':
+          errorMessage = '🌐 Error de conexión. Verifica tu internet e inténtalo de nuevo.';
+          break;
+        default:
+          errorMessage = '❌ Error de autenticación. Inténtalo de nuevo.';
+      }
+      
+      setError(errorMessage);
+      toast({ 
+        title: 'Error de Autenticación', 
+        description: errorMessage,
+        variant: 'destructive'
+      });
+      
+      // Log del error para debugging
+      logAuthFailure(email, err.code || 'unknown_error');
+    } finally {
+      setIsLoading(false);
     }
   }
   
+  // Función para manejar Enter en los campos de input
+  const handleKeyPress = (e: React.KeyboardEvent, action: "login" | "register") => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAuthAction(action);
+    }
+  }
+
   const handleSpecialLogin = (e: React.FormEvent<HTMLFormElement>, role: 'admin' | 'dev') => {
     e.preventDefault();
     toast({ title: `Login de ${role === 'admin' ? 'Administrador' : 'Desarrollador'} exitoso`, description: 'Redirigiendo al panel...' });
@@ -99,21 +213,58 @@ export default function LoginPage() {
       if (!authProvider) return;
 
       try {
-          await signInWithPopup(auth, authProvider);
-          toast({ title: 'Inicio de Sesión Exitoso', description: '¡Bienvenido a SquadUp!' });
-          router.push('/dashboard');
+          const result = await signInWithPopup(auth, authProvider);
+          const isNewUser = result.user.metadata.creationTime === result.user.metadata.lastSignInTime;
+          
+          if (isNewUser) {
+              toast({ title: 'Registro Exitoso', description: '¡Ahora completa tu perfil!' });
+              window.location.href = '/profile-setup';
+          } else {
+              toast({ title: 'Inicio de Sesión Exitoso', description: '¡Bienvenido de vuelta!' });
+              window.location.href = '/dashboard';
+          }
       } catch (err: any) {
-          setError(err.message);
+          console.error('Error de autenticación:', err);
+          let errorMessage = 'Error de autenticación';
+          
+          if (err.code === 'auth/invalid-credential') {
+              errorMessage = 'Credenciales inválidas. Por favor verifica tu información.';
+          } else if (err.code === 'auth/user-not-found') {
+              errorMessage = 'Usuario no encontrado. ¿Necesitas crear una cuenta?';
+          } else if (err.code === 'auth/wrong-password') {
+              errorMessage = 'Contraseña incorrecta. Inténtalo de nuevo.';
+          } else if (err.code === 'auth/popup-closed-by-user') {
+              errorMessage = 'Inicio de sesión cancelado.';
+          } else if (err.code === 'auth/popup-blocked') {
+              errorMessage = 'Popup bloqueado. Permite popups para este sitio.';
+          } else if (err.message) {
+              errorMessage = err.message;
+          }
+          
+          setError(errorMessage);
       }
   };
 
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background p-4">
-      <Tabs defaultValue="login" className="w-full max-w-md">
+      <div className="w-full max-w-md">
+        {/* Logo y nombre de la aplicación */}
+        <div className="flex items-center justify-center mb-8">
+          <Image 
+            src="/logo.png" 
+            alt="SquadGO Battle Logo" 
+            width={64}
+            height={64}
+            className="h-16 w-16 mr-3"
+          />
+          <h1 className="text-3xl font-bold text-foreground">SquadGO Battle</h1>
+        </div>
+        
+        <Tabs defaultValue="login" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="login">Iniciar Sesión</TabsTrigger>
-          <TabsTrigger value="register">Registrarse</TabsTrigger>
+          <TabsTrigger value="login" className="data-[state=active]:text-white">Iniciar Sesión</TabsTrigger>
+          <TabsTrigger value="register" className="data-[state=active]:text-white">Registrarse</TabsTrigger>
           <TabsTrigger value="staff">Personal</TabsTrigger>
         </TabsList>
         
@@ -146,15 +297,33 @@ export default function LoginPage() {
                 <CardContent className="space-y-4">
                 <div className="space-y-2">
                     <Label htmlFor="login-email">Correo Electrónico</Label>
-                    <Input id="login-email" type="email" placeholder="m@example.com" required value={email} onChange={e => setEmail(e.target.value)} />
+                    <Input 
+                      id="login-email" 
+                      type="email" 
+                      placeholder="m@example.com" 
+                      required 
+                      value={email} 
+                      onChange={e => setEmail(e.target.value)}
+                      onKeyPress={e => handleKeyPress(e, "login")}
+                    />
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="login-password">Contraseña</Label>
-                    <Input id="login-password" type="password" required value={password} onChange={e => setPassword(e.target.value)} />
+                    <Input 
+                      id="login-password" 
+                      type="password" 
+                      required 
+                      value={password} 
+                      onChange={e => setPassword(e.target.value)}
+                      onKeyPress={e => handleKeyPress(e, "login")}
+                      placeholder="Presiona Enter para iniciar sesión"
+                    />
                 </div>
                 </CardContent>
                 <CardFooter>
-                <Button className="w-full" onClick={() => handleAuthAction("login")}>Iniciar Sesión</Button>
+                <Button className="w-full !text-white" onClick={() => handleAuthAction("login")} disabled={isLoading}>
+                  {isLoading ? "Iniciando..." : "Iniciar Sesión"}
+                </Button>
                 </CardFooter>
             </Card>
         </TabsContent>
@@ -188,11 +357,27 @@ export default function LoginPage() {
                 <CardContent className="space-y-4">
                 <div className="space-y-2">
                     <Label htmlFor="register-email">Correo Electrónico</Label>
-                    <Input id="register-email" type="email" placeholder="m@example.com" required value={email} onChange={e => setEmail(e.target.value)} />
+                    <Input 
+                      id="register-email" 
+                      type="email" 
+                      placeholder="m@example.com" 
+                      required 
+                      value={email} 
+                      onChange={e => setEmail(e.target.value)}
+                      onKeyPress={e => handleKeyPress(e, "register")}
+                    />
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="register-password">Contraseña</Label>
-                    <Input id="register-password" type="password" required value={password} onChange={e => setPassword(e.target.value)} />
+                    <Input 
+                      id="register-password" 
+                      type="password" 
+                      required 
+                      value={password} 
+                      onChange={e => setPassword(e.target.value)}
+                      onKeyPress={e => handleKeyPress(e, "register")}
+                      placeholder="Presiona Enter para registrarte"
+                    />
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="register-country">País</Label>
@@ -226,7 +411,9 @@ export default function LoginPage() {
                 </div>
                 </CardContent>
                 <CardFooter className="flex-col items-start gap-4">
-                <Button className="w-full" onClick={() => handleAuthAction("register")}>Crear Cuenta</Button>
+                <Button className="w-full !text-white" onClick={() => handleAuthAction("register")} disabled={isLoading}>
+                  {isLoading ? "Creando..." : "Crear Cuenta"}
+                </Button>
                  <p className="px-8 text-center text-sm text-muted-foreground">
                     Al hacer clic en continuar, aceptas nuestros{" "}
                     <Link
@@ -259,7 +446,7 @@ export default function LoginPage() {
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
                                 <Label htmlFor="admin-email">Correo de Administrador</Label>
-                                <Input id="admin-email" type="email" placeholder="admin@squadup.com" required/>
+                                <Input id="admin-email" type="email" placeholder="admin@squadgo.com" required/>
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="admin-password">Contraseña</Label>
@@ -303,7 +490,8 @@ export default function LoginPage() {
                 <AlertDescription>{error}</AlertDescription>
             </Alert>
         )}
-      </Tabs>
+        </Tabs>
+      </div>
     </div>
   )
 }

@@ -1,0 +1,17 @@
+Bundle Analysis Report
+Generated: 2025-09-13T01:08:17.020Z
+
+SUMMARY
+=======
+Total Bundle Size: 5.57 MB
+Total Asset Size: 1.46 MB
+Total Size: 7.03 MB
+Bundle Count: 6
+Asset Count: 8
+
+WARNINGS
+========
+threshold_exceeded: Bundle total excede el umbral (5 MB)
+large_chunk: Bundle '_expo\static\js\web\entry-162ab5a68aa81c07f1f268307a2720b5.js' es muy grande
+large_asset: Asset 'logo.png' es muy grande
+

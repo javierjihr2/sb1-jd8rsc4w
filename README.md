@@ -1,4 +1,6 @@
-# SquadUp: Mobile Battles
+# SquadGO
+
+**¡Encuentra amigos ya!**
 
 ¡Felicidades por completar tu aplicación en Firebase Studio! Este archivo es tu guía para llevar tu proyecto al siguiente nivel.
 
@@ -28,7 +30,30 @@ npm run dev
 
 ¡Y listo! Ahora puedes abrir tu navegador en `http://localhost:9002` para ver tu aplicación en funcionamiento.
 
-## 3. Siguientes Pasos: Publicar en las Tiendas de Apps
+## 3. Configuración de Dominio Personalizado
+
+¿Quieres que tu aplicación esté disponible en tu propio dominio? ¡Es muy fácil!
+
+### 🚀 Configuración Rápida
+```bash
+# Ejecutar el configurador automático
+npm run setup-domain tu-dominio.com
+
+# Ejemplo:
+npm run setup-domain squadgo.miempresa.com
+```
+
+### 📚 Documentación Completa
+- **Guía Rápida**: [`README_DOMINIO_PERSONALIZADO.md`](./README_DOMINIO_PERSONALIZADO.md)
+- **Guía Detallada**: [`DOMINIO_PERSONALIZADO_GUIA.md`](./DOMINIO_PERSONALIZADO_GUIA.md)
+- **Configuración Actual**: [`CUSTOM_DOMAIN_SETUP.md`](./CUSTOM_DOMAIN_SETUP.md)
+
+### 🌐 URLs Disponibles
+- **Producción**: https://squadup-battle.web.app
+- **Local**: http://localhost:3000 (con `npm run dev:local`)
+- **Desarrollo**: http://localhost:9002 (con `npm run dev`)
+
+## 4. Siguientes Pasos: Publicar en las Tiendas de Apps
 
 Tu proyecto es una **Aplicación Web Progresiva (PWA)**. Para publicarla en la **Google Play Store** y la **Apple App Store**, el camino recomendado es usar **Capacitor**.
 
@@ -39,7 +64,7 @@ Capacitor "envuelve" tu aplicación web en un contenedor nativo, permitiéndote 
 1.  **Instalar Capacitor en tu Proyecto:**
     ```bash
     npm install @capacitor/core @capacitor/cli
-    npx cap init "SquadUp" "com.squadup.app"
+    npx cap init "SquadGO" "com.squadgo.battle"
     ```
 
 2.  **Construir tu Aplicación Web:**

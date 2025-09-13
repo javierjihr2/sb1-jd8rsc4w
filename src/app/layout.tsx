@@ -4,12 +4,16 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from './auth-provider';
+import { NotificationProvider } from '@/components/notification-provider';
+import { QueryProvider } from '@/providers/query-provider';
+import ErrorBoundary from '@/components/error-boundary';
+import '@/lib/error-suppression'; // Suprimir errores de red no críticos
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
-  title: 'SquadUp: Mobile Battles',
-  description: 'Encuentra tu equipo ideal para juegos de batalla móvil',
+  title: 'SquadGO',
+  description: 'SquadGO - ¡Encuentra amigos ya!',
 };
 
 export default function RootLayout({
@@ -21,17 +25,23 @@ export default function RootLayout({
     <html lang="es" suppressHydrationWarning className={inter.variable}>
       <head/>
       <body>
-        <AuthProvider>
-         <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            {children}
-            <Toaster />
-          </ThemeProvider>
-        </AuthProvider>
+        <ErrorBoundary>
+          <QueryProvider>
+            <AuthProvider>
+              <NotificationProvider>
+                <ThemeProvider
+                  attribute="class"
+                  defaultTheme="system"
+                  enableSystem
+                  disableTransitionOnChange
+                >
+                  {children}
+                  <Toaster />
+                </ThemeProvider>
+              </NotificationProvider>
+            </AuthProvider>
+          </QueryProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

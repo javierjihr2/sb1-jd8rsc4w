@@ -1,0 +1,1 @@
+self.__SSG_MANIFEST=new Set(["\u002Fchats\u002F[id]","\u002Fprofile\u002F[id]","\u002Ftournaments\u002F[id]","\u002Ftournaments\u002F[id]\u002Fchat"]);self.__SSG_MANIFEST_CB&&self.__SSG_MANIFEST_CB()

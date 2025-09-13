@@ -1,0 +1,75 @@
+{
+  "expo": {
+    "name": "SquadGO",
+    "slug": "squadgo-mobile",
+    "version": "1.0.0",
+    "orientation": "default",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "scheme": "squadgo",
+    "splash": {
+      "image": "./assets/icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#1a1a1a"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.squadgo.mobile"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#1a1a1a"
+      },
+      "package": "com.squadgo.mobile",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-dev-client",
+      [
+        "expo-secure-store",
+        {
+          "faceIDPermission": "Permite a $(PRODUCT_NAME) acceder a Face ID para autenticación biométrica."
+        }
+      ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Permite a $(PRODUCT_NAME) usar Face ID para autenticación segura."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "squadgo-app"
+      },
+      "firebaseApiKey": "AIzaSyDfY3FrK9baCrVhqhBpD2Zd7v2_oARFuX8",
+      "firebaseAuthDomain": "squadgo-app.firebaseapp.com",
+      "firebaseProjectId": "squadgo-app",
+      "firebaseStorageBucket": "squadgo-app.firebasestorage.app",
+      "firebaseMessagingSenderId": "442519077443",
+      "firebaseAppId": "1:442519077443:web:3d4e9e034e222838230af6",
+      "firebaseMeasurementId": "G-9NQKJ8QMHP"
+    }
+  }
+}

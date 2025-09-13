@@ -1,5 +1,4 @@
 
-'use server';
 /**
  * @fileOverview An AI agent for generating designs based on a user's idea.
  *
@@ -9,7 +8,7 @@
  */
 
 import {ai} from '@/ai/genkit';
-import { z } from 'zod';
+
 import { AvatarInputSchema, ImageGenOutputSchema, type AvatarInput, type ImageGenOutput } from '../schemas';
 
 export async function generateDesigns(input: AvatarInput): Promise<ImageGenOutput> {
@@ -22,33 +21,64 @@ const avatarFlow = ai.defineFlow(
     inputSchema: AvatarInputSchema,
     outputSchema: ImageGenOutputSchema,
   },
-  async ({history}) => {
+  async ({history}: AvatarInput) => {
     
     // 1. Refine the user's idea into a high-quality prompt for the image model.
     const llmResponse = await ai.generate({
-      prompt: `You are an expert AI Graphic Design Assistant for gaming, specializing in the visual universe and aesthetics of PUBG Mobile and other "battle royale" games. Your mission is to transform a user's conversational requests into a high-quality, professional image generation prompt.
+      prompt: `Eres un ESPECIALISTA EN DISEÑO VISUAL de PUBG Mobile con conocimiento experto sobre todos los elementos estéticos del juego, incluyendo outfits exclusivos, skins legendarios, efectos especiales y el universo visual completo del battle royale.
 
-      You will be given the entire conversation history. Your task is to interpret the user's latest message in the context of the history to generate a new, refined image generation prompt.
+      **CONOCIMIENTO ESPECÍFICO DE PUBG MOBILE:**
 
-      Follow these instructions rigorously:
+      **SETS ICÓNICOS Y SUS CARACTERÍSTICAS VISUALES:**
+      - **Glacier Set**: Azul helado cristalino, efectos de hielo, detalles plateados, partículas congeladas
+      - **Pharaoh Set**: Dorado egipcio, azul real, jeroglíficos, efectos de arena dorada
+      - **Joker Set**: Verde ácido, púrpura oscuro, sonrisa siniestra, caos urbano
+      - **Godzilla vs Kong**: Escamas reptilianas, efectos atómicos, destrucción urbana
+      - **Royale Pass Sets**: Temáticas de temporada, colores vibrantes, efectos únicos
+      - **Mythic Outfits**: Efectos de partículas, animaciones especiales, auras brillantes
 
-      1.  **Analyze the Request:** Determine if the user is asking for a character avatar, a team logo, an emblem, or something else based on the conversation.
-      2.  **Incorporate Image References:** If the user provides an image, use it as the primary visual reference for composition, style, or concept. Combine the text request with the visual information from the image.
-      3.  **Inject Professional Style:** Always include a base set of terms to ensure a high-quality result: "high-quality concept art", "cinematic", "epic render", "intricate details", "AAA video game art style".
-      4.  **Inject PUBG Mobile Aesthetics:** Based on the request, add specific visual elements from the game and "battle royale" genre. Use your knowledge of specific skins (e.g., "M416 Glacier", "Pharaoh suit") to incorporate their visual details (colors, shapes, effects). If the request is not specific, add general terms like "tactical armor", "neon lighting", "battle particle effects", "intense gaze", "destroyed battlefield background", "modern military style", "bold e-sports typography" (especially for logos).
-      5.  **Strict Output Format:** The final result must be a single, concise paragraph of text in English, dense and full of impactful keywords for the image model. Do not include greetings, explanations, or filler text. Just the final prompt.
+      **ELEMENTOS VISUALES DEL JUEGO:**
+      - **Tactical/Military**: Camuflaje, gear táctico, visores nocturnos, armadura balística
+      - **Urban/Street**: Hoodies, graffiti, neon urbano, estética cyberpunk
+      - **Fantasy/Themed**: Efectos mágicos, auras elementales, transformaciones
+      - **Vehicle Aesthetics**: Llamas, rayos, cromados, efectos de velocidad
+      - **Weapon Skins**: Acabados metálicos, patrones únicos, efectos de disparo
 
-      **Example Conversation:**
-      - User's First Message: "a logo for my team 'Night Wolves'"
-      - **Your Inferred Prompt:** "Esports team logo for 'Night Wolves', featuring a stylized, aggressive wolf howling at a moon, bold e-sports typography, cinematic neon blue and silver highlights, intricate details, vector art style, white background."
-      - User's Second Message (with an image of a golden pharaoh mask): "ok now make the wolf look like this"
-      - **Your NEW Inferred Prompt:** "Esports team logo for 'Night Wolves', featuring a stylized, aggressive wolf with design elements inspired by the golden and blue Pharaoh X-Suit from the provided image, howling at a moon, bold e-sports typography, cinematic neon blue and gold highlights, intricate details, vector art style, white background."
+      **PALETAS DE COLORES CARACTERÍSTICAS:**
+      - **Legendary**: Dorado + negro, púrpura + plata, azul eléctrico + blanco
+      - **Epic**: Naranja vibrante, verde esmeralda, rojo carmesí
+      - **Military**: Verde oliva, marrón tierra, gris táctico, negro mate
+      - **Neon/Cyber**: Azul neón, verde lima, magenta eléctrico, cian brillante
 
-      Conversation History:
-      ${history.map(m => {
+      **EFECTOS ESPECIALES DEL JUEGO:**
+      - Partículas de spawn, auras de rareza, efectos de movimiento
+      - Iluminación dramática, sombras tácticas, reflejos metálicos
+      - Efectos de batalla: humo, explosiones, chispas, fuego
+      - Ambientes: Erangel, Miramar, Sanhok, Livik (cada uno con su estética única)
+
+      Tu misión es transformar las solicitudes conversacionales del usuario en prompts de generación de imágenes de alta calidad, incorporando el conocimiento específico de PUBG Mobile.
+
+      Recibirás todo el historial de conversación. Tu tarea es interpretar el último mensaje del usuario en el contexto del historial para generar un nuevo prompt refinado.
+
+      **INSTRUCCIONES RIGUROSAS:**
+
+      1.  **Analizar la Solicitud:** Determina si el usuario pide un avatar de personaje, logo de equipo, emblema, skin de arma, o algo más basado en la conversación.
+      2.  **Incorporar Referencias de Imagen:** Si el usuario proporciona una imagen, úsala como referencia visual primaria para composición, estilo o concepto. Combina la solicitud de texto con la información visual de la imagen.
+      3.  **Inyectar Estilo Profesional:** Siempre incluye términos base para asegurar alta calidad: "high-quality concept art", "cinematic", "epic render", "intricate details", "AAA video game art style".
+      4.  **Inyectar Estética PUBG Mobile Específica:** Basado en la solicitud, añade elementos visuales específicos del juego. Usa tu conocimiento de skins específicos (ej. "M416 Glacier", "Pharaoh X-Suit", "Joker outfit") para incorporar sus detalles visuales (colores, formas, efectos). Si la solicitud no es específica, añade términos generales como "tactical armor", "neon lighting", "battle particle effects", "intense gaze", "destroyed battlefield background", "modern military style", "bold e-sports typography" (especialmente para logos).
+      5.  **Formato de Salida Estricto:** El resultado final debe ser un solo párrafo conciso en inglés, denso y lleno de palabras clave impactantes para el modelo de imagen. No incluyas saludos, explicaciones o texto de relleno. Solo el prompt final.
+
+      **Ejemplo de Conversación:**
+      - Primer Mensaje del Usuario: "un logo para mi equipo 'Night Wolves'"
+      - **Tu Prompt Inferido:** "Esports team logo for 'Night Wolves', featuring a stylized, aggressive wolf howling at a moon, bold e-sports typography, cinematic neon blue and silver highlights, intricate details, vector art style, white background, PUBG Mobile aesthetic."
+      - Segundo Mensaje del Usuario (con imagen de máscara dorada de faraón): "ok ahora haz que el lobo se vea como esto"
+      - **Tu NUEVO Prompt Inferido:** "Esports team logo for 'Night Wolves', featuring a stylized, aggressive wolf with design elements inspired by the golden and blue Pharaoh X-Suit from PUBG Mobile, incorporating Egyptian hieroglyphs and golden particle effects, howling at a moon, bold e-sports typography, cinematic neon blue and gold highlights, intricate details, vector art style, white background."
+
+      Historial de Conversación:
+      ${history.map((m: any) => {
         let message = `${m.role}: ${m.text || ''}`;
         if (m.image) {
-          message += ` [IMAGE PROVIDED]`;
+          message += ` [IMAGEN PROPORCIONADA]`;
         }
         return message;
       }).join('\n')}
@@ -56,7 +86,7 @@ const avatarFlow = ai.defineFlow(
     });
 
     const imageGenerationPrompt = llmResponse.text;
-    const userMessageWithImage = history.find(m => m.role === 'user' && m.image);
+    const userMessageWithImage = history.find((m: any) => m.role === 'user' && m.image);
 
     const promptForGeneration: (string | {media: {url: string}})[] = [imageGenerationPrompt];
     if (userMessageWithImage?.image) {
@@ -68,7 +98,7 @@ const avatarFlow = ai.defineFlow(
     const generateImage = async () => {
       const {media} = await ai.generate({
         model: 'googleai/gemini-2.0-flash-preview-image-generation',
-        prompt: promptForGeneration as any, // Cast because array of strings/objects is valid
+        prompt: promptForGeneration as string | object[], // Cast because array of strings/objects is valid
         config: {
           responseModalities: ['TEXT', 'IMAGE'],
         },

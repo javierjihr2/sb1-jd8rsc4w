@@ -1,5 +1,6 @@
 
 import {z} from 'zod';
+export { z } from 'zod';
 
 export const PlayerAnalysisInputSchema = z.object({
   wins: z.number().describe('El número de victorias que tiene el jugador.'),
@@ -111,7 +112,7 @@ export const SensitivitySchema = z.object({
     camera: ScopeSensitivitySchema.describe("Sensibilidad de la cámara (al deslizar la pantalla sin disparar)."),
     ads: ScopeSensitivitySchema.describe("Sensibilidad al apuntar con la mira (ADS) mientras se dispara."),
     gyroscope: z.optional(ScopeSensitivitySchema).describe("Sensibilidad del giroscopio (si se solicita)."),
-    code: z.string().describe("Un código de sensibilidad de ejemplo que los jugadores podrían usar para importar la configuración."),
+    code: z.optional(z.string()).describe("Código de importación de la configuración de sensibilidad."),
 });
 export type Sensitivity = z.infer<typeof SensitivitySchema>;
 
@@ -218,7 +219,6 @@ export type WeaponSensitivityInput = z.infer<typeof WeaponSensitivityInputSchema
 export const WeaponSensitivitySchema = z.object({
     camera: ScopeSensitivitySchema.describe("Sensibilidad de la cámara optimizada para el arma."),
     ads: ScopeSensitivitySchema.describe("Sensibilidad de ADS optimizada para el arma."),
-    code: z.string().describe("Un código de sensibilidad de ejemplo para el arma específica."),
 });
 export type WeaponSensitivity = z.infer<typeof WeaponSensitivitySchema>;
 
@@ -226,6 +226,7 @@ export type WeaponSensitivity = z.infer<typeof WeaponSensitivitySchema>;
 // Schema for decoding/analyzing sensitivity
 export const DecodeSensitivityInputSchema = z.object({
   settings: SensitivitySchema.describe("Los valores de sensibilidad proporcionados por el usuario para ser analizados."),
+  code: z.string().optional().describe("El código de sensibilidad original proporcionado por el usuario."),
 });
 export type DecodeSensitivityInput = z.infer<typeof DecodeSensitivityInputSchema>;
 

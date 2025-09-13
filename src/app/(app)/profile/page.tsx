@@ -2,191 +2,393 @@
 
 "use client"
 
+import { useState } from "react"
+import { Camera, Edit3, Trophy, Target, Calendar, MapPin, Users, Star, Bookmark, Settings, Loader2, AlertTriangle } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
-import { playerProfile } from "@/lib/data"
-import { Trophy, Shield, Swords, BarChart2, BrainCircuit, Image as ImageIcon, Send, Sticker, Settings, Award, Medal } from "lucide-react"
-import Link from "next/link"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { EditProfileDialog } from "@/components/edit-profile-dialog"
-import Image from "next/image"
-import { cn } from "@/lib/utils"
-
-const posts = [
-  {
-    id: 'p1',
-    content: '¡Acabo de conseguir un "Winner Winner Chicken Dinner" con 15 kills! 🔥 Busco squad para el torneo de verano.',
-    timestamp: 'Hace 5 minutos'
-  },
-  {
-    id: 'p2',
-    content: 'Dominando en Erangel. ¿Alguien para unas partidas en modo Dúo esta noche? Rango As o superior.',
-    timestamp: 'Hace 2 horas'
-  }
-];
-
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { useAuth } from "@/app/auth-provider"
+import { useUserProfile, useUpdateProfile, useUploadAvatar, useUserStats, useUserAchievements } from "@/hooks/use-profile"
+import { useUserStore } from "@/store"
+import { FeedPost } from "@/components/feed-post"
+import { usePosts } from "@/hooks/use-posts"
 
 export default function ProfilePage() {
-    const isCreator = playerProfile.role === 'Creador' || playerProfile.role === 'Admin';
+  const { user } = useAuth()
+  const { user: currentUser } = useUserStore()
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [editForm, setEditForm] = useState({
+    displayName: '',
+    bio: '',
+    location: '',
+    pubgId: '',
+    rank: '',
+    favoriteWeapon: ''
+  })
+
+  const { profile, isLoading: profileLoading, error: profileError } = useUserProfile(user?.uid)
+  const { data: stats } = useUserStats(user?.uid)
+  const { data: achievements } = useUserAchievements(user?.uid)
+  const { posts, isLoading: postsLoading } = usePosts()
+  const updateProfileMutation = useUpdateProfile()
+  const uploadAvatarMutation = useUploadAvatar()
+
+  const handleEditProfile = () => {
+    if (profile) {
+      setEditForm({
+        displayName: profile.displayName || '',
+        bio: profile.bio || '',
+        location: profile.location || '',
+        pubgId: profile.pubgId || '',
+        rank: profile.rank || '',
+        favoriteWeapon: profile.favoriteWeapon || ''
+      })
+    }
+    setIsEditDialogOpen(true)
+  }
+
+  const handleSaveProfile = async () => {
+    if (!user?.uid) return
     
+    try {
+      await updateProfileMutation.mutateAsync(editForm)
+      setIsEditDialogOpen(false)
+    } catch (error) {
+      console.error('Error updating profile:', error)
+    }
+  }
+
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file || !user?.uid) return
+
+    try {
+      await uploadAvatarMutation.mutateAsync(file)
+    } catch (error) {
+      console.error('Error uploading avatar:', error)
+    }
+  }
+
+  if (profileLoading) {
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-            {/* Columna Izquierda: Perfil y Estadísticas */}
-            <div className="lg:col-span-2 space-y-8">
-                <Card className="overflow-hidden">
-                    <div className="h-24 md:h-32 bg-gradient-to-r from-primary/20 via-primary/5 to-background" />
-                    <CardContent className="p-6">
-                        <div className="flex flex-col sm:flex-row sm:items-end sm:gap-6 -mt-16 sm:-mt-20">
-                            <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 border-background ring-2 ring-primary">
-                                <AvatarImage src={playerProfile.avatarUrl} data-ai-hint="gaming character" />
-                                <AvatarFallback>{playerProfile.name.substring(0, 2)}</AvatarFallback>
-                            </Avatar>
-                            <div className="mt-4 sm:mb-2 flex-1">
-                                <div className="flex items-center gap-2">
-                                    <h1 className={cn(
-                                        "text-3xl font-bold flex items-center gap-2",
-                                        isCreator && "text-amber-500"
-                                    )}>
-                                        {isCreator && <Medal className="h-6 w-6"/>}
-                                        {playerProfile.name}
-                                    </h1>
-                                  {playerProfile.countryCode && (
-                                    <Image 
-                                      src={`https://flagsapi.com/${playerProfile.countryCode}/shiny/64.png`}
-                                      alt={`${playerProfile.countryCode} flag`}
-                                      width={24}
-                                      height={18}
-                                      className="rounded-sm"
-                                    />
-                                  )}
-                                </div>
-                                <p className="text-muted-foreground">ID: {playerProfile.id}</p>
-                                <p className="text-sm text-muted-foreground mt-2 max-w-prose">{playerProfile.bio}</p>
-                            </div>
-                            <EditProfileDialog />
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2"><BarChart2 className="h-5 w-5 text-primary" /> Estadísticas y Logros</CardTitle>
-                    </CardHeader>
-                    <CardContent className="grid gap-8 md:grid-cols-2">
-                         <div className="space-y-6">
-                            <div>
-                                <div className="flex justify-between items-center text-sm mb-1">
-                                    <span>Nivel {playerProfile.level}</span>
-                                    <span className="text-muted-foreground">Nivel {playerProfile.level+1}</span>
-                                </div>
-                                <Progress value={(playerProfile.level/100) * 100} />
-                            </div>
-                            <div>
-                                <div className="flex justify-between items-center text-sm mb-1">
-                                    <span>Victorias</span>
-                                    <span className="font-bold">{playerProfile.stats.wins}</span>
-                                </div>
-                                <Progress value={(playerProfile.stats.wins / 200) * 100} />
-                            </div>
-                            <div>
-                                <div className="flex justify-between items-center text-sm mb-1">
-                                    <span>Ratio K/D</span>
-                                    <span className="font-bold">{playerProfile.stats.kdRatio}</span>
-                                </div>
-                                <Progress value={(playerProfile.stats.kdRatio / 10) * 100} />
-                             </div>
-                        </div>
-                        <div className="space-y-3">
-                            <h4 className="font-semibold">Logros Destacados</h4>
-                            <div className="flex items-center gap-4 p-3 bg-muted/50 rounded-lg">
-                                <div className="p-2 bg-primary/10 rounded-full"><Trophy className="h-5 w-5 text-primary" /></div>
-                                <div>
-                                    <p className="font-semibold">Pollo para Cenar x50</p>
-                                    <p className="text-sm text-muted-foreground">Gana 50 partidas.</p>
-                                </div>
-                            </div>
-                             <div className="flex items-center gap-4 p-3 bg-muted/50 rounded-lg">
-                                <div className="p-2 bg-primary/10 rounded-full"><Swords className="h-5 w-5 text-primary" /></div>
-                                <div>
-                                    <p className="font-semibold">Experto en Asalto</p>
-                                    <p className="text-sm text-muted-foreground">1000 bajas con rifles de asalto.</p>
-                                </div>
-                            </div>
-                             <div className="flex items-center gap-4 p-3 bg-muted/50 rounded-lg">
-                                <div className="p-2 bg-primary/10 rounded-full"><Award className="h-5 w-5 text-primary" /></div>
-                                <div>
-                                    <p className="font-semibold">Rango Conquistador</p>
-                                    <p className="text-sm text-muted-foreground">Alcanza el máximo rango.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-                 <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2"><BrainCircuit className="h-5 w-5 text-primary"/> Análisis con IA</CardTitle>
-                        <CardDescription>Obtén un análisis detallado de tu estilo de juego, fortalezas y áreas de mejora.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <Button asChild>
-                            <Link href="/player-analysis">Analizar mi Perfil</Link>
-                        </Button>
-                    </CardContent>
-                </Card>
-            </div>
-
-            {/* Columna Derecha: Publicaciones */}
-            <div className="lg:col-span-1 space-y-6">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Crear Publicación</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="grid w-full gap-2">
-                            <Textarea placeholder="¿Qué estás pensando?" />
-                             <div className="flex justify-between items-center">
-                                <div className="flex gap-1">
-                                    <Button variant="ghost" size="icon">
-                                        <ImageIcon className="h-5 w-5 text-muted-foreground" />
-                                    </Button>
-                                    <Button variant="ghost" size="icon">
-                                        <Sticker className="h-5 w-5 text-muted-foreground" />
-                                    </Button>
-                                </div>
-                                <Button>
-                                    <Send className="mr-2 h-4 w-4"/>
-                                    Publicar
-                                </Button>
-                             </div>
-                        </div>
-                    </CardContent>
-                </Card>
-                <Card>
-                     <CardHeader>
-                        <CardTitle>Actividad Reciente</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                        {posts.map(post => (
-                             <div key={post.id} className="flex items-start gap-4">
-                                <Avatar className="h-10 w-10 border">
-                                     <AvatarImage src={playerProfile.avatarUrl} data-ai-hint="gaming character"/>
-                                     <AvatarFallback>{playerProfile.name.substring(0, 2)}</AvatarFallback>
-                                </Avatar>
-                                <div className="flex-1 bg-muted/30 p-3 rounded-lg">
-                                    <div className="flex items-center justify-between">
-                                        <p className="font-semibold">{playerProfile.name}</p>
-                                        <p className="text-xs text-muted-foreground">{post.timestamp}</p>
-                                    </div>
-                                    <p className="text-sm text-muted-foreground mt-1">{post.content}</p>
-                                </div>
-                            </div>
-                        ))}
-                    </CardContent>
-                </Card>
-            </div>
-        </div>
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
     )
+  }
+
+  if (profileError) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center space-y-2">
+          <AlertTriangle className="h-8 w-8 text-destructive mx-auto" />
+          <p className="text-destructive">Error al cargar el perfil: {profileError}</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!profile) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p>Profile not found</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="container mx-auto p-6 space-y-6">
+      {/* Profile Header */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+            <div className="relative">
+              <Avatar className="h-24 w-24">
+                <AvatarImage src={profile.photoURL || ''} />
+                <AvatarFallback>
+                  {profile.displayName?.charAt(0) || user?.email?.charAt(0) || 'U'}
+                </AvatarFallback>
+              </Avatar>
+              <label htmlFor="avatar-upload" className="absolute bottom-0 right-0 p-1 bg-primary rounded-full cursor-pointer hover:bg-primary/80">
+                <Camera className="h-4 w-4 text-primary-foreground" />
+                <input
+                  id="avatar-upload"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleAvatarUpload}
+                  disabled={uploadAvatarMutation.isPending}
+                />
+              </label>
+            </div>
+            
+            <div className="flex-1">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                  <h1 className="text-2xl font-bold">{profile.displayName || 'Anonymous Player'}</h1>
+                  <p className="text-muted-foreground">{profile.bio || 'No bio available'}</p>
+                  <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
+                    {profile.location && (
+                      <div className="flex items-center gap-1">
+                        <MapPin className="h-4 w-4" />
+                        {profile.location}
+                      </div>
+                    )}
+                    <div className="flex items-center gap-1">
+                      <Calendar className="h-4 w-4" />
+                      Joined {new Date(user?.metadata?.creationTime || '').toLocaleDateString()}
+                    </div>
+                  </div>
+                </div>
+                
+                <Button onClick={handleEditProfile} variant="outline">
+                  <Edit3 className="h-4 w-4 mr-2" />
+                  Edit Profile
+                </Button>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Stats and Content */}
+      <Tabs defaultValue="posts" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="posts">Posts</TabsTrigger>
+          <TabsTrigger value="stats">Stats</TabsTrigger>
+          <TabsTrigger value="achievements">Achievements</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="posts" className="space-y-4">
+          {postsLoading ? (
+            <div className="space-y-4">
+              {[1, 2].map((i) => (
+                <Card key={i} className="animate-pulse">
+                  <CardContent className="p-6">
+                    {/* Post header */}
+                    <div className="flex items-start gap-3 mb-4">
+                      <div className="h-10 w-10 bg-muted rounded-full flex-shrink-0" />
+                      <div className="flex-1 space-y-2">
+                        <div className="h-4 bg-muted rounded w-1/3" />
+                        <div className="h-3 bg-muted rounded w-1/4" />
+                      </div>
+                      <div className="h-6 w-6 bg-muted rounded" />
+                    </div>
+                    
+                    {/* Post content */}
+                    <div className="space-y-3 mb-4">
+                      <div className="h-4 bg-muted rounded" />
+                      <div className="h-4 bg-muted rounded w-4/5" />
+                      <div className="h-4 bg-muted rounded w-2/3" />
+                    </div>
+                    
+                    {/* Post actions */}
+                    <div className="flex items-center justify-between pt-4 border-t">
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2">
+                          <div className="h-5 w-5 bg-muted rounded" />
+                          <div className="h-4 bg-muted rounded w-8" />
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="h-5 w-5 bg-muted rounded" />
+                          <div className="h-4 bg-muted rounded w-8" />
+                        </div>
+                      </div>
+                      <div className="h-5 w-5 bg-muted rounded" />
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : posts && posts.length > 0 ? (
+            posts.map((post) => (
+              <FeedPost key={post.id} post={post} />
+            ))
+          ) : (
+            <Card>
+              <CardContent className="p-6 text-center">
+                <p className="text-muted-foreground">No posts yet</p>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+
+        <TabsContent value="stats">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">Rank</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{profile.rank || 'Unranked'}</div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">PUBG ID</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{profile.pubgId || 'Not set'}</div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">Favorite Weapon</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{profile.favoriteWeapon || 'Not set'}</div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="achievements">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {achievements && achievements.length > 0 ? (
+              achievements.map((achievement) => (
+                <Card key={achievement.id}>
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3">
+                      <Trophy className="h-8 w-8 text-yellow-500" />
+                      <div>
+                        <h3 className="font-semibold">{achievement.title}</h3>
+                        <p className="text-sm text-muted-foreground">{achievement.description}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <Card>
+                <CardContent className="p-6 text-center">
+                  <p className="text-muted-foreground">No achievements yet</p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </TabsContent>
+      </Tabs>
+
+      {/* Edit Profile Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Profile</DialogTitle>
+            <DialogDescription>
+              Update your profile information
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="displayName">Display Name</Label>
+              <Input
+                id="displayName"
+                value={editForm.displayName}
+                onChange={(e) => setEditForm(prev => ({ ...prev, displayName: e.target.value }))}
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="bio">Bio</Label>
+              <Textarea
+                id="bio"
+                value={editForm.bio}
+                onChange={(e) => setEditForm(prev => ({ ...prev, bio: e.target.value }))}
+                placeholder="Tell us about yourself..."
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="location">Location</Label>
+              <Input
+                id="location"
+                value={editForm.location}
+                onChange={(e) => setEditForm(prev => ({ ...prev, location: e.target.value }))}
+                placeholder="Your location"
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="pubgId">PUBG ID</Label>
+              <Input
+                id="pubgId"
+                value={editForm.pubgId}
+                onChange={(e) => setEditForm(prev => ({ ...prev, pubgId: e.target.value }))}
+                placeholder="Your PUBG player ID"
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="rank">Rank</Label>
+              <Select value={editForm.rank} onValueChange={(value) => setEditForm(prev => ({ ...prev, rank: value }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select your rank" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Bronze">Bronze</SelectItem>
+                  <SelectItem value="Silver">Silver</SelectItem>
+                  <SelectItem value="Gold">Gold</SelectItem>
+                  <SelectItem value="Platinum">Platinum</SelectItem>
+                  <SelectItem value="Diamond">Diamond</SelectItem>
+                  <SelectItem value="Crown">Crown</SelectItem>
+                  <SelectItem value="Ace">Ace</SelectItem>
+                  <SelectItem value="Conqueror">Conqueror</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <Label htmlFor="favoriteWeapon">Favorite Weapon</Label>
+              <Input
+                id="favoriteWeapon"
+                value={editForm.favoriteWeapon}
+                onChange={(e) => setEditForm(prev => ({ ...prev, favoriteWeapon: e.target.value }))}
+                placeholder="Your favorite weapon"
+              />
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveProfile} disabled={updateProfileMutation.isPending}>
+              {updateProfileMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  )
 }
